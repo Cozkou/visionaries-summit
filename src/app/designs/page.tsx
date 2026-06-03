@@ -12,7 +12,8 @@ export default function DesignsPage() {
           <div>
             <h1 className="text-2xl font-semibold">Design Gallery</h1>
             <p className="text-sm text-muted-foreground">
-              Six AI-generated concepts ready for review.
+              Up to six concepts — one per bestseller SKU from products.csv and
+              line_items.csv (no mock data).
             </p>
           </div>
           <Button variant="outline" render={<Link href="/generate" />}>

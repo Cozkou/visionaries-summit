@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -26,10 +26,33 @@ import type {
   TargetAudience,
 } from "@/types";
 
+function FormSkeleton() {
+  return (
+    <div
+      className="max-w-lg space-y-6 animate-pulse"
+      aria-busy="true"
+      aria-label="Loading form"
+    >
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <div className="h-4 w-28 rounded-md bg-muted" />
+          <div className="h-9 w-full rounded-lg bg-muted" />
+        </div>
+      ))}
+      <div className="h-9 w-36 rounded-lg bg-muted" />
+    </div>
+  );
+}
+
 export function GenerateForm() {
   const router = useRouter();
   const setGenerationInputs = useAppStore((s) => s.setGenerationInputs);
   const stored = useAppStore((s) => s.generationInputs);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [productType, setProductType] = useState<ProductType>(
     stored.productType
@@ -52,6 +75,10 @@ export function GenerateForm() {
     };
     setGenerationInputs(inputs);
     router.push("/designs");
+  }
+
+  if (!mounted) {
+    return <FormSkeleton />;
   }
 
   return (

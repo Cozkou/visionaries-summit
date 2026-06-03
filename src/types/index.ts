@@ -23,8 +23,40 @@ export interface Design {
   id: string;
   name: string;
   description: string;
+  /** Empty — the hackathon data pack has no product imagery. */
   imageUrl: string;
   retailPrice: number;
+  /** Historical SKU this concept is derived from (products.csv). */
+  sourceProductId?: string;
+}
+
+export interface SimilarProduct {
+  productId: string;
+  title: string;
+  revenueGbp: number;
+  unitsSold: number;
+  refundRatePercent: number;
+  sourceIds: string[];
+}
+
+export interface SourcedInsight {
+  text: string;
+  sourceIds: string[];
+}
+
+export interface SourcedMetric {
+  label: string;
+  value: string;
+  sourceIds: string[];
+  detail?: string;
+}
+
+export interface DataSourceRef {
+  id: string;
+  label: string;
+  file: string;
+  description: string;
+  githubUrl: string;
 }
 
 export interface AnalysisData {
@@ -33,6 +65,11 @@ export interface AnalysisData {
   profitPerUnit: number;
   margin: number;
   leadTimeDays: number;
-  historicalInsights: string[];
+  refundRiskPercent: number;
+  metrics: SourcedMetric[];
+  historicalInsights: SourcedInsight[];
+  similarProducts: SimilarProduct[];
+  dataSources: DataSourceRef[];
   recommendation: string;
+  recommendationSourceIds: string[];
 }

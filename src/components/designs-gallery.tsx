@@ -11,16 +11,24 @@ export function DesignsGallery() {
   const generationInputs = useAppStore((s) => s.generationInputs);
   const [designs, setDesigns] = useState<Design[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       setLoading(true);
-      const results = await generateDesigns(generationInputs);
-      if (!cancelled) {
-        setDesigns(results);
-        setLoading(false);
+      setError(null);
+      try {
+        const results = await generateDesigns(generationInputs);
+        if (!cancelled) setDesigns(results);
+      } catch {
+        if (!cancelled) {
+          setDesigns([]);
+          setError("Failed to generate designs. Please try again.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
 
@@ -32,6 +40,10 @@ export function DesignsGallery() {
 
   if (loading) {
     return <p className="text-sm text-muted-foreground">Loading concepts…</p>;
+  }
+
+  if (error) {
+    return <p className="text-sm text-destructive">{error}</p>;
   }
 
   return (

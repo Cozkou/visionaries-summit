@@ -1,0 +1,486 @@
+{
+  "brand": "Pretty Fly Control Tower",
+  "snapshotDate": "June 1, 2026",
+  "subtitle": "A 24-month operating snapshot grounded in the hackathon data pack.",
+  "hero": {
+    "headline": "Make the next 7 days less expensive.",
+    "body": "This operator copilot focuses on three decisions Pretty Fly can make right now: buy back stock coverage, stop wasting paid spend, and route support into the bot where it already wins."
+  },
+  "metrics": [
+    {
+      "label": "24-month revenue",
+      "value": 6522560.25,
+      "unit": "currency",
+      "note": "49,793 paid orders across the full dataset."
+    },
+    {
+      "label": "Variants below zero stock",
+      "value": 296,
+      "unit": "count",
+      "note": "296 of 645 variants are already underwater."
+    },
+    {
+      "label": "Reorder cost for 90-day cover",
+      "value": 466017.5,
+      "unit": "currency",
+      "note": "Restores demand coverage on active, selling variants."
+    },
+    {
+      "label": "Recoverable support hours",
+      "value": 2053.6,
+      "unit": "hours",
+      "note": "If the bot takes 25% more of human-heavy categories."
+    }
+  ],
+  "inventory": {
+    "summary": {
+      "negativeVariants": 296,
+      "netUnits": -3782,
+      "topSixReorderCost": 135383.36,
+      "topSixGrossProfit": 280685.64
+    },
+    "rows": [
+      {
+        "title": "Heavyweight Hoodie",
+        "sku": "PF-HOOD-HEAHOO-CHA-XS",
+        "collection": "Core",
+        "inventory_quantity": -88,
+        "units_60d": 8,
+        "recommended_po_units": 100,
+        "po_cost_gbp": 5383.0,
+        "potential_revenue_gbp": 17000.0,
+        "gross_profit_gbp": 11617.0,
+        "days_cover": -660.0
+      },
+      {
+        "title": "Track Hoodie",
+        "sku": "PF-HOOD-TRAHOO-WAS-XS",
+        "collection": "Core",
+        "inventory_quantity": -96,
+        "units_60d": 6,
+        "recommended_po_units": 105,
+        "po_cost_gbp": 4987.5,
+        "potential_revenue_gbp": 15750.0,
+        "gross_profit_gbp": 10762.5,
+        "days_cover": -960.0
+      },
+      {
+        "title": "Summer Knit Hoodie",
+        "sku": "PF-HOOD-SUMKNI-FAD-XS",
+        "collection": "Summer 24",
+        "inventory_quantity": -89,
+        "units_60d": 11,
+        "recommended_po_units": 106,
+        "po_cost_gbp": 4867.52,
+        "potential_revenue_gbp": 15370.0,
+        "gross_profit_gbp": 10502.48,
+        "days_cover": -485.4545454545455
+      },
+      {
+        "title": "Heavyweight Hoodie",
+        "sku": "PF-HOOD-HEAHOO-CHA-S",
+        "collection": "Core",
+        "inventory_quantity": -65,
+        "units_60d": 11,
+        "recommended_po_units": 82,
+        "po_cost_gbp": 4414.0599999999995,
+        "potential_revenue_gbp": 13940.0,
+        "gross_profit_gbp": 9525.94,
+        "days_cover": -354.54545454545456
+      },
+      {
+        "title": "Track Hoodie",
+        "sku": "PF-HOOD-TRAHOO-VIN-XS",
+        "collection": "Core",
+        "inventory_quantity": -67,
+        "units_60d": 16,
+        "recommended_po_units": 91,
+        "po_cost_gbp": 4322.5,
+        "potential_revenue_gbp": 13650.0,
+        "gross_profit_gbp": 9327.5,
+        "days_cover": -251.25
+      },
+      {
+        "title": "Sherpa Hoodie",
+        "sku": "PF-HOOD-SHEHOO-VIN-XS",
+        "collection": "Winter 24",
+        "inventory_quantity": -66,
+        "units_60d": 8,
+        "recommended_po_units": 78,
+        "po_cost_gbp": 4322.76,
+        "potential_revenue_gbp": 13650.0,
+        "gross_profit_gbp": 9327.24,
+        "days_cover": -495.0
+      },
+      {
+        "title": "Quilted Overshirt",
+        "sku": "PF-OUTE-QUIOVE-WAS-S",
+        "collection": "Autumn 24",
+        "inventory_quantity": -47,
+        "units_60d": 9,
+        "recommended_po_units": 61,
+        "po_cost_gbp": 4575.0,
+        "potential_revenue_gbp": 13725.0,
+        "gross_profit_gbp": 9150.0,
+        "days_cover": -313.33333333333337
+      },
+      {
+        "title": "Linen Blend Tee",
+        "sku": "PF-TEE-LINBLE-OFF-XS",
+        "collection": "Summer 24",
+        "inventory_quantity": -201,
+        "units_60d": 23,
+        "recommended_po_units": 236,
+        "po_cost_gbp": 4561.879999999999,
+        "potential_revenue_gbp": 13688.0,
+        "gross_profit_gbp": 9126.12,
+        "days_cover": -524.3478260869565
+      },
+      {
+        "title": "Arch Logo Tee",
+        "sku": "PF-TEE-ARCLOG-WAS-XS",
+        "collection": "Core",
+        "inventory_quantity": -223,
+        "units_60d": 23,
+        "recommended_po_units": 258,
+        "po_cost_gbp": 4471.139999999999,
+        "potential_revenue_gbp": 13416.0,
+        "gross_profit_gbp": 8944.86,
+        "days_cover": -581.7391304347826
+      },
+      {
+        "title": "Summer Knit Hoodie",
+        "sku": "PF-HOOD-SUMKNI-VIN-XS",
+        "collection": "Summer 24",
+        "inventory_quantity": -79,
+        "units_60d": 7,
+        "recommended_po_units": 90,
+        "po_cost_gbp": 4132.8,
+        "potential_revenue_gbp": 13050.0,
+        "gross_profit_gbp": 8917.2,
+        "days_cover": -677.1428571428571
+      },
+      {
+        "title": "Puffer Jacket",
+        "sku": "PF-OUTE-PUFJAC-WAS-XS",
+        "collection": "Winter 24",
+        "inventory_quantity": -33,
+        "units_60d": 6,
+        "recommended_po_units": 42,
+        "po_cost_gbp": 4129.86,
+        "potential_revenue_gbp": 12390.0,
+        "gross_profit_gbp": 8260.140000000001,
+        "days_cover": -330.0
+      },
+      {
+        "title": "Court Trainer",
+        "sku": "PF-TRAI-COUTRA-OFF-UK11",
+        "collection": "Core",
+        "inventory_quantity": -55,
+        "units_60d": 7,
+        "recommended_po_units": 66,
+        "po_cost_gbp": 4612.08,
+        "potential_revenue_gbp": 12870.0,
+        "gross_profit_gbp": 8257.92,
+        "days_cover": -471.42857142857144
+      }
+    ],
+    "topProducts": [
+      {
+        "product_id": "prod_00015",
+        "title": "Track Hoodie",
+        "collection": "Core",
+        "gender_segment": "mens",
+        "product_type": "Hoodie",
+        "inventory": -386,
+        "units_60d": 97,
+        "recommended_po_units": 533,
+        "po_cost_gbp": 25317.5,
+        "potential_revenue_gbp": 79950.0,
+        "gross_profit_gbp": 54632.5
+      },
+      {
+        "product_id": "prod_00009",
+        "title": "Arch Logo Tee",
+        "collection": "Core",
+        "gender_segment": "mens",
+        "product_type": "Tee",
+        "inventory": -1236,
+        "units_60d": 193,
+        "recommended_po_units": 1528,
+        "po_cost_gbp": 26480.239999999998,
+        "potential_revenue_gbp": 79456.0,
+        "gross_profit_gbp": 52975.76
+      },
+      {
+        "product_id": "prod_00019",
+        "title": "Linen Blend Tee",
+        "collection": "Summer 24",
+        "gender_segment": "mens",
+        "product_type": "Tee",
+        "inventory": -1043,
+        "units_60d": 185,
+        "recommended_po_units": 1322,
+        "po_cost_gbp": 25554.26,
+        "potential_revenue_gbp": 76676.0,
+        "gross_profit_gbp": 51121.740000000005
+      },
+      {
+        "product_id": "prod_00020",
+        "title": "Summer Knit Hoodie",
+        "collection": "Summer 24",
+        "gender_segment": "mens",
+        "product_type": "Hoodie",
+        "inventory": -282,
+        "units_60d": 89,
+        "recommended_po_units": 419,
+        "po_cost_gbp": 19240.48,
+        "potential_revenue_gbp": 60755.0,
+        "gross_profit_gbp": 41514.52
+      },
+      {
+        "product_id": "prod_00018",
+        "title": "Boxy Crop Tee",
+        "collection": "Summer 24",
+        "gender_segment": "mens",
+        "product_type": "Tee",
+        "inventory": -1044,
+        "units_60d": 165,
+        "recommended_po_units": 1294,
+        "po_cost_gbp": 20704.0,
+        "potential_revenue_gbp": 62112.0,
+        "gross_profit_gbp": 41408.0
+      },
+      {
+        "product_id": "prod_00010",
+        "title": "Heavyweight Hoodie",
+        "collection": "Core",
+        "gender_segment": "mens",
+        "product_type": "Hoodie",
+        "inventory": -230,
+        "units_60d": 69,
+        "recommended_po_units": 336,
+        "po_cost_gbp": 18086.879999999997,
+        "potential_revenue_gbp": 57120.0,
+        "gross_profit_gbp": 39033.12
+      }
+    ]
+  },
+  "marketing": {
+    "summary": {
+      "month": "2026-05",
+      "mer": 5.12,
+      "spend": 53530.38,
+      "revenue": 274150.09,
+      "estimatedRevenueLift90d": 20734.41
+    },
+    "rows": [
+      {
+        "campaign": "Prospecting_Mens_UK",
+        "spend": 30462.67,
+        "revenue": 109542.88,
+        "orders": 823,
+        "roas": 3.595971068852468,
+        "action": "Hold"
+      },
+      {
+        "campaign": "Retargeting_AllUsers",
+        "spend": 19643.010000000002,
+        "revenue": 66035.81,
+        "orders": 513,
+        "roas": 3.3617968936532634,
+        "action": "Hold"
+      },
+      {
+        "campaign": "Prospecting_Mens_EU",
+        "spend": 14350.91,
+        "revenue": 34000.42,
+        "orders": 255,
+        "roas": 2.369217004357215,
+        "action": "Hold"
+      },
+      {
+        "campaign": "Brand_Search_UK",
+        "spend": 14340.89,
+        "revenue": 49336.96,
+        "orders": 366,
+        "roas": 3.4402997303514637,
+        "action": "Hold"
+      },
+      {
+        "campaign": "Brand_Search_EU",
+        "spend": 5045.96,
+        "revenue": 12775.39,
+        "orders": 103,
+        "roas": 2.531805642533829,
+        "action": "Hold"
+      },
+      {
+        "campaign": "Generic_Streetwear_UK",
+        "spend": 3572.59,
+        "revenue": 8257.98,
+        "orders": 67,
+        "roas": 2.3114827058240657,
+        "action": "Hold"
+      },
+      {
+        "campaign": "Womens_Launch_Prospecting",
+        "spend": 15898.18,
+        "revenue": 20635.82,
+        "orders": 157,
+        "roas": 1.2979988904390314,
+        "action": "Pause"
+      },
+      {
+        "campaign": "Shopping_Hoodies_UK",
+        "spend": 12303.97,
+        "revenue": 45027.23,
+        "orders": 334,
+        "roas": 3.6595692284685355,
+        "action": "Scale"
+      },
+      {
+        "campaign": "Shopping_Tees_UK",
+        "spend": 8914.69,
+        "revenue": 43162.45,
+        "orders": 345,
+        "roas": 4.841721921906426,
+        "action": "Scale"
+      },
+      {
+        "campaign": "PMax_Menswear_UK",
+        "spend": 23388.54,
+        "revenue": 45714.5,
+        "orders": 347,
+        "roas": 1.9545683484304706,
+        "action": "Trim"
+      },
+      {
+        "campaign": "Brand_Awareness_UK",
+        "spend": 8207.3,
+        "revenue": 18766.21,
+        "orders": 136,
+        "roas": 2.2865266287329575,
+        "action": "Trim"
+      },
+      {
+        "campaign": "Shopping_All_EU",
+        "spend": 6193.68,
+        "revenue": 13373.759999999998,
+        "orders": 101,
+        "roas": 2.15925911574379,
+        "action": "Trim"
+      }
+    ],
+    "reallocation": {
+      "sourceCampaigns": [
+        "Womens_Launch_Prospecting",
+        "PMax_Menswear_UK",
+        "Shopping_All_EU"
+      ],
+      "targetCampaigns": [
+        "Shopping_Tees_UK",
+        "Shopping_Hoodies_UK",
+        "Prospecting_Mens_UK"
+      ],
+      "shiftSpend": 9096.08,
+      "estimatedRevenueLift90d": 20734.41
+    }
+  },
+  "support": {
+    "summary": {
+      "botResolved": 504,
+      "humanResolved": 700,
+      "botAvgMinutes": 16.86,
+      "humanAvgMinutes": 756.5
+    },
+    "rows": [
+      {
+        "category": "order_status",
+        "humanTickets": 218,
+        "botTickets": 149,
+        "humanMinutes": 771.0,
+        "botMinutes": 17.4,
+        "humanShare": 0.594,
+        "hoursSavedAt25Pct": 684.6
+      },
+      {
+        "category": "returns_exchanges",
+        "humanTickets": 104,
+        "botTickets": 83,
+        "humanMinutes": 779.4,
+        "botMinutes": 17.3,
+        "humanShare": 0.556,
+        "hoursSavedAt25Pct": 330.3
+      },
+      {
+        "category": "sizing_fit",
+        "humanTickets": 98,
+        "botTickets": 73,
+        "humanMinutes": 760.1,
+        "botMinutes": 17.1,
+        "humanShare": 0.573,
+        "hoursSavedAt25Pct": 303.4
+      },
+      {
+        "category": "discount_code",
+        "humanTickets": 91,
+        "botTickets": 56,
+        "humanMinutes": 750.3,
+        "botMinutes": 14.9,
+        "humanShare": 0.619,
+        "hoursSavedAt25Pct": 278.9
+      },
+      {
+        "category": "drop_restock",
+        "humanTickets": 81,
+        "botTickets": 58,
+        "humanMinutes": 718.2,
+        "botMinutes": 17.2,
+        "humanShare": 0.583,
+        "hoursSavedAt25Pct": 236.6
+      },
+      {
+        "category": "product_quality",
+        "humanTickets": 72,
+        "botTickets": 62,
+        "humanMinutes": 749.5,
+        "botMinutes": 16.5,
+        "humanShare": 0.537,
+        "hoursSavedAt25Pct": 219.9
+      }
+    ]
+  },
+  "insights": [
+    {
+      "title": "Inventory is the loudest problem in the pack.",
+      "detail": "Pretty Fly finishes the dataset at -3,782 net units on hand, and the top six products alone need \u00a3135.4k to recover 90-day cover."
+    },
+    {
+      "title": "Spend efficiency is drifting down while budget stays high.",
+      "detail": "MER slips from 6.36x in February 2026 to 5.12x in May 2026 with more than \u00a353k still going out the door each month."
+    },
+    {
+      "title": "The support bot is already proving the playbook.",
+      "detail": "Bot-resolved tickets average 16.9 minutes versus 756.5 minutes for human-handled tickets in the same period."
+    }
+  ],
+  "actions": [
+    {
+      "title": "Fund a core reorder first",
+      "detail": "Track Hoodie, Arch Logo Tee, Linen Blend Tee, Summer Knit Hoodie, Boxy Crop Tee, and Heavyweight Hoodie represent \u00a3280.7k of gross profit if Pretty Fly plugs the gap now."
+    },
+    {
+      "title": "Reallocate 20% of weak paid spend",
+      "detail": "Move roughly \u00a39.1k from Womens Launch Prospecting, PMax Menswear UK, and Shopping All EU into Tees, Hoodies, and Mens Prospecting for an estimated \u00a320.7k revenue lift over the next 90 days."
+    },
+    {
+      "title": "Expand bot authority where it already wins",
+      "detail": "Order status, returns, sizing, discount, restock, and product quality tickets could save about 2,054 hours if the bot captures another 25% of human volume."
+    }
+  ],
+  "footer": {
+    "validator": "All figures are derived from the provided CSV snapshot and are designed to be demo-safe, reproducible numbers.",
+    "generatedFrom": "/Users/efi/cosmin /hackathon_assets/pretty_fly_data_pack/data"
+  }
+}
