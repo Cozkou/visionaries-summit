@@ -11,6 +11,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <nav className="flex gap-4 text-sm text-muted-foreground">
             <Link href="/generate">Generate</Link>
             <Link href="/designs">Designs</Link>
+            <Link href="/china-market">China Market</Link>
           </nav>
         </div>
       </header>

@@ -1,4 +1,4 @@
-import { chinaMarketFallback } from "@/data/china-market-fallback";
+import { createChinaMarketSchema } from "@/data/china-market-schema";
 import type {
   ChinaMarketImage,
   ChinaMarketMetric,
@@ -17,6 +17,16 @@ type ImageAssetConfig = {
 
 const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 
+const NBS_URL =
+  "https://www.stats.gov.cn/english/PressRelease/202601/t20260120_1962354.html";
+const JD_URL =
+  "https://ir.jd.com/news-releases/news-release-details/jdcom-announces-fourth-quarter-and-full-year-2025-results-and";
+const ALIBABA_URL =
+  "https://www.alibabagroup.com/en-US/document-1926184987447525376";
+const CHINADAILY_URL =
+  "https://govt.chinadaily.com.cn/s/202511/28/WS69296de3498e368550338333/e-commerce-mkt-embraces-livestreaming.html";
+const BOSIDENG_URL = "https://company.bosideng.com/en/overview/brands.php";
+
 const imageAssetMap: Record<string, ImageAssetConfig> = {
   "nbs-retail-chart": {
     sourceUrl:
@@ -25,9 +35,7 @@ const imageAssetMap: Record<string, ImageAssetConfig> = {
   "alibaba-1111-hero": {
     sourceUrl:
       "https://data.alibabagroup.com/ecms-files/1532295521/582b153f-80b8-40f5-af8d-3a920fbd5feb/2025.11.11.jpg",
-    headers: {
-      "User-Agent": "Mozilla/5.0",
-    },
+    headers: { "User-Agent": "Mozilla/5.0" },
   },
   "chinadaily-douyin-graphic": {
     sourceUrl:
@@ -56,7 +64,6 @@ function readCache() {
   if (!cache || cache.expiresAt < Date.now()) {
     return null;
   }
-
   return cache.value;
 }
 
@@ -97,127 +104,173 @@ function parseNumber(value: string) {
   return Number(value.replace(/,/g, ""));
 }
 
-function updateMetric(
+function markMetricLive(
   metrics: ChinaMarketMetric[],
   id: string,
   value: number | string,
-  context?: string,
+  context: string,
+  sourceUrl: string,
+  fetchedAt: string
 ) {
   const metric = metrics.find((item) => item.id === id);
-  if (!metric) {
-    return;
-  }
+  if (!metric) return;
 
   metric.value = value;
-  if (context) {
-    metric.context = context;
-  }
+  metric.context = context;
+  metric.live = true;
+  metric.fetchedAt = fetchedAt;
+  metric.sourceUrl = sourceUrl;
 }
 
-async function enrichFromNbs(snapshot: ChinaMarketResponse) {
-  const html = await fetchText(
-    "https://www.stats.gov.cn/english/PressRelease/202601/t20260120_1962354.html",
-  );
+async function enrichFromNbs(snapshot: ChinaMarketResponse, fetchedAt: string) {
+  const html = await fetchText(NBS_URL);
   const text = htmlToText(html);
   const match = text.match(
-    /In 2025, China’s online retail sales reached ([\d,.]+) billion yuan, up by ([\d.]+)% year on year\. Specifically, the online retail sales of physical goods were ([\d,.]+) billion yuan, up by ([\d.]+)%, accounting for ([\d.]+)% of the total retail sales of consumer goods; among the online retail sales of physical goods, those of food, clothing, and daily necessities increased by ([\d.]+)%, ([\d.]+)%, and ([\d.]+)%, respectively\./i,
+    /In 2025, China’s online retail sales reached ([\d,.]+) billion yuan, up by ([\d.]+)% year on year\. Specifically, the online retail sales of physical goods were ([\d,.]+) billion yuan, up by ([\d.]+)%, accounting for ([\d.]+)% of the total retail sales of consumer goods; among the online retail sales of physical goods, those of food, clothing, and daily necessities increased by ([\d.]+)%, ([\d.]+)%, and ([\d.]+)%, respectively\./i
   );
 
   if (!match) {
     throw new Error("Could not parse NBS retail metrics");
   }
 
-  updateMetric(
+  markMetricLive(
     snapshot.metrics,
     "china-online-retail-2025",
     parseNumber(match[1]),
+    `China online retail sales in full-year 2025: ${match[1]} billion yuan, up ${match[2]}% YoY (NBS).`,
+    NBS_URL,
+    fetchedAt
   );
-  updateMetric(
+  markMetricLive(
     snapshot.metrics,
     "china-physical-goods-online-2025",
     parseNumber(match[3]),
-    `Physical-goods online retail sales in 2025, representing ${match[5]}% of total retail sales.`,
+    `Physical-goods online retail sales in 2025: ${match[3]} billion yuan, up ${match[4]}% YoY, ${match[5]}% of total retail (NBS).`,
+    NBS_URL,
+    fetchedAt
   );
-  updateMetric(
+  markMetricLive(
     snapshot.metrics,
     "china-clothing-online-growth-2025",
     parseNumber(match[7]),
+    `Online clothing sales growth in 2025: ${match[7]}% YoY (NBS).`,
+    NBS_URL,
+    fetchedAt
   );
 }
 
-async function enrichFromJd(snapshot: ChinaMarketResponse) {
-  const html = await fetchText(
-    "https://ir.jd.com/news-releases/news-release-details/jdcom-announces-fourth-quarter-and-full-year-2025-results-and",
-  );
+async function enrichFromJd(snapshot: ChinaMarketResponse, fetchedAt: string) {
+  const html = await fetchText(JD_URL);
   const text = htmlToText(html);
   const merchantsMatch = text.match(
-    /As of the end of 2025, JD Fashion’s on-demand retail service had onboarded over ([\d,]+) merchants/i,
+    /As of the end of 2025, JD Fashion’s on-demand retail service had onboarded over ([\d,]+) merchants/i
   );
 
   if (!merchantsMatch) {
     throw new Error("Could not parse JD Fashion merchant count");
   }
 
-  updateMetric(
+  const count = parseNumber(merchantsMatch[1]);
+  markMetricLive(
     snapshot.metrics,
     "jd-fashion-merchants-2025",
-    parseNumber(merchantsMatch[1]),
+    count,
+    `JD Fashion on-demand retail onboarded over ${merchantsMatch[1]} merchants by end of 2025 (JD IR).`,
+    JD_URL,
+    fetchedAt
   );
+
+  const jdCard = snapshot.channels.find((item) => item.id === "jd-fashion");
+  if (jdCard) {
+    jdCard.bullets = [
+      `JD Fashion's on-demand retail service had onboarded over ${merchantsMatch[1]} merchants by the end of 2025 (JD IR release).`,
+      "JD said the service covers apparel, footwear, underwear, beauty, and sports & outdoor.",
+      "JD named ANTA, Li-Ning, ERKE, Bosideng and XTEP among onboarded brands.",
+    ];
+  }
 }
 
-async function enrichFromAlibaba(snapshot: ChinaMarketResponse) {
-  const html = await fetchText(
-    "https://www.alibabagroup.com/en-US/document-1926184987447525376",
-  );
+async function enrichFromAlibaba(
+  snapshot: ChinaMarketResponse,
+  fetchedAt: string
+) {
+  const html = await fetchText(ALIBABA_URL);
   const text = htmlToText(html);
   const brandsMatch = text.match(
-    /Nearly ([\d,]+) brands surpassed RMB100 million in sales/i,
+    /Nearly ([\d,]+) brands surpassed RMB100 million in sales/i
   );
   const ordersMatch = text.match(
-    /daily average on-demand orders rise ([\d.]+)% versus September levels/i,
+    /daily average on-demand orders rise ([\d.]+)% versus September levels/i
   );
 
   if (!brandsMatch) {
     throw new Error("Could not parse Alibaba 11.11 brand count");
   }
 
-  updateMetric(
+  markMetricLive(
     snapshot.metrics,
     "tmall-100m-brands-1111-2025",
     parseNumber(brandsMatch[1]),
+    `Nearly ${brandsMatch[1]} brands surpassed RMB100 million in sales during 2025 11.11 (Alibaba Group).`,
+    ALIBABA_URL,
+    fetchedAt
   );
 
   const tmallCard = snapshot.channels.find((card) => card.id === "tmall-taobao");
-  if (tmallCard && ordersMatch) {
-    tmallCard.bullets[2] = `Brands using Taobao Instant Commerce saw daily on-demand orders rise ${ordersMatch[1]}% versus September.`;
+  if (tmallCard) {
+    tmallCard.bullets = [
+      "Tmall recorded its strongest 11.11 GMV growth net of refunds in four years (Alibaba Group release).",
+      `Nearly ${brandsMatch[1]} brands passed RMB100 million in sales during the 2025 festival.`,
+      ordersMatch
+        ? `Brands using Taobao Instant Commerce saw daily on-demand orders rise ${ordersMatch[1]}% versus September.`
+        : "Taobao Instant Commerce on-demand order growth cited in Alibaba 11.11 release.",
+    ];
   }
 }
 
-async function enrichFromChinaDaily(snapshot: ChinaMarketResponse) {
-  const html = await fetchText(
-    "https://govt.chinadaily.com.cn/s/202511/28/WS69296de3498e368550338333/e-commerce-mkt-embraces-livestreaming.html",
-  );
+async function enrichFromChinaDaily(
+  snapshot: ChinaMarketResponse,
+  fetchedAt: string
+) {
+  const html = await fetchText(CHINADAILY_URL);
   const text = htmlToText(html);
   const womensMatch = text.match(
-    /women's clothing is turning fiercer, with GMV surging ([\d.]+) percent year-on-year/i,
+    /women's clothing is turning fiercer, with GMV surging ([\d.]+) percent year-on-year/i
   );
 
   if (!womensMatch) {
     throw new Error("Could not parse Douyin women's apparel growth");
   }
 
-  updateMetric(
+  markMetricLive(
     snapshot.metrics,
     "douyin-womens-apparel-growth-2025",
     parseNumber(womensMatch[1]),
+    `Douyin women's clothing GMV up ${womensMatch[1]}% YoY during Singles Day period (China Daily).`,
+    CHINADAILY_URL,
+    fetchedAt
   );
+
+  const douyinCard = snapshot.channels.find(
+    (item) => item.id === "douyin-commerce"
+  );
+  if (douyinCard) {
+    douyinCard.bullets = [
+      "China Daily reported apparel and underwear ranked No. 1 on Douyin Mall.",
+      `Women's clothing GMV up ${womensMatch[1]}% year-on-year during the Singles Day period.`,
+      "Outdoor, sportswear, and footwear traffic were also reported as rising alongside GMV.",
+    ];
+  }
 }
 
-async function enrichFromBosideng(snapshot: ChinaMarketResponse) {
-  const html = await fetchText("https://company.bosideng.com/en/overview/brands.php");
+async function enrichFromBosideng(
+  snapshot: ChinaMarketResponse,
+  fetchedAt: string
+) {
+  const html = await fetchText(BOSIDENG_URL);
   const text = htmlToText(html);
   const yearsMatch = text.match(
-    /For ([\d]+) consecutive years \(1995-2024\), Bosideng brand has maintained a significant lead in the industry in terms of sales volume in China/i,
+    /For ([\d]+) consecutive years \(1995-2024\), Bosideng brand has maintained a significant lead in the industry in terms of sales volume in China/i
   );
 
   if (!yearsMatch) {
@@ -226,44 +279,54 @@ async function enrichFromBosideng(snapshot: ChinaMarketResponse) {
 
   const bosidengCard = snapshot.brands.find((item) => item.id === "bosideng");
   if (bosidengCard) {
-    bosidengCard.bullets[0] = `Bosideng says it has led China in down-apparel sales volume for ${yearsMatch[1]} consecutive years from 1995 to 2024.`;
+    bosidengCard.bullets = [
+      `Bosideng says it has led China in down-apparel sales volume for ${yearsMatch[1]} consecutive years from 1995 to 2024 (corporate site).`,
+      "The company says brand recognition and top-of-mind awareness are both leading in China's apparel industry.",
+      "Its media footprint explicitly spans WeChat, Weibo, RED, and Douyin.",
+    ];
   }
+
+  void fetchedAt;
 }
 
-export async function getChinaMarketResponse() {
+function resolveMode(snapshot: ChinaMarketResponse): ChinaMarketResponse["mode"] {
+  const liveCount = snapshot.metrics.filter((m) => m.live).length;
+  if (liveCount === 0) return "unavailable";
+  if (liveCount === snapshot.metrics.length) return "live";
+  return "partial";
+}
+
+export async function getChinaMarketResponse(): Promise<ChinaMarketResponse> {
   const cached = readCache();
   if (cached) {
     return cached;
   }
 
-  const snapshot = structuredClone(chinaMarketFallback);
-  snapshot.generatedAt = new Date().toISOString();
-  snapshot.mode = "live";
-  snapshot.failures = [];
+  const snapshot = createChinaMarketSchema();
+  const fetchedAt = new Date().toISOString();
+  snapshot.generatedAt = fetchedAt;
 
   const tasks = [
-    enrichFromNbs(snapshot),
-    enrichFromJd(snapshot),
-    enrichFromAlibaba(snapshot),
-    enrichFromChinaDaily(snapshot),
-    enrichFromBosideng(snapshot),
+    enrichFromNbs(snapshot, fetchedAt),
+    enrichFromJd(snapshot, fetchedAt),
+    enrichFromAlibaba(snapshot, fetchedAt),
+    enrichFromChinaDaily(snapshot, fetchedAt),
+    enrichFromBosideng(snapshot, fetchedAt),
   ];
 
   const results = await Promise.allSettled(tasks);
-  const failures = results
+  snapshot.failures = results
     .filter((result): result is PromiseRejectedResult => result.status === "rejected")
-    .map((result) => result.reason instanceof Error ? result.reason.message : String(result.reason));
+    .map((result) =>
+      result.reason instanceof Error ? result.reason.message : String(result.reason)
+    );
 
-  if (failures.length === results.length) {
-    return {
-      ...chinaMarketFallback,
-      generatedAt: new Date().toISOString(),
-      failures,
-    };
+  snapshot.mode = resolveMode(snapshot);
+
+  if (snapshot.mode !== "unavailable") {
+    writeCache(snapshot);
   }
 
-  snapshot.failures = failures;
-  writeCache(snapshot);
   return snapshot;
 }
 
@@ -272,5 +335,5 @@ export function getChinaMarketImageAsset(id: string): ImageAssetConfig | null {
 }
 
 export function listChinaMarketImages(): ChinaMarketImage[] {
-  return chinaMarketFallback.images;
+  return createChinaMarketSchema().images;
 }

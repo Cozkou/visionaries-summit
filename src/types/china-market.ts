@@ -1,10 +1,14 @@
 export interface ChinaMarketMetric {
   id: string;
   label: string;
-  value: number | string;
+  value: number | string | null;
   unit: "billion_rmb" | "percent" | "count" | "rank" | "text";
   context: string;
   sourceId: string;
+  /** True when value was parsed from the live source on this request. */
+  live: boolean;
+  fetchedAt: string | null;
+  sourceUrl: string | null;
 }
 
 export interface ChinaMarketSource {
@@ -42,7 +46,8 @@ export interface ChinaMarketTrend {
 export interface ChinaMarketResponse {
   market: "China";
   generatedAt: string;
-  mode: "live" | "fallback";
+  /** live = all metrics fetched; partial = some failed; unavailable = none fetched */
+  mode: "live" | "partial" | "unavailable";
   currency: "CNY";
   sources: ChinaMarketSource[];
   metrics: ChinaMarketMetric[];

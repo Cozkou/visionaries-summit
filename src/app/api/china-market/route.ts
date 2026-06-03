@@ -5,5 +5,7 @@ import { getChinaMarketResponse } from "@/lib/china-market";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  return NextResponse.json(await getChinaMarketResponse());
+  const data = await getChinaMarketResponse();
+  const status = data.mode === "unavailable" ? 503 : 200;
+  return NextResponse.json(data, { status });
 }
