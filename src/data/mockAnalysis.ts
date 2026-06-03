@@ -1,16 +1,31 @@
 import type { AnalysisData } from "@/types";
 
 export const mockAnalysis: AnalysisData = {
-  manufacturingCost: 18.4,
+  manufacturingCost: 52.25,
   recommendedRetailPrice: 95,
-  profitPerUnit: 76.6,
-  margin: 80,
-  leadTimeDays: 42,
+  profitPerUnit: 42.75,
+  margin: 45,
+  leadTimeDays: 60,
+  refundRiskPercent: 13,
+  metrics: [],
   historicalInsights: [
-    "Similar hoodie launches generated £120k revenue.",
-    "Refund rate was 7% lower than average.",
-    "Neutral colourways historically outperform bright colours.",
+    {
+      text: "Example insight from line_items.csv and products.csv.",
+      sourceIds: ["line_items", "products"],
+    },
   ],
+  similarProducts: [
+    {
+      productId: "prod_00010",
+      title: "Heavyweight Hoodie",
+      revenueGbp: 238277,
+      unitsSold: 1699,
+      refundRatePercent: 13.1,
+      sourceIds: ["line_items", "products", "refunds"],
+    },
+  ],
+  dataSources: [],
   recommendation:
-    "This concept closely matches Pretty Fly's highest-performing hoodie category. Based on historical sales and refund data, this design has strong commercial potential and healthy margins.",
+    "Example recommendation grounded in hackathon CSV data.",
+  recommendationSourceIds: ["line_items", "po_line_items"],
 };

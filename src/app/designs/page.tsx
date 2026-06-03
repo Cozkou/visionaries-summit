@@ -12,7 +12,7 @@ export default function DesignsPage() {
           <div>
             <h1 className="text-2xl font-semibold">Design Gallery</h1>
             <p className="text-sm text-muted-foreground">
-              Six AI-generated concepts ready for review.
+              Six concepts — names may be AI-generated; prices from CSV data.
             </p>
           </div>
           <Button variant="outline" render={<Link href="/generate" />}>
