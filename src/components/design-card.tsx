@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { DesignImage } from "@/components/design-image";
+import { DesignDataPanel } from "@/components/design-data-panel";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,40 +17,27 @@ import type { Design } from "@/types";
 
 interface DesignCardProps {
   design: Design;
-  index?: number;
 }
 
-export function DesignCard({ design, index = 0 }: DesignCardProps) {
+export function DesignCard({ design }: DesignCardProps) {
   const setSelectedDesign = useAppStore((s) => s.setSelectedDesign);
-  const productType = useAppStore((s) => s.generationInputs.productType);
 
   return (
     <Card>
-      <DesignImage
-        design={design}
-        index={index}
-        productType={productType}
-      />
-      <p className="px-4 pb-2 text-xs text-muted-foreground">
-        Illustrative photo (
-        <a
-          href="https://unsplash.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline"
-        >
-          Unsplash
-        </a>
-        ) — not this SKU
-      </p>
+      <DesignDataPanel design={design} className="max-w-none rounded-none border-0 border-b" />
       <CardHeader>
         <CardTitle className="text-base">{design.name}</CardTitle>
-        <CardDescription>{design.description}</CardDescription>
+        <CardDescription className="line-clamp-3">{design.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <p className="text-sm font-medium">
-          Category avg retail (line_items.csv): £{design.retailPrice}
+          Achieved retail (line_items.csv): £{design.retailPrice.toFixed(2)}
         </p>
+        {design.sourceProductId && (
+          <p className="mt-1 font-mono text-xs text-muted-foreground">
+            {design.sourceProductId}
+          </p>
+        )}
       </CardContent>
       <CardFooter>
         <Link

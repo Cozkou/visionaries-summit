@@ -41,7 +41,7 @@ export interface CategorySalesSnapshot {
   dataDrivenPriceGbp: number;
 }
 
-const SALES_CACHE_VERSION = 4;
+const SALES_CACHE_VERSION = 5;
 
 type SalesGlobal = typeof globalThis & {
   __prettyFlySalesCache?: {
@@ -279,9 +279,17 @@ function loadSalesCache() {
   return g.__prettyFlySalesCache;
 }
 
-function refundRatePercent(units: number, refunds: number): number {
+export function refundRatePercent(units: number, refunds: number): number {
   if (units <= 0) return 0;
   return Math.round((refunds / units) * 1000) / 10;
+}
+
+export function getProductSalesStat(
+  productId: string
+): ProductSalesStat | undefined {
+  const { stats } = loadSalesCache();
+  const stat = stats.get(productId);
+  return stat ? { ...stat } : undefined;
 }
 
 export function getCategorySnapshot(
@@ -306,7 +314,7 @@ export function getCategorySnapshot(
   const avgSellingPriceGbp =
     totalUnits > 0 ? Math.round(totalRevenueGbp / totalUnits) : 0;
 
-  const top = matching.slice(0, 5);
+  const top = matching.slice(0, 6);
   const anchor = top[0];
   const dataDrivenPriceGbp =
     anchor && anchor.unitsSold > 0
@@ -358,29 +366,6 @@ export function formatGbp(value: number): string {
   if (value >= 1_000_000) return `£${(value / 1_000_000).toFixed(2)}M`;
   if (value >= 1_000) return `£${Math.round(value / 1_000)}k`;
   return `£${Math.round(value)}`;
-}
-
-export function buildSalesContextForGeneration(
-  inputs: GenerationInputs
-): string {
-  const snap = getCategorySnapshot(inputs);
-  const topLines = snap.topProducts
-    .slice(0, 3)
-    .map(
-      (p, i) =>
-        `${i + 1}. ${p.title}: ${formatGbp(p.revenueGbp)} revenue, ${p.unitsSold} units, ${refundRatePercent(p.unitsSold, p.refundCount)}% refund rate`
-    )
-    .join("\n");
-
-  return `Use ONLY these verified figures from Pretty Fly CSV data (Jun 2024–Jun 2026):
-- Category revenue: ${formatGbp(snap.totalRevenueGbp)} from line_items.csv (${snap.totalUnits.toLocaleString()} units)
-- Category refund rate: ${snap.refundRiskPercent}% from refunds.csv + line_items.csv
-- Avg selling price: ${formatGbp(snap.avgSellingPriceGbp)} from line_items.csv
-- Avg landed cost: £${snap.avgLandedCostGbp} from po_line_items.csv
-- Avg supplier lead time: ${snap.avgLeadTimeDays} days from suppliers.csv + purchase_orders.csv
-Best sellers (products.csv + line_items.csv):
-${topLines || "No matches."}
-Generate concept NAMES only; prices must be ${formatGbp(snap.dataDrivenPriceGbp)} ±10%. Cite which bestseller each concept extends.`;
 }
 
 export function getSimilarProducts(

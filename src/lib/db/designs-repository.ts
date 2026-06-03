@@ -13,6 +13,7 @@ interface DesignRow {
   description: string;
   image_url: string;
   retail_price: number;
+  source_product_id: string | null;
   product_type: string;
   target_audience: string;
   business_goal: string;
@@ -28,6 +29,7 @@ function rowToStored(row: DesignRow): StoredDesign {
       description: row.description,
       imageUrl: row.image_url,
       retailPrice: row.retail_price,
+      sourceProductId: row.source_product_id ?? undefined,
     },
     inputs: {
       productType: row.product_type as GenerationInputs["productType"],
@@ -42,10 +44,10 @@ function rowToStored(row: DesignRow): StoredDesign {
 const insertStmt = () =>
   getDb().prepare(`
     INSERT INTO designs (
-      id, name, description, image_url, retail_price,
+      id, name, description, image_url, retail_price, source_product_id,
       product_type, target_audience, business_goal, style_prompt, created_at
     ) VALUES (
-      @id, @name, @description, @image_url, @retail_price,
+      @id, @name, @description, @image_url, @retail_price, @source_product_id,
       @product_type, @target_audience, @business_goal, @style_prompt, @created_at
     )
   `);
@@ -65,8 +67,9 @@ export function saveDesigns(
         id: design.id,
         name: design.name,
         description: design.description,
-        image_url: design.imageUrl,
+        image_url: design.imageUrl ?? "",
         retail_price: design.retailPrice,
+        source_product_id: design.sourceProductId ?? null,
         product_type: inputs.productType,
         target_audience: inputs.targetAudience,
         business_goal: inputs.businessGoal,

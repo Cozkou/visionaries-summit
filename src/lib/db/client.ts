@@ -19,6 +19,16 @@ CREATE TABLE IF NOT EXISTS designs (
 CREATE INDEX IF NOT EXISTS idx_designs_created_at ON designs(created_at);
 `;
 
+function migrateDesignsTable(db: Database.Database): void {
+  const columns = db
+    .prepare(`PRAGMA table_info(designs)`)
+    .all() as { name: string }[];
+  const names = new Set(columns.map((c) => c.name));
+  if (!names.has("source_product_id")) {
+    db.exec(`ALTER TABLE designs ADD COLUMN source_product_id TEXT`);
+  }
+}
+
 type DbGlobal = typeof globalThis & {
   __prettyFlyDb?: Database.Database;
 };
@@ -44,6 +54,7 @@ export function getDb(): Database.Database {
   const db = new Database(dbPath);
   db.pragma("journal_mode = WAL");
   db.exec(SCHEMA);
+  migrateDesignsTable(db);
 
   g.__prettyFlyDb = db;
   return db;

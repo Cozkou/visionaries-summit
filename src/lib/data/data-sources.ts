@@ -64,17 +64,6 @@ export const PRETTY_FLY_DATA_SOURCES: DataSourceRef[] = [
   },
 ];
 
-export const ILLUSTRATIVE_IMAGE_SOURCE: DataSourceRef = {
-  id: "unsplash",
-  label: "Unsplash (illustrative)",
-  file: "src/lib/images/remote-images.ts",
-  description:
-    "Stock photography for layout only — not a photo of this generated concept",
-  githubUrl: "https://unsplash.com",
-};
-
 export function getSourceById(id: string): DataSourceRef | undefined {
-  return [...PRETTY_FLY_DATA_SOURCES, ILLUSTRATIVE_IMAGE_SOURCE].find(
-    (s) => s.id === id
-  );
+  return PRETTY_FLY_DATA_SOURCES.find((s) => s.id === id);
 }

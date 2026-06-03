@@ -15,9 +15,8 @@ export function DataSourcesPanel({
     <section className="space-y-3 rounded-lg border bg-muted/30 p-4">
       <h2 className="text-sm font-medium">{title}</h2>
       <p className="text-xs text-muted-foreground">
-        Metrics and tables are computed from the Pretty Fly hackathon data pack
-        (24 months). Design names are AI-generated; images are illustrative
-        stock photos.
+        Metrics and tables are computed only from the Pretty Fly hackathon data
+        pack (24 months). The data pack includes no product photography.
       </p>
       <ul className="space-y-2 text-sm">
         {sources.map((source) => (

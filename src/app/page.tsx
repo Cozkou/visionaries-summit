@@ -11,8 +11,9 @@ export default function HomePage() {
           Pretty Fly Creative Director
         </h1>
         <p className="text-muted-foreground">
-          Generate AI-powered clothing concepts based on historical sales
-          performance.
+          Generate clothing concepts from Pretty Fly historical sales data (CSV
+          data pack) — revenue, costs, refunds, and lead times are all sourced
+          from real records.
         </p>
         <div>
           <Button render={<Link href="/generate" />}>Start Designing</Button>

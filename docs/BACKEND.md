@@ -7,7 +7,7 @@ Backend-only deliverable for the design generation and commercial analysis APIs.
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `POST` | `/api/auth/verify` | No | Body `{ "password" }` → `{ "token" }` for staff |
-| `POST` | `/api/designs/generate` | Yes | Generate 6 concepts (DeepSeek + web images) |
+| `POST` | `/api/designs/generate` | Yes | Generate 6 concepts from CSV bestsellers (no LLM, no stock photos) |
 | `GET` | `/api/designs/:id` | Yes | Fetch stored design |
 | `GET` | `/api/designs/:id/analysis` | Yes | Commercial analysis with hackathon data |
 
@@ -33,7 +33,7 @@ In development, if `INTERNAL_API_KEY` is unset, auth is skipped (not allowed in 
 
 ### Generate response
 
-Array of `Design` objects (`id`, `name`, `description`, `imageUrl`, `retailPrice`).
+Array of `Design` objects (`id`, `name`, `description`, `imageUrl` always empty, `retailPrice`, `sourceProductId`).
 
 ## Stack
 
@@ -67,11 +67,10 @@ npm run dev
 ```
 src/lib/db/                    # SQLite schema + repository
 src/lib/auth/                  # API key guard
-src/lib/ai/                    # DeepSeek concepts + recommendations
-src/lib/images/                # Remote product photos (Unsplash)
-src/lib/data/pretty-fly-insights.ts
+src/lib/data/sales-analytics.ts  # CSV metrics (line_items, products, refunds, POs)
+src/lib/generate-designs.ts      # Data-only concept builder
 src/lib/design-generation.ts   # Orchestrates generate pipeline
-src/lib/analyze-design.ts      # Metrics + insights + LLM recommendation
+src/lib/analyze-design.ts      # Metrics + insights from CSV only
 src/app/api/designs/           # Route handlers
 src/app/api/auth/verify/       # Staff token exchange
 ```

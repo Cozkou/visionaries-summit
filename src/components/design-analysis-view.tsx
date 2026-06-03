@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { DataSourcesPanel } from "@/components/data-sources-panel";
-import { DesignImage } from "@/components/design-image";
+import { DesignDataPanel } from "@/components/design-data-panel";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,7 +30,6 @@ export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
   const analysisData = useAppStore((s) => s.analysisData);
   const setSelectedDesign = useAppStore((s) => s.setSelectedDesign);
   const setAnalysisData = useAppStore((s) => s.setAnalysisData);
-  const productType = useAppStore((s) => s.generationInputs.productType);
 
   const [design, setDesign] = useState<Design | null>(
     selectedDesign?.id === designId ? selectedDesign : null
@@ -130,34 +129,13 @@ export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
   return (
     <div className="space-y-10">
       <section className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-2">
-          <div className="relative aspect-square w-full max-w-md overflow-hidden bg-muted">
-            <DesignImage
-              design={design}
-              productType={productType}
-              fill
-              className="object-cover"
-            />
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Illustrative stock image (Unsplash) — not a Pretty Fly product
-            photo.{" "}
-            <a
-              href="https://unsplash.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
-              Source
-            </a>
-          </p>
-        </div>
+        <DesignDataPanel design={design} />
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold">{design.name}</h1>
           <p className="text-muted-foreground">{design.description}</p>
           <p className="text-xs text-muted-foreground">
-            Concept name/description may be AI-generated; commercial figures
-            below are from CSV data only.
+            Metrics use this concept&apos;s source SKU when available; category
+            tables and insights are from the same CSV data pack.
           </p>
         </div>
       </section>

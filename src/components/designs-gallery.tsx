@@ -48,8 +48,8 @@ export function DesignsGallery() {
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {designs.map((design, index) => (
-        <DesignCard key={design.id} design={design} index={index} />
+      {designs.map((design) => (
+        <DesignCard key={design.id} design={design} />
       ))}
     </div>
   );

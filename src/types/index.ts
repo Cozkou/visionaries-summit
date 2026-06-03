@@ -23,8 +23,11 @@ export interface Design {
   id: string;
   name: string;
   description: string;
+  /** Empty — the hackathon data pack has no product imagery. */
   imageUrl: string;
   retailPrice: number;
+  /** Historical SKU this concept is derived from (products.csv). */
+  sourceProductId?: string;
 }
 
 export interface SimilarProduct {
