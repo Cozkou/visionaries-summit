@@ -413,7 +413,8 @@
 }
 
 .hero-viewport-units {
-  gap: clamp(3.5rem, 14vw, 9rem);
+  gap: clamp(4.25rem, 16vw, 10.5rem);
+  margin-top: 0.35rem;
 }
 
 /* Odometer: one digit visible; strip is out of flow so layout stays one line */

@@ -52,8 +52,8 @@ export function CountdownSection({ releaseAt }: CountdownSectionProps) {
       className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden"
       style={{ backgroundColor: "#f7f6f3" }}
     >
-      <div className="flex min-w-0 overflow-visible pb-4 pl-[6vw] md:pb-6 md:pl-[8vw]">
-        <div className="flex min-w-0 items-center">
+      <div className="flex min-w-0 overflow-visible pb-10 pl-[6vw] pr-[4vw] md:pb-14 md:pl-[8vw] md:pr-[6vw] lg:pb-20">
+        <div className="flex min-w-0 items-end gap-10 md:gap-14 lg:gap-20">
           <ScrollReveal variant="left" delay={60}>
             <span
               aria-hidden
@@ -64,10 +64,17 @@ export function CountdownSection({ releaseAt }: CountdownSectionProps) {
             </span>
           </ScrollReveal>
 
-          <span className="mx-8 h-full max-h-[min(72vh,32rem)] w-px shrink-0 self-center bg-slate-400/30 md:mx-10" />
+          <span
+            aria-hidden
+            className="h-[min(65vh,28rem)] w-px shrink-0 self-end bg-slate-400/30"
+          />
 
-          <ScrollReveal variant="up" delay={160} className="flex w-fit max-w-full flex-col overflow-visible">
-            <p className="hero-viewport-label mb-5 font-bold text-slate-500 uppercase md:mb-6">
+          <ScrollReveal
+            variant="up"
+            delay={160}
+            className="flex w-fit max-w-full flex-col gap-8 overflow-visible md:gap-10 lg:gap-12"
+          >
+            <p className="hero-viewport-label font-bold text-slate-500 uppercase">
               {active ? "Early access closes in:" : "Early access closed"}
             </p>
 
@@ -78,7 +85,7 @@ export function CountdownSection({ releaseAt }: CountdownSectionProps) {
                 aria-atomic="true"
               >
                 <OdometerPair value={minutes} />
-                <span className="countdown-colon mx-1.5 text-slate-300 md:mx-2" aria-hidden>
+                <span className="countdown-colon mx-2 text-slate-300 md:mx-3" aria-hidden>
                   :
                 </span>
                 <OdometerPair value={seconds} />
@@ -87,7 +94,7 @@ export function CountdownSection({ releaseAt }: CountdownSectionProps) {
               <DropCountdown releaseAt={releaseAt} variant="hero" />
             )}
 
-            <div className="hero-viewport-units mt-5 flex md:mt-6">
+            <div className="hero-viewport-units flex">
               <span className="hero-viewport-sublabel font-bold text-slate-400 uppercase">
                 min
               </span>
@@ -96,7 +103,7 @@ export function CountdownSection({ releaseAt }: CountdownSectionProps) {
               </span>
             </div>
 
-            <p className="hero-viewport-copy mt-7 max-w-lg text-slate-400 md:mt-8 lg:max-w-xl">
+            <p className="hero-viewport-copy max-w-lg text-slate-400 lg:max-w-xl">
               Every concept is scored on real sales, returns, and demand. Only the top
               performers become limited early releases.
             </p>
