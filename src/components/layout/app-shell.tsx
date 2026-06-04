@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { SkyBackground } from "@/components/atmosphere/sky-background";
 
-/** Legacy shell — jacket showcase and other non-internal routes */
+/** Legacy shell — jacket showcase, control tower, and other non-dashboard routes */
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen text-slate-900">
@@ -12,20 +12,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link href="/internal" className="text-sm font-semibold text-sky-700">
             Pretty Fly Creative Director
           </Link>
-<<<<<<< HEAD
-          <nav className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <Link href="/control-tower">Control Tower</Link>
-            <Link href="/generate">Creative Director</Link>
-            <Link href="/china-market">China</Link>
-=======
-          <nav className="flex gap-5 text-sm text-slate-600">
-            <Link href="/internal" className="transition-colors hover:text-slate-900">
+          <nav className="flex flex-wrap gap-5 text-sm text-slate-600">
+            <Link
+              href="/internal"
+              className="transition-colors hover:text-slate-900"
+            >
               Internal
             </Link>
-            <Link href="/generate" className="transition-colors hover:text-slate-900">
+            <Link
+              href="/dashboard"
+              className="transition-colors hover:text-slate-900"
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/generate"
+              className="transition-colors hover:text-slate-900"
+            >
               Generate
             </Link>
->>>>>>> 28c6054d6649a4f93118bfd516dd7e7929eb9596
+            <Link
+              href="/control-tower"
+              className="transition-colors hover:text-slate-900"
+            >
+              Control Tower
+            </Link>
           </nav>
         </div>
       </header>
