@@ -62,6 +62,34 @@ export const PRETTY_FLY_DATA_SOURCES: DataSourceRef[] = [
     description: "Supplier lead times (days)",
     githubUrl: `${REPO_URL}/blob/main/hackathon_assets/pretty_fly_data_pack/data/suppliers.csv`,
   },
+  {
+    id: "google_ads_daily",
+    label: "Google Ads daily",
+    file: "data/google_ads_daily.csv",
+    description: "Paid search spend and conversion value",
+    githubUrl: `${REPO_URL}/blob/main/hackathon_assets/pretty_fly_data_pack/data/google_ads_daily.csv`,
+  },
+  {
+    id: "meta_ads_daily",
+    label: "Meta Ads daily",
+    file: "data/meta_ads_daily.csv",
+    description: "Paid social spend and conversion value",
+    githubUrl: `${REPO_URL}/blob/main/hackathon_assets/pretty_fly_data_pack/data/meta_ads_daily.csv`,
+  },
+  {
+    id: "support_tickets",
+    label: "Support tickets",
+    file: "data/support_tickets.csv",
+    description: "Resolution times and bot vs human handling",
+    githubUrl: `${REPO_URL}/blob/main/hackathon_assets/pretty_fly_data_pack/data/support_tickets.csv`,
+  },
+  {
+    id: "orders",
+    label: "Orders",
+    file: "data/orders.csv",
+    description: "Order totals and paid revenue",
+    githubUrl: `${REPO_URL}/blob/main/hackathon_assets/pretty_fly_data_pack/data/orders.csv`,
+  },
 ];
 
 export function getSourceById(id: string): DataSourceRef | undefined {

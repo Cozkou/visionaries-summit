@@ -1,41 +1,44 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
-import {
-  CURRENT_EARLY_RELEASE,
-  STORAGE_KEYS,
-} from "@/components/store/early-release-data";
+import type { CatalogProduct } from "@/lib/store/catalog-types";
 import { cn } from "@/lib/utils";
+
+const SIZES = ["S", "M", "L", "XL"] as const;
+const STORAGE_KEYS = {
+  upvoted: "pf-early-release-upvoted",
+  preordered: "pf-early-release-preordered",
+  size: "pf-early-release-size",
+} as const;
 
 function formatCount(n: number) {
   return n.toLocaleString("en-GB");
 }
 
-export function CurrentEarlyReleaseSection() {
-  const drop = CURRENT_EARLY_RELEASE;
+interface Props {
+  featured: CatalogProduct;
+}
+
+export function CurrentEarlyReleaseSection({ featured }: Props) {
   const [hydrated, setHydrated] = useState(false);
   const [upvoted, setUpvoted] = useState(false);
   const [preordered, setPreordered] = useState(false);
-  const [size, setSize] = useState<string>(drop.sizes[1]);
+  const [size, setSize] = useState<string>(SIZES[1]);
   const [preorderPending, setPreorderPending] = useState(false);
 
   useEffect(() => {
     setUpvoted(localStorage.getItem(STORAGE_KEYS.upvoted) === "1");
     setPreordered(localStorage.getItem(STORAGE_KEYS.preordered) === "1");
     const savedSize = localStorage.getItem(STORAGE_KEYS.size);
-    if (
-      savedSize &&
-      (CURRENT_EARLY_RELEASE.sizes as readonly string[]).includes(savedSize)
-    ) {
+    if (savedSize && (SIZES as readonly string[]).includes(savedSize)) {
       setSize(savedSize);
     }
     setHydrated(true);
   }, []);
 
-  const upvoteCount = drop.baseUpvotes + (upvoted ? 1 : 0);
-  const preorderCount = drop.basePreorders + (preordered ? 1 : 0);
+  const localUpvotes = upvoted ? 1 : 0;
+  const localPreorders = preordered ? 1 : 0;
 
   function toggleUpvote() {
     const next = !upvoted;
@@ -55,6 +58,8 @@ export function CurrentEarlyReleaseSection() {
     }, 500);
   }
 
+  const description = `${featured.unitsSold.toLocaleString()} units sold in the pack · ${featured.collection} · inventory ${featured.inventory.toLocaleString()} (variants.csv)`;
+
   return (
     <section
       id="current-release"
@@ -63,37 +68,34 @@ export function CurrentEarlyReleaseSection() {
     >
       <div className="mx-auto max-w-3xl">
         <p className="mb-4 text-[10px] font-semibold tracking-[0.22em] text-slate-400 uppercase">
-          Current early release
+          Current early release · from data pack
         </p>
 
         <div className="flex flex-col gap-5 border border-slate-200/90 bg-white p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5">
-          <div className="relative h-24 w-20 shrink-0 sm:h-28 sm:w-24">
-            <Image
-              src={drop.image}
-              alt={drop.name}
-              fill
-              sizes="96px"
-              className="object-contain object-center"
-            />
+          <div className="flex h-24 w-20 shrink-0 items-end justify-center rounded-sm bg-[#f7f6f3] p-3 sm:h-28 sm:w-24">
+            <span className="font-street text-[10px] uppercase leading-tight tracking-[0.12em] text-slate-800">
+              {featured.productType}
+            </span>
           </div>
 
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h2 className="text-[13px] font-medium text-slate-900">{drop.name}</h2>
+              <h2 className="text-[13px] font-medium text-slate-900">{featured.name}</h2>
               <span className="shrink-0 text-[13px] font-semibold tabular-nums text-slate-900">
-                £{drop.preorderPrice}
-                <span className="ml-1.5 text-[11px] font-normal text-slate-400 line-through">
-                  £{drop.retailPrice}
-                </span>
+                £{featured.price}
               </span>
             </div>
 
-            <p className="mt-1.5 font-mono text-[11px] tabular-nums text-slate-500">
+            <p className="mt-1.5 text-[11px] leading-snug text-slate-500">{description}</p>
+
+            <p className="mt-1 font-mono text-[11px] tabular-nums text-slate-500">
               {hydrated ? (
                 <>
-                  {formatCount(upvoteCount)} upvotes
+                  {formatCount(localUpvotes)} session upvote
+                  {localUpvotes !== 1 ? "s" : ""}
                   <span className="mx-2 text-slate-300">·</span>
-                  {formatCount(preorderCount)} preordered
+                  {formatCount(localPreorders)} session preorder
+                  {localPreorders !== 1 ? "s" : ""}
                 </>
               ) : (
                 "—"
@@ -101,7 +103,7 @@ export function CurrentEarlyReleaseSection() {
             </p>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              {drop.sizes.map((s) => (
+              {SIZES.map((s) => (
                 <button
                   key={s}
                   type="button"
@@ -151,14 +153,6 @@ export function CurrentEarlyReleaseSection() {
             </button>
           </div>
         </div>
-
-        {preordered && (
-          <p className="mt-3 text-center text-[11px] text-slate-500">
-            Size {size} reserved
-            {preorderCount > 1 &&
-              ` · ${formatCount(preorderCount - 1)} others preordered`}
-          </p>
-        )}
       </div>
     </section>
   );

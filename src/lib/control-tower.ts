@@ -1,13 +1,14 @@
-import rawSnapshot from "@/data/pretty-fly-dashboard.json";
+import { getBuiltControlTowerSnapshot } from "@/lib/data/control-tower-build";
 import type {
-  DashboardSnapshot,
   InventoryProduct,
   InventoryRow,
   MarketingRow,
   SupportRow,
 } from "@/types/dashboard";
 
-const snapshot = rawSnapshot as DashboardSnapshot;
+function snapshot() {
+  return getBuiltControlTowerSnapshot();
+}
 
 export type MarketingAction = MarketingRow["action"];
 
@@ -83,26 +84,28 @@ function sortSupportRows(rows: SupportRow[]) {
 }
 
 export function getControlTowerSnapshot() {
-  return snapshot;
+  return snapshot();
 }
 
 export function getControlTowerOverview() {
+  const s = snapshot();
   return {
-    brand: snapshot.brand,
-    snapshotDate: snapshot.snapshotDate,
-    subtitle: snapshot.subtitle,
-    hero: snapshot.hero,
-    metrics: snapshot.metrics,
-    insights: snapshot.insights,
-    footer: snapshot.footer,
+    brand: s.brand,
+    snapshotDate: s.snapshotDate,
+    subtitle: s.subtitle,
+    hero: s.hero,
+    metrics: s.metrics,
+    insights: s.insights,
+    footer: s.footer,
   };
 }
 
 export function getControlTowerActions() {
+  const s = snapshot();
   return {
-    actions: snapshot.actions,
-    insights: snapshot.insights,
-    marketingReallocation: snapshot.marketing.reallocation,
+    actions: s.actions,
+    insights: s.insights,
+    marketingReallocation: s.marketing.reallocation,
   };
 }
 
@@ -111,7 +114,8 @@ export function getInventoryRecommendations(query: InventoryQuery = {}) {
   const productType = query.productType ? normalize(query.productType) : undefined;
   const limit = clampLimit(query.limit, 12, 50);
 
-  const filteredRows = sortInventoryRows(snapshot.inventory.rows).filter((row) => {
+  const s = snapshot();
+  const filteredRows = sortInventoryRows(s.inventory.rows).filter((row) => {
     const matchesCollection = collection
       ? normalize(row.collection) === collection
       : true;
@@ -123,7 +127,7 @@ export function getInventoryRecommendations(query: InventoryQuery = {}) {
     return matchesCollection && matchesProductType;
   });
 
-  const filteredProducts = sortInventoryProducts(snapshot.inventory.topProducts).filter(
+  const filteredProducts = sortInventoryProducts(s.inventory.topProducts).filter(
     (row) => {
       const matchesCollection = collection
         ? normalize(row.collection) === collection
@@ -137,13 +141,13 @@ export function getInventoryRecommendations(query: InventoryQuery = {}) {
   );
 
   return {
-    summary: snapshot.inventory.summary,
+    summary: s.inventory.summary,
     filters: {
       collection: query.collection ?? null,
       productType: query.productType ?? null,
-      availableCollections: [...new Set(snapshot.inventory.rows.map((row) => row.collection))],
+      availableCollections: [...new Set(s.inventory.rows.map((row) => row.collection))],
       availableProductTypes: [
-        ...new Set(snapshot.inventory.topProducts.map((row) => row.product_type)),
+        ...new Set(s.inventory.topProducts.map((row) => row.product_type)),
       ],
       limit,
     },
@@ -156,13 +160,14 @@ export function getMarketingTriage(query: MarketingQuery = {}) {
   const limit = clampLimit(query.limit, 12, 50);
   const action = query.action;
 
-  const filteredRows = sortMarketingRows(snapshot.marketing.rows).filter((row) =>
+  const s = snapshot();
+  const filteredRows = sortMarketingRows(s.marketing.rows).filter((row) =>
     action ? row.action === action : true,
   );
 
   return {
-    summary: snapshot.marketing.summary,
-    reallocation: snapshot.marketing.reallocation,
+    summary: s.marketing.summary,
+    reallocation: s.marketing.reallocation,
     filters: {
       action: action ?? null,
       availableActions: ["Pause", "Trim", "Hold", "Scale"] as MarketingAction[],
@@ -176,15 +181,16 @@ export function getSupportAutomation(query: SupportQuery = {}) {
   const limit = clampLimit(query.limit, 6, 25);
   const category = query.category ? normalize(query.category) : undefined;
 
-  const filteredRows = sortSupportRows(snapshot.support.rows).filter((row) =>
+  const s = snapshot();
+  const filteredRows = sortSupportRows(s.support.rows).filter((row) =>
     category ? normalize(row.category) === category : true,
   );
 
   return {
-    summary: snapshot.support.summary,
+    summary: s.support.summary,
     filters: {
       category: query.category ?? null,
-      availableCategories: snapshot.support.rows.map((row) => row.category),
+      availableCategories: s.support.rows.map((row) => row.category),
       limit,
     },
     rows: filteredRows.slice(0, limit),

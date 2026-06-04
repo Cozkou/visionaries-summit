@@ -7,7 +7,7 @@ export default function DesignConceptsPage() {
   return (
     <DashboardSection
       title="Design concepts"
-      description="AI-generated pieces ready for review and analysis."
+      description="CSV-grounded concepts ready for review and analysis."
     >
       <div className="flex justify-end">
         <Link

@@ -11,8 +11,8 @@ const STEPS = [
   },
   {
     step: "02",
-    title: "Generate with AI",
-    body: "Concepts are drafted against bestseller silhouettes, colourways, and price bands that already convert.",
+    title: "Generate from bestsellers",
+    body: "Concepts are drafted from real SKUs in products.csv — revenue, refunds, and achieved prices from the data pack.",
   },
   {
     step: "03",

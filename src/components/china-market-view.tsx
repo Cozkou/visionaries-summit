@@ -140,7 +140,7 @@ export function ChinaMarketView() {
           <p className="max-w-2xl text-sm text-muted-foreground">
             Metrics are parsed live from official press releases and corporate
             pages (NBS, JD.com IR, Alibaba Group, China Daily, Bosideng). No
-            static fallback numbers — values stay empty until a source fetch
+            live sources only — values stay empty until a source fetch succeeds
             succeeds.
           </p>
           <p className="text-xs text-muted-foreground">

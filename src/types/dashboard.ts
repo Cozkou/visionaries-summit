@@ -67,6 +67,8 @@ export interface DashboardSnapshot {
     summary: {
       negativeVariants: number;
       netUnits: number;
+      /** Total PO cost to restore 90-day cover on negative-stock variants. */
+      reorderCost90d: number;
       topSixReorderCost: number;
       topSixGrossProfit: number;
     };

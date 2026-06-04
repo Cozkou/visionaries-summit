@@ -83,7 +83,8 @@ function parseCsvLine(line: string): string[] {
   return result;
 }
 
-function readCsv(fileName: string): string[][] {
+/** Shared CSV reader for analytics modules (control tower, catalog, etc.). */
+export function readDataCsv(fileName: string): string[][] {
   const filePath = path.join(DATA_DIR, fileName);
   if (!fs.existsSync(filePath)) return [];
 
@@ -140,7 +141,7 @@ function loadSalesCache() {
   const stats = new Map<string, ProductSalesStat>();
   const variantToProduct = new Map<string, string>();
 
-  for (const row of readCsv("products.csv")) {
+  for (const row of readDataCsv("products.csv")) {
     const [productId, title, , , productType, , collection, genderSegment] = row;
     if (!productId) continue;
     products.set(productId, {
@@ -163,14 +164,14 @@ function loadSalesCache() {
     });
   }
 
-  for (const row of readCsv("variants.csv")) {
+  for (const row of readDataCsv("variants.csv")) {
     const [variantId, productId] = row;
     if (variantId && productId) variantToProduct.set(variantId, productId);
   }
 
   const orderToProducts = new Map<string, string[]>();
 
-  for (const row of readCsv("line_items.csv")) {
+  for (const row of readDataCsv("line_items.csv")) {
     const orderId = row[1];
     const productId = row[3];
     const quantity = Number(row[5]) || 0;
@@ -190,7 +191,7 @@ function loadSalesCache() {
     stat.unitsSold += quantity;
   }
 
-  for (const row of readCsv("refunds.csv")) {
+  for (const row of readDataCsv("refunds.csv")) {
     const orderId = row[1];
     const amount = Number(row[3]) || 0;
     const variantIds = parseRefundVariants(row[5] ?? "");
@@ -219,19 +220,19 @@ function loadSalesCache() {
   }
 
   const poToSupplier = new Map<string, string>();
-  for (const row of readCsv("purchase_orders.csv")) {
+  for (const row of readDataCsv("purchase_orders.csv")) {
     if (row[0] && row[1]) poToSupplier.set(row[0], row[1]);
   }
 
   const supplierLeadDays = new Map<string, number>();
-  for (const row of readCsv("suppliers.csv")) {
+  for (const row of readDataCsv("suppliers.csv")) {
     if (row[0]) supplierLeadDays.set(row[0], Number(row[4]) || 0);
   }
 
   const productLanded = new Map<string, { cost: number; qty: number }>();
   const productLead = new Map<string, { days: number; qty: number }>();
 
-  for (const row of readCsv("po_line_items.csv")) {
+  for (const row of readDataCsv("po_line_items.csv")) {
     const poId = row[1];
     const variantId = row[2];
     const qty = Number(row[4]) || 0;

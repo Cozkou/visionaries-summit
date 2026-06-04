@@ -3,12 +3,24 @@
 import { useEffect, useRef, useState } from "react";
 
 import { ProductCard } from "@/components/store/product-card";
-import { CATEGORIES, PRODUCTS } from "@/components/store/products";
+import { CATEGORIES, type Product } from "@/components/store/products";
 
 export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    fetch("/api/catalog")
+      .then((r) => r.json())
+      .then((data: { products: Product[] }) => setProducts(data.products ?? []))
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
+  }, [open]);
 
   useEffect(() => {
     if (open) {
@@ -30,7 +42,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  const filtered = PRODUCTS.filter((p) => {
+  const filtered = products.filter((p) => {
     const matchCat = activeCategory === "All" || p.category === activeCategory;
     const matchQ =
       query.trim() === "" ||
@@ -91,12 +103,14 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 py-6 md:px-10">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <p className="mt-10 text-center text-[14px] text-neutral-400">Loading catalogue…</p>
+        ) : filtered.length === 0 ? (
           <p className="mt-10 text-center text-[14px] text-neutral-400">No products found.</p>
         ) : (
           <>
             <p className="mb-5 text-[11px] font-semibold tracking-[0.18em] text-neutral-400 uppercase">
-              {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+              {filtered.length} result{filtered.length !== 1 ? "s" : ""} · products.csv
             </p>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               {filtered.map((p) => (

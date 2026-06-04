@@ -1,15 +1,18 @@
 # Pretty Fly Creative Director — Backend
 
-Backend-only deliverable for the design generation and commercial analysis APIs.
+Backend deliverable for design generation, commercial analysis, and operator control tower.
 
 ## Endpoints
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `POST` | `/api/auth/verify` | No | Body `{ "password" }` → `{ "token" }` for staff |
-| `POST` | `/api/designs/generate` | Yes | Generate 6 concepts from CSV bestsellers (no LLM, no stock photos) |
+| `POST` | `/api/designs/generate` | Yes | Up to 6 concepts from CSV bestsellers (no LLM) |
 | `GET` | `/api/designs/:id` | Yes | Fetch stored design |
-| `GET` | `/api/designs/:id/analysis` | Yes | Commercial analysis with hackathon data |
+| `GET` | `/api/designs/:id/analysis` | Yes | Commercial analysis with hackathon CSV metrics |
+| `GET` | `/api/control-tower/*` | No | Operator snapshot built live from data pack |
+| `GET` | `/api/catalog` | No | Store catalogue from `products.csv` + sales stats |
+| `GET` | `/api/china-market` | No | Live China research fetch |
 
 ### Auth
 
@@ -20,63 +23,25 @@ Send either header on protected routes:
 
 In development, if `INTERNAL_API_KEY` is unset, auth is skipped (not allowed in production).
 
-### Generate request body
-
-```json
-{
-  "productType": "Hoodie",
-  "targetAudience": "Menswear",
-  "businessGoal": "Maximize Revenue",
-  "stylePrompt": "vintage wash, neutral palette"
-}
-```
-
-### Generate response
-
-Array of `Design` objects (`id`, `name`, `description`, `imageUrl` always empty, `retailPrice`, `sourceProductId`).
-
 ## Stack
 
 | Layer | Implementation |
 |-------|----------------|
 | Persistence | SQLite (`data/pretty-fly.db`) |
-| Auth | API key + optional staff password exchange |
-| AI text | **DeepSeek** (`deepseek-chat` default) |
-| Product images | **Unsplash CDN** by product type (no API key) |
-| Historical data | `src/data/pretty-fly-dashboard.json` (hackathon pack) |
+| Design / analysis | `sales-analytics.ts` — line_items, products, refunds, POs, suppliers |
+| Control tower | `control-tower-build.ts` — variants, ads CSVs, support_tickets |
+| Storefront catalog | `catalog.ts` — products.csv + variant inventory |
+| Publish | SQLite early-release listing; optional WooCommerce when configured |
+| China market | Live HTTP from official sources (no static fallback file) |
 
-Without `DEEPSEEK_API_KEY`, text generation falls back to templates. Each concept gets a photo URL from Unsplash. Set `IMAGE_SOURCE=loremflickr` for Flickr-based variety.
-
-### DeepSeek
-
-Set `DEEPSEEK_API_KEY` from [DeepSeek API](https://platform.deepseek.com/). The HTTP client uses `https://api.deepseek.com`. Override the model with `LLM_TEXT_MODEL` (e.g. `deepseek-chat`, `deepseek-v4-flash`).
-
-The `openai` npm package is only used as an HTTP client for DeepSeek’s OpenAI-compatible API — **OpenAI is not called**.
+Concepts have empty `imageUrl` (data pack has no photography). Publish does not use placeholder images.
 
 ## Setup
 
 ```bash
 cp backend.env.example .env.local
-# Edit .env.local — set INTERNAL_API_KEY, STAFF_PASSWORD, DEEPSEEK_API_KEY
 npm install
 npm run dev
 ```
 
-## Key files (backend)
-
-```
-src/lib/db/                    # SQLite schema + repository
-src/lib/auth/                  # API key guard
-src/lib/data/sales-analytics.ts  # CSV metrics (line_items, products, refunds, POs)
-src/lib/generate-designs.ts      # Data-only concept builder
-src/lib/design-generation.ts   # Orchestrates generate pipeline
-src/lib/analyze-design.ts      # Metrics + insights from CSV only
-src/app/api/designs/           # Route handlers
-src/app/api/auth/verify/       # Staff token exchange
-```
-
-## Production notes
-
-- Set `INTERNAL_API_KEY` before deploy (required).
-- Use a managed Postgres or Supabase instead of SQLite if you run multiple instances.
-- Add monitoring around DeepSeek API failures (logs go to server console today).
+Data pack path: `hackathon_assets/pretty_fly_data_pack/data/`

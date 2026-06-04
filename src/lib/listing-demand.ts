@@ -1,4 +1,4 @@
-import { getCommerceAdapter } from "@/lib/commerce";
+import { getCommerceAdapter, isCommerceConfigured } from "@/lib/commerce";
 import { CommerceConfigError, CommerceRequestError } from "@/lib/commerce/types";
 import {
   ConceptListing,
@@ -26,7 +26,11 @@ export async function getListingDemandForDesign(
   let listing = getListingByDesignId(designId);
   if (!listing) return null;
 
-  if (!options.skipRemoteSync && listing.wooProductId) {
+  if (
+    !options.skipRemoteSync &&
+    listing.wooProductId &&
+    isCommerceConfigured()
+  ) {
     try {
       const adapter = getCommerceAdapter();
       const remote = await adapter.getProduct(listing.wooProductId);

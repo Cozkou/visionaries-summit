@@ -42,7 +42,7 @@ export interface RemoteOrder {
 }
 
 export interface CommerceAdapter {
-  readonly providerId: "woocommerce" | "shopify" | "mock";
+  readonly providerId: "woocommerce" | "shopify";
   createDraftProduct(input: CreateDraftProductInput): Promise<RemoteProduct>;
   updateProductStatus(productId: number, status: ListingStatus): Promise<RemoteProduct>;
   getProduct(productId: number): Promise<RemoteProduct | null>;

@@ -1,9 +1,8 @@
-import { getCommerceAdapter } from "@/lib/commerce";
+import { getCommerceAdapter, isCommerceConfigured } from "@/lib/commerce";
 import {
   CommerceConfigError,
   CommerceRequestError,
 } from "@/lib/commerce/types";
-import { absoluteImageUrl, placeholderImageFor } from "@/lib/commerce/placeholder-image";
 import { getStoredDesign } from "@/lib/db/designs-repository";
 import {
   ConceptListing,
@@ -33,9 +32,32 @@ export async function publishDesign(
     return { ok: true, listing: existing, reused: true };
   }
 
-  const imageUrl = stored.design.imageUrl?.trim()
-    ? stored.design.imageUrl
-    : placeholderImageFor(stored.inputs.productType);
+  const imageUrl = stored.design.imageUrl?.trim() || "";
+
+  if (!isCommerceConfigured()) {
+    const slug = existing?.slug ?? generateUniqueSlug(stored.design.name);
+    const storefrontUrl = `/early-releases/${slug}`;
+
+    if (existing) {
+      const updated = updateListing(existing.id, {
+        status: "coming_soon",
+        imageUrl: imageUrl || null,
+        storefrontUrl,
+      });
+      return { ok: true, listing: updated ?? existing, reused: false };
+    }
+
+    const listing = insertListing({
+      designId,
+      wooProductId: null,
+      slug,
+      status: "coming_soon",
+      imageUrl: imageUrl || null,
+      storefrontUrl,
+      publishedBy: options.publishedBy ?? null,
+    });
+    return { ok: true, listing, reused: false };
+  }
 
   const adapter = getCommerceAdapter();
 
@@ -45,7 +67,7 @@ export async function publishDesign(
       name: stored.design.name,
       description: stored.design.description,
       regularPriceGbp: stored.design.retailPrice,
-      imageUrls: [absoluteImageUrl(imageUrl)],
+      imageUrls: imageUrl ? [imageUrl] : [],
       sizes: DEFAULT_SIZES,
       acceptingPreorders: options.acceptingPreorders ?? true,
     });
@@ -55,7 +77,7 @@ export async function publishDesign(
         wooProductId: remoteProduct.id,
         status: "coming_soon",
         storefrontUrl: remoteProduct.permalink ?? null,
-        imageUrl,
+        imageUrl: imageUrl || null,
       });
       return { ok: true, listing: updated ?? existing, reused: false };
     }
@@ -66,7 +88,7 @@ export async function publishDesign(
       wooProductId: remoteProduct.id,
       slug,
       status: "coming_soon",
-      imageUrl,
+      imageUrl: imageUrl || null,
       storefrontUrl: remoteProduct.permalink ?? null,
       publishedBy: options.publishedBy ?? null,
     });
@@ -95,7 +117,7 @@ export async function unpublishDesign(
     return { ok: false, status: 404, error: "Listing not found" };
   }
 
-  if (listing.wooProductId) {
+  if (listing.wooProductId && isCommerceConfigured()) {
     try {
       const adapter = getCommerceAdapter();
       await adapter.updateProductStatus(listing.wooProductId, "draft");

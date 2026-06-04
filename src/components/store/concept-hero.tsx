@@ -24,7 +24,7 @@ export function ConceptHero({
   className,
   seed,
 }: ConceptHeroProps) {
-  if (imageUrl && !imageUrl.startsWith("/placeholders/")) {
+  if (imageUrl?.trim()) {
     return (
       <div
         className={cn(
