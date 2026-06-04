@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 import { OdometerPair } from "@/components/store/odometer-digit";
 
@@ -35,10 +34,10 @@ export function CountdownSection() {
   return (
     <section
       id="drop-countdown"
-      className="relative flex min-h-[100dvh] flex-col overflow-hidden"
+      className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden"
       style={{ backgroundColor: "#f7f6f3" }}
     >
-      <div className="flex min-h-0 min-w-0 flex-1 items-center overflow-visible pl-[6vw] md:pl-[8vw]">
+      <div className="flex min-w-0 overflow-visible pb-4 pl-[6vw] md:pb-6 md:pl-[8vw]">
         <div className="flex min-w-0 items-center">
           <span
             aria-hidden
@@ -78,24 +77,6 @@ export function CountdownSection() {
             </p>
           </div>
         </div>
-      </div>
-
-      <div className="flex justify-center pb-10 md:pb-12">
-        <Link
-          href="#waitlist"
-          aria-label="Scroll to waitlist"
-          className="text-slate-300 transition-colors hover:text-slate-500"
-        >
-          <svg viewBox="0 0 10 18" fill="none" className="h-7 w-auto md:h-8">
-            <path
-              d="M5 1v12M1 9l4 6 4-6"
-              stroke="currentColor"
-              strokeWidth="1.3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Link>
       </div>
     </section>
   );
