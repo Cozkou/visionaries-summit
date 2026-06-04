@@ -1,12 +1,12 @@
-import { FilmGrainOverlay } from "@/components/store/film-grain-overlay";
-import { HeroSection, WaitlistSection } from "@/components/store/hero-section";
+import { CountdownSection, WaitlistSection } from "@/components/store/hero-section";
+import { SplitHero } from "@/components/store/split-hero";
 
 export function Storefront() {
   return (
-    <div className="text-slate-900" style={{ backgroundColor: "#f7f6f3" }}>
-      <HeroSection />
+    <div className="text-slate-900">
+      <SplitHero />
+      <CountdownSection />
       <WaitlistSection />
-      <FilmGrainOverlay />
     </div>
   );
 }
