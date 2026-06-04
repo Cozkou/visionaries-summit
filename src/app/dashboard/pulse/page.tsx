@@ -18,8 +18,8 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default function PulsePage() {
-  const pulse = getPulseSnapshot();
+export default async function PulsePage() {
+  const pulse = await getPulseSnapshot();
   const marketingRows = getMarketingScatterRows();
   const supportRows = getSupportStackRows();
   const inventoryRows = getInventoryTreemapRows();

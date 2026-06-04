@@ -36,9 +36,9 @@ interface BarInstance {
 }
 
 const GLOBE_RADIUS = 1.4;
-const MAX_BAR_HEIGHT = 0.6;
-const MIN_BAR_HEIGHT = 0.04;
-const SUPPLIER_CONE_HEIGHT = 0.22;
+const MAX_BAR_HEIGHT = 1.05;
+const MIN_BAR_HEIGHT = 0.08;
+const SUPPLIER_CONE_HEIGHT = 0.28;
 
 function formatGbp(n: number): string {
   if (n >= 1_000_000) return `£${(n / 1_000_000).toFixed(2)}M`;
@@ -49,16 +49,12 @@ function formatGbp(n: number): string {
 export function GlobeHero(props: GlobeHeroProps) {
   const { countries, cities, suppliers, totals } = props;
 
-  // Match city/supplier rows to their lat/lng centroids.
   const cityBars = useMemo(() => {
     return cities
       .map((c) => {
         const centroid = CITY_CENTROIDS[c.city];
         if (!centroid) return null;
-        return {
-          ...c,
-          centroid,
-        };
+        return { ...c, centroid };
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);
   }, [cities]);
@@ -73,6 +69,14 @@ export function GlobeHero(props: GlobeHeroProps) {
       .filter((x): x is NonNullable<typeof x> => x !== null);
   }, [suppliers]);
 
+  // Top customer city (e.g. London) is the demand sink the trade arcs flow into.
+  const topCustomerCity = useMemo(() => {
+    return cityBars.reduce<typeof cityBars[number] | null>(
+      (best, c) => (!best || c.revenue > best.revenue ? c : best),
+      null
+    );
+  }, [cityBars]);
+
   const maxRevenue = useMemo(
     () =>
       cityBars.reduce((acc, c) => Math.max(acc, c.revenue), 0) ||
@@ -83,7 +87,17 @@ export function GlobeHero(props: GlobeHeroProps) {
 
   return (
     <section className="relative overflow-hidden border border-slate-900/15 bg-slate-950 text-slate-200">
-      <div className="absolute inset-x-0 top-0 z-10 flex flex-wrap items-baseline justify-between gap-3 px-5 pt-5 md:px-7">
+      {/* Editorial backdrop gradient for depth behind the dark sphere. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 55% 60%, rgba(16,185,129,0.18) 0%, rgba(15,23,42,0) 55%), radial-gradient(ellipse at 20% 30%, rgba(245,158,11,0.10) 0%, rgba(15,23,42,0) 50%)",
+        }}
+      />
+
+      <div className="relative z-10 flex flex-wrap items-baseline justify-between gap-3 px-5 pt-5 md:px-7">
         <div>
           <p className="font-mono text-[10px] tracking-[0.28em] text-slate-400 uppercase">
             Customer base · supplier origins
@@ -99,19 +113,19 @@ export function GlobeHero(props: GlobeHeroProps) {
         </ul>
       </div>
 
-      {/* The globe canvas (lg+) — switches to a 2D bar fallback on small screens. */}
       <div className="hidden md:block">
         <GlobeCanvas
           cityBars={cityBars}
           supplierCones={supplierCones}
           maxRevenue={maxRevenue}
+          topCustomerCity={topCustomerCity}
         />
       </div>
       <div className="block md:hidden">
         <MobileBarFallback countries={countries} suppliers={suppliers} />
       </div>
 
-      <footer className="z-10 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/10 px-5 py-3 font-mono text-[10px] tracking-[0.16em] text-slate-400 uppercase md:px-7">
+      <footer className="relative z-10 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/10 px-5 py-3 font-mono text-[10px] tracking-[0.16em] text-slate-400 uppercase md:px-7">
         <span className="flex items-center gap-2">
           <span className="inline-block h-2 w-2 bg-emerald-400" /> Customer
           revenue
@@ -119,6 +133,9 @@ export function GlobeHero(props: GlobeHeroProps) {
         <span className="flex items-center gap-2">
           <span className="inline-block h-0 w-0 border-x-[5px] border-b-[8px] border-x-transparent border-b-amber-400" />{" "}
           Supplier origin
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="inline-block h-px w-4 bg-amber-300" /> Supply → demand
         </span>
         <span className="ml-auto text-slate-500">
           drag to rotate · hover for detail
@@ -132,12 +149,14 @@ interface GlobeCanvasProps {
   cityBars: (GeoCityPoint & { centroid: GeoPoint })[];
   supplierCones: (SupplierOriginPoint & { centroid: GeoPoint })[];
   maxRevenue: number;
+  topCustomerCity: (GeoCityPoint & { centroid: GeoPoint }) | null;
 }
 
 function GlobeCanvas({
   cityBars,
   supplierCones,
   maxRevenue,
+  topCustomerCity,
 }: GlobeCanvasProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState<{
@@ -151,9 +170,8 @@ function GlobeCanvas({
     if (!mount) return;
 
     const width = mount.clientWidth;
-    const height = 480;
+    const height = 520;
 
-    // ---- renderer / scene / camera
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
@@ -164,38 +182,55 @@ function GlobeCanvas({
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
-    camera.position.set(0, 1.1, 4.6);
+    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 50);
+    camera.position.set(0, 1.0, 4.4);
 
-    // ---- lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+    // ---- lighting (warmer key + emerald rim for editorial vibe)
+    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambient);
-    const key = new THREE.DirectionalLight(0xfff7e8, 0.85);
+    const key = new THREE.DirectionalLight(0xfff4d6, 1.0);
     key.position.set(3, 4, 5);
     scene.add(key);
-    const rim = new THREE.DirectionalLight(0x6ee7b7, 0.4);
+    const rim = new THREE.DirectionalLight(0x34d399, 0.55);
     rim.position.set(-4, -1, -3);
     scene.add(rim);
+    const fill = new THREE.DirectionalLight(0x60a5fa, 0.25);
+    fill.position.set(-3, 3, -4);
+    scene.add(fill);
 
-    // ---- globe sphere (low-poly icosahedron + wireframe overlay)
+    // ---- globe
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
 
-    const sphereGeo = new THREE.IcosahedronGeometry(GLOBE_RADIUS, 4);
+    const sphereGeo = new THREE.IcosahedronGeometry(GLOBE_RADIUS, 5);
     const sphereMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b,
-      metalness: 0.1,
-      roughness: 0.85,
+      color: 0x111b2d,
+      metalness: 0.15,
+      roughness: 0.78,
       flatShading: true,
     });
     const sphere = new THREE.Mesh(sphereGeo, sphereMat);
     globeGroup.add(sphere);
 
+    // Atmosphere — a slightly larger BackSide sphere with emerald tint produces
+    // a soft halo around the silhouette without needing custom shaders.
+    const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.085, 64, 64);
+    const atmosMat = new THREE.MeshBasicMaterial({
+      color: 0x10b981,
+      transparent: true,
+      opacity: 0.12,
+      side: THREE.BackSide,
+      depthWrite: false,
+    });
+    const atmosphere = new THREE.Mesh(atmosGeo, atmosMat);
+    globeGroup.add(atmosphere);
+
+    // Subtle inner wireframe for the "drafted globe" look.
     const wireGeo = new THREE.IcosahedronGeometry(GLOBE_RADIUS * 1.001, 2);
     const wireMat = new THREE.LineBasicMaterial({
       color: 0x334155,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.45,
     });
     const wire = new THREE.LineSegments(
       new THREE.EdgesGeometry(wireGeo),
@@ -203,7 +238,7 @@ function GlobeCanvas({
     );
     globeGroup.add(wire);
 
-    // Equator + tropic latitude lines for a "drafted globe" feel.
+    // Latitude rings.
     const latitudeRings = new THREE.Group();
     for (const lat of [-66.5, -23.5, 0, 23.5, 66.5]) {
       const r = Math.cos((lat * Math.PI) / 180) * GLOBE_RADIUS * 1.002;
@@ -218,48 +253,53 @@ function GlobeCanvas({
       const m = new THREE.LineBasicMaterial({
         color: lat === 0 ? 0x475569 : 0x334155,
         transparent: true,
-        opacity: lat === 0 ? 0.5 : 0.25,
+        opacity: lat === 0 ? 0.5 : 0.22,
       });
       latitudeRings.add(new THREE.Line(g, m));
     }
     globeGroup.add(latitudeRings);
 
-    // ---- bars (per city, height = log-scaled revenue)
+    // ---- revenue bars (hex prisms via 6-sided cylinders)
     const barGroup = new THREE.Group();
     globeGroup.add(barGroup);
     const barMeshes: { mesh: THREE.Mesh; instance: BarInstance }[] = [];
 
-    const minRevForScale = Math.max(1, maxRevenue / 1000);
-    const logMax = Math.log10(maxRevenue + 1) - Math.log10(minRevForScale);
     function scaleRevenue(r: number): number {
+      // sqrt scale: lets London (~80% of all revenue) dominate while still
+      // keeping small markets visible above the surface.
       if (r <= 0) return MIN_BAR_HEIGHT;
-      const v =
-        (Math.log10(r + 1) - Math.log10(minRevForScale)) / (logMax || 1);
+      const v = Math.sqrt(r / (maxRevenue || 1));
       return MIN_BAR_HEIGHT + Math.max(0, Math.min(1, v)) * MAX_BAR_HEIGHT;
     }
     function colorForIntensity(intensity: number): THREE.Color {
-      // Cream (#f7f2e1) -> emerald (#10b981)
-      const cream = new THREE.Color(0xf7f2e1);
-      const emerald = new THREE.Color(0x10b981);
-      return cream.clone().lerp(emerald, Math.max(0, Math.min(1, intensity)));
+      // Cool teal -> warm emerald -> bright lime as revenue grows.
+      const lo = new THREE.Color(0x67e8f9); // cyan-300
+      const mid = new THREE.Color(0x10b981); // emerald-500
+      const hi = new THREE.Color(0xa3e635); // lime-400
+      if (intensity < 0.5) {
+        return lo.clone().lerp(mid, intensity / 0.5);
+      }
+      return mid.clone().lerp(hi, (intensity - 0.5) / 0.5);
     }
 
     for (const c of cityBars) {
       const h = scaleRevenue(c.revenue);
       const intensity = c.revenue / (maxRevenue || 1);
-      const geo = new THREE.BoxGeometry(0.04, h, 0.04);
+      const color = colorForIntensity(intensity);
+      const geo = new THREE.CylinderGeometry(0.045, 0.06, h, 6, 1, false);
       geo.translate(0, h / 2, 0);
       const mat = new THREE.MeshStandardMaterial({
-        color: colorForIntensity(intensity),
-        emissive: colorForIntensity(intensity).multiplyScalar(0.18),
-        metalness: 0.2,
-        roughness: 0.55,
+        color,
+        emissive: color.clone().multiplyScalar(0.55),
+        emissiveIntensity: 1.0,
+        metalness: 0.25,
+        roughness: 0.4,
+        flatShading: true,
       });
       const bar = new THREE.Mesh(geo, mat);
 
       const surface = latLngToVec3(c.centroid.lat, c.centroid.lng, GLOBE_RADIUS);
       bar.position.set(surface.x, surface.y, surface.z);
-      // Orient bar so +Y aligns with the surface normal (outward).
       bar.lookAt(0, 0, 0);
       bar.rotateX(Math.PI / 2);
       barGroup.add(bar);
@@ -275,26 +315,25 @@ function GlobeCanvas({
       });
     }
 
-    // ---- supplier cones (amber, inverted, pointing at the surface)
+    // ---- supplier markers (amber cones with a glowing core sphere)
     for (const s of supplierCones) {
-      const geo = new THREE.ConeGeometry(0.05, SUPPLIER_CONE_HEIGHT, 4);
-      geo.translate(0, SUPPLIER_CONE_HEIGHT / 2 + 0.02, 0);
-      const mat = new THREE.MeshStandardMaterial({
+      const coneGeo = new THREE.ConeGeometry(0.06, SUPPLIER_CONE_HEIGHT, 4);
+      coneGeo.translate(0, SUPPLIER_CONE_HEIGHT / 2 + 0.02, 0);
+      const coneMat = new THREE.MeshStandardMaterial({
         color: 0xf59e0b,
-        emissive: 0x78350f,
-        emissiveIntensity: 0.4,
+        emissive: 0xb45309,
+        emissiveIntensity: 0.85,
         metalness: 0.3,
-        roughness: 0.4,
+        roughness: 0.35,
         flatShading: true,
       });
-      const cone = new THREE.Mesh(geo, mat);
+      const cone = new THREE.Mesh(coneGeo, coneMat);
       const surface = latLngToVec3(s.centroid.lat, s.centroid.lng, GLOBE_RADIUS);
       cone.position.set(surface.x, surface.y, surface.z);
       cone.lookAt(0, 0, 0);
       cone.rotateX(Math.PI / 2);
-      // Flip cone so the point sits on the surface.
       cone.rotateX(Math.PI);
-      cone.position.set(surface.x * 1.06, surface.y * 1.06, surface.z * 1.06);
+      cone.position.set(surface.x * 1.08, surface.y * 1.08, surface.z * 1.08);
       barGroup.add(cone);
       barMeshes.push({
         mesh: cone,
@@ -309,15 +348,127 @@ function GlobeCanvas({
       });
     }
 
-    // ---- interaction: drag to rotate
+    // ---- supply → demand arcs (quadratic bezier curves above the sphere)
+    interface ArcEntry {
+      curve: THREE.QuadraticBezierCurve3;
+      pulse: THREE.Mesh;
+    }
+    const arcs: ArcEntry[] = [];
+    if (topCustomerCity) {
+      const sink = latLngToVec3(
+        topCustomerCity.centroid.lat,
+        topCustomerCity.centroid.lng,
+        GLOBE_RADIUS
+      );
+      const sinkVec = new THREE.Vector3(sink.x, sink.y, sink.z);
+
+      for (const s of supplierCones) {
+        const source = latLngToVec3(s.centroid.lat, s.centroid.lng, GLOBE_RADIUS);
+        const sourceVec = new THREE.Vector3(source.x, source.y, source.z);
+
+        // Lift the midpoint above the sphere proportional to chord distance.
+        const mid = sourceVec.clone().add(sinkVec).multiplyScalar(0.5);
+        const chord = sourceVec.distanceTo(sinkVec);
+        const lift = 1 + Math.min(0.55, chord / GLOBE_RADIUS * 0.25);
+        mid.normalize().multiplyScalar(GLOBE_RADIUS * lift);
+
+        const curve = new THREE.QuadraticBezierCurve3(sourceVec, mid, sinkVec);
+        const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.006, 8, false);
+        const tubeMat = new THREE.MeshBasicMaterial({
+          color: 0xfbbf24,
+          transparent: true,
+          opacity: 0.55,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        });
+        const tube = new THREE.Mesh(tubeGeo, tubeMat);
+        globeGroup.add(tube);
+
+        // Travelling pulse along the arc.
+        const pulseGeo = new THREE.SphereGeometry(0.022, 12, 12);
+        const pulseMat = new THREE.MeshBasicMaterial({
+          color: 0xfde68a,
+          transparent: true,
+          opacity: 0.95,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        });
+        const pulse = new THREE.Mesh(pulseGeo, pulseMat);
+        globeGroup.add(pulse);
+
+        arcs.push({ curve, pulse });
+      }
+    }
+
+    // ---- floating city labels (top 5 markets), drawn as canvas sprites.
+    function makeLabelSprite(
+      text: string,
+      sub: string,
+      color = "#a3e635"
+    ): THREE.Sprite {
+      const canvas = document.createElement("canvas");
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      canvas.width = 320 * dpr;
+      canvas.height = 96 * dpr;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.scale(dpr, dpr);
+        ctx.font = "600 18px 'Inter', system-ui, sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#f8fafc";
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 6;
+        ctx.fillText(text, 16, 24);
+        ctx.font = "500 11px ui-monospace, monospace";
+        ctx.fillStyle = color;
+        ctx.shadowBlur = 4;
+        ctx.fillText(sub.toUpperCase(), 16, 52);
+      }
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.minFilter = THREE.LinearFilter;
+      const mat = new THREE.SpriteMaterial({
+        map: tex,
+        transparent: true,
+        depthWrite: false,
+      });
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(0.85, 0.26, 1);
+      return sprite;
+    }
+    const labelGroup = new THREE.Group();
+    globeGroup.add(labelGroup);
+    interface CityLabel {
+      sprite: THREE.Sprite;
+      /** Local-space surface normal (used to test if the label faces camera). */
+      normal: THREE.Vector3;
+    }
+    const cityLabels: CityLabel[] = [];
+    const topCityBars = [...cityBars]
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+    for (const c of topCityBars) {
+      const h = scaleRevenue(c.revenue);
+      const surface = latLngToVec3(c.centroid.lat, c.centroid.lng, GLOBE_RADIUS);
+      const out = new THREE.Vector3(surface.x, surface.y, surface.z)
+        .normalize()
+        .multiplyScalar(GLOBE_RADIUS + h + 0.18);
+      const sprite = makeLabelSprite(c.city, formatGbp(c.revenue));
+      sprite.position.copy(out);
+      labelGroup.add(sprite);
+      cityLabels.push({
+        sprite,
+        normal: new THREE.Vector3(surface.x, surface.y, surface.z).normalize(),
+      });
+    }
+
+    // ---- interaction
     const dragState = {
       active: false,
       lastX: 0,
       lastY: 0,
-      vx: 0.0014, // auto-spin
+      vx: 0.0012,
       vy: 0,
     };
-
     function onPointerDown(ev: PointerEvent) {
       dragState.active = true;
       dragState.lastX = ev.clientX;
@@ -328,8 +479,8 @@ function GlobeCanvas({
       dragState.active = false;
       renderer.domElement.releasePointerCapture(ev.pointerId);
     }
+    const raycaster = new THREE.Raycaster();
     function onPointerMove(ev: PointerEvent) {
-      // Tooltip hit-test on hover regardless of drag.
       const rect = renderer.domElement.getBoundingClientRect();
       const ndc = new THREE.Vector2(
         ((ev.clientX - rect.left) / rect.width) * 2 - 1,
@@ -364,35 +515,55 @@ function GlobeCanvas({
         -1.0,
         Math.min(1.0, globeGroup.rotation.x + dy * 0.004)
       );
-      dragState.vx = 0; // user took control, pause auto-spin
+      dragState.vx = 0;
     }
     function onLeave() {
       setTooltip(null);
       dragState.active = false;
     }
-
-    const raycaster = new THREE.Raycaster();
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
     renderer.domElement.addEventListener("pointerup", onPointerUp);
     renderer.domElement.addEventListener("pointermove", onPointerMove);
     renderer.domElement.addEventListener("pointerleave", onLeave);
 
-    // Initial tilt: tip the globe so Europe + North America face the camera.
     globeGroup.rotation.y = -0.6;
     globeGroup.rotation.x = -0.25;
 
     // ---- animate
     let raf = 0;
+    const start = performance.now();
+    const tmpWorldNormal = new THREE.Vector3();
+    const tmpCameraDir = new THREE.Vector3();
     function tick() {
       raf = requestAnimationFrame(tick);
       if (!dragState.active && dragState.vx !== 0) {
         globeGroup.rotation.y += dragState.vx;
       }
+      // Travel each pulse along its arc.
+      const t = ((performance.now() - start) % 2400) / 2400;
+      for (const arc of arcs) {
+        const p = arc.curve.getPoint(t);
+        arc.pulse.position.copy(p);
+        const scale = 0.6 + 0.6 * Math.sin(t * Math.PI);
+        arc.pulse.scale.setScalar(scale);
+      }
+      // Fade city labels based on facing angle to the camera (hide back-side).
+      camera.getWorldDirection(tmpCameraDir).negate();
+      for (const lbl of cityLabels) {
+        tmpWorldNormal
+          .copy(lbl.normal)
+          .applyQuaternion(globeGroup.quaternion);
+        const facing = tmpWorldNormal.dot(tmpCameraDir);
+        // Fully visible when facing >= 0.25, fully hidden below ~0.
+        const opacity = Math.max(0, Math.min(1, (facing - 0.0) / 0.35));
+        const mat = lbl.sprite.material as THREE.SpriteMaterial;
+        mat.opacity = opacity;
+        lbl.sprite.visible = opacity > 0.02;
+      }
       renderer.render(scene, camera);
     }
     tick();
 
-    // ---- resize
     function onResize() {
       if (!mount) return;
       const w = mount.clientWidth;
@@ -414,21 +585,34 @@ function GlobeCanvas({
       sphereMat.dispose();
       wireGeo.dispose();
       wireMat.dispose();
+      atmosGeo.dispose();
+      atmosMat.dispose();
       barMeshes.forEach((b) => {
         b.mesh.geometry.dispose();
         const mat = b.mesh.material as THREE.Material | THREE.Material[];
         if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
         else mat.dispose();
       });
+      arcs.forEach((a) => {
+        a.pulse.geometry.dispose();
+        (a.pulse.material as THREE.Material).dispose();
+      });
+      labelGroup.children.forEach((sprite) => {
+        if (sprite instanceof THREE.Sprite) {
+          const mat = sprite.material as THREE.SpriteMaterial;
+          mat.map?.dispose();
+          mat.dispose();
+        }
+      });
       mount.removeChild(renderer.domElement);
     };
-  }, [cityBars, supplierCones, maxRevenue]);
+  }, [cityBars, supplierCones, maxRevenue, topCustomerCity]);
 
   return (
     <div className="relative">
       <div
         ref={mountRef}
-        className="h-[480px] w-full cursor-grab active:cursor-grabbing"
+        className="h-[520px] w-full cursor-grab active:cursor-grabbing"
       />
       {tooltip && (
         <div

@@ -206,7 +206,7 @@ function countryName(code: string): string {
   return COUNTRY_NAMES[code] ?? code;
 }
 
-function buildSnapshot(): PulseSnapshot {
+async function buildSnapshot(): Promise<PulseSnapshot> {
   const orders = readDataCsv("orders.csv");
   const lineItems = readDataCsv("line_items.csv");
   const products = readDataCsv("products.csv");
@@ -554,9 +554,11 @@ function buildSnapshot(): PulseSnapshot {
     listingCount: 0,
   };
   try {
-    const listings = listPublished(500);
-    for (const l of listings) {
-      const counts = getDemandCounts(l.id);
+    const listings = await listPublished(500);
+    const countsList = await Promise.all(
+      listings.map((l) => getDemandCounts(l.id))
+    );
+    for (const counts of countsList) {
       funnel.pageViews += counts.pageViewsTotal;
       funnel.wishlist += counts.wishlistCount;
       funnel.preorders += counts.preorderCount;
@@ -565,7 +567,7 @@ function buildSnapshot(): PulseSnapshot {
       funnel.listingCount += 1;
     }
   } catch (err) {
-    // SQLite reads aren't critical to the page; log and continue with zeros.
+    // Database reads aren't critical to the page; log and continue with zeros.
     console.warn("[pulse-analytics] funnel read failed", err);
   }
 
@@ -590,12 +592,12 @@ function buildSnapshot(): PulseSnapshot {
  * Returns the cached pulse snapshot, building it on first access. The cache
  * lives on `globalThis` and survives hot-reloads in dev.
  */
-export function getPulseSnapshot(): PulseSnapshot {
+export async function getPulseSnapshot(): Promise<PulseSnapshot> {
   const g = globalThis as PulseGlobal;
   if (g.__prettyFlyPulseCache?.version === PULSE_CACHE_VERSION) {
     return g.__prettyFlyPulseCache.snapshot;
   }
-  const snapshot = buildSnapshot();
+  const snapshot = await buildSnapshot();
   g.__prettyFlyPulseCache = {
     version: PULSE_CACHE_VERSION,
     snapshot,

@@ -54,15 +54,9 @@ export const CITY_CENTROIDS: Record<string, GeoPoint> = {
     lat: 40.713,
     lng: -74.006,
   },
-  Brooklyn: {
-    // Aggregated visually with NYC but kept distinct in case we want to split.
-    id: "US:Brooklyn",
-    label: "Brooklyn",
-    countryCode: "US",
-    countryName: "United States",
-    lat: 40.65,
-    lng: -73.95,
-  },
+  // Note: "Brooklyn" customers from the data pack are intentionally left
+  // without a centroid so they fold into the country aggregation rather than
+  // rendering as a duplicate bar/label on top of New York.
   Chicago: {
     id: "US:Chicago",
     label: "Chicago",
