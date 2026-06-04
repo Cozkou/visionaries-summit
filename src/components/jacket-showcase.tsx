@@ -37,7 +37,7 @@ const HOTSPOTS: Hotspot[] = [
     tag: "01",
     part: "Collar & rib trim",
     category: "Material",
-    note: "Swap the melton wool collar for a recycled rib knit — keeps the structured stand, improves stretch recovery, and trims unit cost without touching the silhouette.",
+    note: "Swap the melton wool collar for a recycled rib knit. Keeps the structured stand, improves stretch recovery, and trims unit cost without touching the silhouette.",
     metrics: [
       { label: "Unit cost", value: "-12%", dir: "down" },
       { label: "Margin", value: "+6 pts", dir: "up" },
@@ -63,7 +63,7 @@ const HOTSPOTS: Hotspot[] = [
     tag: "03",
     part: "Sleeve script",
     category: "Typography",
-    note: "“Chosen” script sits low and slightly wide. Raise it 6mm and tighten kerning so it follows the sleeve drape — cleaner read on-body and in flat-lay.",
+    note: "“Chosen” script sits low and slightly wide. Raise it 6mm and tighten kerning so it follows the sleeve drape for a cleaner read on-body and in flat-lay.",
     metrics: [
       { label: "Legibility", value: "76 → 90", dir: "up" },
       { label: "Balance", value: "+14%", dir: "up" },
@@ -372,7 +372,7 @@ export default function JacketShowcase() {
               </h1>
 
               <p className="mt-8 ml-auto max-w-md text-[clamp(1.125rem,2vw,1.375rem)] font-medium leading-relaxed text-slate-700">
-                Generate new clothing from what already sold — past sales, trends,
+                Generate new clothing from what already sold: past sales, trends,
                 and brand fit, turned into concepts you can ship.
               </p>
 
@@ -415,7 +415,7 @@ export default function JacketShowcase() {
               >
                 <div className="flex items-center justify-end gap-2.5 text-[11px] font-semibold uppercase tracking-[0.26em]">
                   <span className="tabular-nums text-slate-400">{h.tag}</span>
-                  <span className="text-slate-300">—</span>
+                  <span className="text-slate-300">/</span>
                   <span className="text-sky-700">{h.category}</span>
                 </div>
 

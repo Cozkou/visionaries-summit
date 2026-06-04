@@ -13,7 +13,7 @@ export interface StorefrontStory {
 const PRODUCT_BLURB: Record<ProductType, string> = {
   Hoodie: "Heavyweight fleece staple, built for the back end of the year.",
   "T-Shirt": "Everyday core layer with a relaxed, lived-in fit.",
-  Jacket: "Outerwear statement piece — limited run, no restock.",
+  Jacket: "Outerwear statement piece. Limited run, no restock.",
   Trainers: "Footwear silhouette finished in our most-requested colourway.",
   Cap: "Headwear accessory cut from the same family as the main collection.",
 };
@@ -31,7 +31,7 @@ function formatGbpShort(value: number): string {
 
 /**
  * Builds a customer-safe story for the storefront. We deliberately strip
- * SKU IDs and CSV references — the staff description is for the internal
+ * SKU IDs and CSV references. The staff description is for the internal
  * tool, not the buying public.
  */
 export function buildStorefrontStory(
@@ -51,7 +51,7 @@ export function buildStorefrontStory(
 
   if (source && source.unitsSold > 0) {
     highlights.push(
-      `Built on a silhouette that moved ${source.unitsSold.toLocaleString()} units over the last 24 months — ${formatGbpShort(source.revenueGbp)} in proven demand.`
+      `Built on a silhouette that moved ${source.unitsSold.toLocaleString()} units over the last 24 months. ${formatGbpShort(source.revenueGbp)} in proven demand.`
     );
   } else {
     highlights.push(
@@ -60,7 +60,7 @@ export function buildStorefrontStory(
   }
 
   highlights.push(
-    `Released early to the waitlist — limited quantity, no restock once the public window closes.`
+    `Released early to the waitlist. Limited quantity, no restock once the public window closes.`
   );
 
   if (audience) highlights.push(audience);

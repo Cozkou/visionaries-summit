@@ -24,7 +24,7 @@ export function DesignDataPanel({ design, className = "" }: DesignDataPanelProps
         {design.description}
       </p>
         <p className="text-xs text-muted-foreground">
-        Achieved retail £{design.retailPrice.toFixed(2)} — line_items.csv unit
+        Achieved retail £{design.retailPrice.toFixed(2)} from line_items.csv unit
         revenue.
       </p>
     </div>

@@ -76,7 +76,7 @@ async function computeAnalysis(stored: StoredDesign): Promise<AnalysisData> {
   const snap = getCategorySnapshot(inputs);
   if (!design.sourceProductId) {
     throw new Error(
-      "Design has no sourceProductId — analysis requires a CSV-backed SKU."
+      "Design has no sourceProductId. Analysis requires a CSV-backed SKU."
     );
   }
 

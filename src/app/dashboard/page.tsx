@@ -25,7 +25,7 @@ export default function DashboardOverviewPage() {
   return (
     <DashboardSection
       title="Dashboard"
-      description={data?.subtitle ?? "Operations hub — pick a section from the sidebar or below."}
+      description={data?.subtitle ?? "Operations hub. Pick a section from the sidebar or below."}
     >
       {error && <p className="text-[13px] text-red-600">{error}</p>}
 

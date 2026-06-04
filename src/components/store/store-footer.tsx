@@ -3,7 +3,6 @@ import Link from "next/link";
 const FOOTER_LINKS = [
   { href: "/early-releases", label: "Early Releases" },
   { href: "/#drops", label: "Latest Drop" },
-  { href: "/lab", label: "The Lab" },
   { href: "/#newsletter", label: "Newsletter" },
 ] as const;
 
@@ -18,7 +17,7 @@ export function StoreFooter() {
           Pretty Fly
         </Link>
 
-        <nav className="flex flex-wrap gap-x-6 gap-y-2">
+        <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
           {FOOTER_LINKS.map(({ href, label }) => (
             <Link
               key={href}
@@ -28,6 +27,12 @@ export function StoreFooter() {
               {label}
             </Link>
           ))}
+          <Link
+            href="/internal"
+            className="border border-slate-300/90 px-2.5 py-1 text-[9px] font-semibold tracking-[0.18em] text-slate-400 uppercase transition-colors hover:border-slate-500 hover:text-slate-700"
+          >
+            Internal
+          </Link>
         </nav>
       </div>
 

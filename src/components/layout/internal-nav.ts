@@ -44,7 +44,7 @@ export function getInternalPageContext(pathname: string): InternalPageContext {
   if (pathname === "/internal") {
     return {
       title: "Tools",
-      description: "Choose a workspace — dashboard, generation, or design review.",
+      description: "Choose a workspace: dashboard, generation, or design review.",
     };
   }
 
@@ -100,7 +100,7 @@ export function getInternalPageContext(pathname: string): InternalPageContext {
 
     return {
       title: label,
-      description: "Dashboard section — operations and retail intelligence.",
+      description: "Dashboard section for operations and retail intelligence.",
       breadcrumbs: [
         { label: "Dashboard", href: "/dashboard" },
         { label },

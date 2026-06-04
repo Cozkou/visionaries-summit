@@ -21,7 +21,7 @@ export default function RefundersPage() {
   return (
     <DashboardSection
       title="Refunders"
-      description="Operator actions from the control tower — reorder, spend, and support priorities."
+      description="Operator actions from the control tower: reorder, spend, and support priorities."
     >
       {error && <p className="text-[13px] text-red-600">{error}</p>}
       <ul className={internalPanelClass}>
@@ -35,7 +35,7 @@ export default function RefundersPage() {
       {data?.marketingReallocation && (
         <p className="text-[13px] text-neutral-500">
           Reallocate {formatGbp(data.marketingReallocation.shiftSpend)} from weak campaigns
-          — estimated {formatGbp(data.marketingReallocation.estimatedRevenueLift90d)} lift
+          · estimated {formatGbp(data.marketingReallocation.estimatedRevenueLift90d)} lift
           over 90 days.
         </p>
       )}

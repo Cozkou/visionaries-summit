@@ -124,7 +124,7 @@ export function createChinaMarketSchema(): ChinaMarketResponse {
         name: "Tmall / Taobao",
         kind: "channel",
         summary:
-          "Marketplace scale channel — bullets populated from Alibaba Group 11.11 release when live fetch succeeds.",
+          "Marketplace scale channel. Bullets populated from Alibaba Group 11.11 release when live fetch succeeds.",
         bullets: [],
         sourceIds: ["alibaba-1111-2025"],
         imageId: "alibaba-1111-hero",
@@ -134,7 +134,7 @@ export function createChinaMarketSchema(): ChinaMarketResponse {
         name: "JD Fashion",
         kind: "channel",
         summary:
-          "Logistics-led fashion channel — bullets populated from JD.com IR release when live fetch succeeds.",
+          "Logistics-led fashion channel. Bullets populated from JD.com IR release when live fetch succeeds.",
         bullets: [],
         sourceIds: ["jd-q4-2025"],
       },
@@ -143,7 +143,7 @@ export function createChinaMarketSchema(): ChinaMarketResponse {
         name: "Douyin Commerce",
         kind: "channel",
         summary:
-          "Livestream commerce channel — bullets populated from China Daily coverage when live fetch succeeds.",
+          "Livestream commerce channel. Bullets populated from China Daily coverage when live fetch succeeds.",
         bullets: [],
         sourceIds: ["chinadaily-douyin-2025"],
         imageId: "chinadaily-douyin-graphic",
@@ -155,7 +155,7 @@ export function createChinaMarketSchema(): ChinaMarketResponse {
         name: "Bosideng",
         kind: "brand",
         summary:
-          "Outerwear benchmark brand — bullets populated from Bosideng corporate site when live fetch succeeds.",
+          "Outerwear benchmark brand. Bullets populated from Bosideng corporate site when live fetch succeeds.",
         bullets: [],
         sourceIds: ["bosideng-brands"],
         imageId: "bosideng-jacket",
@@ -180,7 +180,7 @@ export function createChinaMarketSchema(): ChinaMarketResponse {
         id: "platform-strategy-is-multi-channel",
         title: "Multi-channel platform strategy",
         detail:
-          "Tmall/Taobao (scale), JD (fulfillment/trust), Douyin (content conversion) — each source linked above.",
+          "Tmall/Taobao (scale), JD (fulfillment/trust), Douyin (content conversion). Each source linked above.",
         sourceIds: ["alibaba-1111-2025", "jd-q4-2025", "chinadaily-douyin-2025"],
       },
     ],

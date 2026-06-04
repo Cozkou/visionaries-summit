@@ -56,7 +56,7 @@ export function ConceptFunnel({ totals }: Props) {
   if (totals.listingCount === 0) {
     return (
       <div className="flex h-[260px] items-center justify-center font-mono text-[11px] text-neutral-400 uppercase">
-        Nothing published yet — publish a concept to start tracking funnel.
+        Nothing published yet. Publish a concept to start tracking funnel.
       </div>
     );
   }

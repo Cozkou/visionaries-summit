@@ -9,10 +9,19 @@ type StoreNavProps = {
   variant?: "overlay" | "solid";
   /** Hero-only: strip promo bar and extra chrome for a minimal black viewport. */
   minimal?: boolean;
+  searchOpen?: boolean;
+  onSearchOpenChange?: (open: boolean) => void;
 };
 
-export function StoreNav({ variant = "overlay", minimal = false }: StoreNavProps) {
-  const [searchOpen, setSearchOpen] = useState(false);
+export function StoreNav({
+  variant = "overlay",
+  minimal = false,
+  searchOpen: searchOpenProp,
+  onSearchOpenChange,
+}: StoreNavProps) {
+  const [searchOpenInternal, setSearchOpenInternal] = useState(false);
+  const searchOpen = searchOpenProp ?? searchOpenInternal;
+  const setSearchOpen = onSearchOpenChange ?? setSearchOpenInternal;
   const onDark = variant === "overlay";
 
   return (
@@ -28,18 +37,6 @@ export function StoreNav({ variant = "overlay", minimal = false }: StoreNavProps
               : "border-b border-neutral-200 bg-white text-neutral-900"
         }`}
       >
-        {!minimal && (
-          <div
-            className={`flex items-center justify-between gap-4 px-5 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase md:px-8 md:py-4 ${
-              onDark ? "bg-black/90" : "bg-neutral-50"
-            }`}
-          >
-            <span className="truncate">
-              AI-guided drops — only what your metrics love ships first
-            </span>
-          </div>
-        )}
-
         {minimal ? (
           <div className="relative px-5 py-5 md:px-8 md:py-6">
             <Link
@@ -70,19 +67,11 @@ export function StoreNav({ variant = "overlay", minimal = false }: StoreNavProps
             <nav className="flex items-center gap-6 md:gap-8">
               <Link
                 href="/early-releases"
-                className={`hidden text-[12px] font-medium tracking-[0.12em] uppercase transition-opacity hover:opacity-70 sm:inline ${
-                  onDark ? "text-white/90" : "text-neutral-600"
-                }`}
-              >
-                Early Releases
-              </Link>
-              <Link
-                href="/lab"
                 className={`text-[12px] font-medium tracking-[0.12em] uppercase transition-opacity hover:opacity-70 ${
                   onDark ? "text-white/90" : "text-neutral-600"
                 }`}
               >
-                The Lab
+                Early Releases
               </Link>
             </nav>
 

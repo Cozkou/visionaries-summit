@@ -21,7 +21,7 @@ export default function PastOrdersPage() {
   return (
     <DashboardSection
       title="Past orders"
-      description="Variant-level demand and inventory — sourced from control tower inventory API."
+      description="Variant-level demand and inventory from the control tower inventory API."
     >
       {error && <p className="text-[13px] text-red-600">{error}</p>}
       <ul className={internalPanelClass}>

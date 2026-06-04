@@ -13,59 +13,44 @@ export default async function EarlyReleasesPage() {
     <div className="min-h-screen text-slate-900" style={{ backgroundColor: "#f7f6f3" }}>
       <StoreNav variant="solid" />
 
-      <section className="relative flex min-h-[40vh] items-end bg-neutral-900">
-        <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-14 pt-28 md:px-10 md:pb-20">
-          <p className="text-[11px] font-medium tracking-[0.28em] text-white/70 uppercase">
-            From the lab
+      <main className="mx-auto max-w-6xl px-6 md:px-10">
+        <header className="border-b border-slate-200/80 pb-12 pt-14 md:pb-16 md:pt-20">
+          <p className="text-[10px] font-medium tracking-[0.32em] text-slate-400 uppercase">
+            Pretty Fly
           </p>
-          <h1 className="mt-3 max-w-2xl font-street text-[clamp(2.5rem,7vw,5rem)] uppercase leading-[0.92] tracking-[0.02em] text-white">
+          <h1 className="mt-4 font-street text-[clamp(2.25rem,6vw,4.25rem)] uppercase leading-[0.92] tracking-[0.02em] text-slate-900">
             Early Releases
           </h1>
-          <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-white/75">
-            Concepts published from Creative Director — grounded in Pretty Fly CSV
-            sales data. No placeholder catalogue.
+          <p className="mt-4 max-w-sm text-[13px] leading-relaxed text-slate-500">
+            Lab concepts backed by real sales data. Limited runs only.
           </p>
-        </div>
-      </section>
+        </header>
 
-      <section className="mx-auto max-w-6xl px-6 py-16 md:px-10 md:py-20">
-        {listings.length === 0 ? (
-          <div className="rounded-lg border border-slate-200 bg-white px-6 py-12 text-center">
-            <p className="text-[15px] text-slate-600">
-              No published concepts yet. Generate and publish from{" "}
-              <Link href="/internal/generate" className="font-medium text-slate-900 underline">
-                Creative Director
-              </Link>
-              .
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-slate-300/60 pb-6">
-              <div>
-                <p className="text-[11px] font-semibold tracking-[0.22em] text-slate-400 uppercase">
-                  Live on storefront
-                </p>
-                <h2 className="mt-2 font-street text-[clamp(1.4rem,3vw,2rem)] uppercase leading-tight tracking-[0.02em] text-slate-900">
-                  Published concepts
-                </h2>
-              </div>
+        <section className="py-14 md:py-20">
+          {listings.length === 0 ? (
+            <p className="text-[13px] text-slate-500">
+              Nothing live yet.{" "}
               <Link
-                href="/#drop-countdown"
-                className="text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase transition-colors hover:text-slate-900"
+                href="/internal/generate"
+                className="font-medium text-slate-900 underline-offset-2 hover:underline"
               >
-                Next drop timer →
+                Publish from Creative Director
               </Link>
-            </div>
-
-            <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:gap-8">
-              {listings.map((listing) => (
-                <ListingCard key={listing.slug} listing={listing} />
-              ))}
-            </div>
-          </>
-        )}
-      </section>
+            </p>
+          ) : (
+            <>
+              <p className="mb-10 font-mono text-[11px] tracking-[0.2em] text-slate-400 uppercase">
+                {listings.length} live {listings.length === 1 ? "concept" : "concepts"}
+              </p>
+              <div className="grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 md:gap-x-8 md:gap-y-14">
+                {listings.map((listing) => (
+                  <ListingCard key={listing.slug} listing={listing} />
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+      </main>
     </div>
   );
 }

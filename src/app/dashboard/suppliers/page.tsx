@@ -21,7 +21,7 @@ export default function SuppliersPage() {
   return (
     <DashboardSection
       title="Suppliers"
-      description="Top inventory products — PO cost and gross profit from the data pack."
+      description="Top inventory products. PO cost and gross profit from the data pack."
     >
       {error && <p className="text-[13px] text-red-600">{error}</p>}
       <ul className={internalPanelClass}>

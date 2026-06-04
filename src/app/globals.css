@@ -374,7 +374,7 @@
   animation-direction: reverse;
 }
 
-/* Hero viewport — oversized editorial scale */
+/* Hero viewport: oversized editorial scale */
 .countdown-odometer {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-weight: 700;

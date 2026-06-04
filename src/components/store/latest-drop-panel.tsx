@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { ListingActions } from "@/components/store/listing-actions";
 import { ScrollReveal } from "@/components/store/scroll-reveal";
 import type { PublicListing } from "@/lib/public-listings";
@@ -31,9 +33,17 @@ export function LatestDropPanel({ listing }: Props) {
 
       <ScrollReveal variant="right" delay={220} className="min-w-0">
         <div className="flex min-w-0 flex-col gap-4 md:gap-5">
-        <p className="text-[10px] font-medium tracking-[0.22em] text-slate-400 uppercase">
-          Latest drop
-        </p>
+        <div>
+          <p className="text-[10px] font-medium tracking-[0.22em] text-slate-400 uppercase">
+            Latest drop
+          </p>
+          <Link
+            href="/early-releases"
+            className="mt-2.5 inline-block border border-slate-300 bg-white px-3 py-1.5 text-[10px] font-semibold tracking-[0.14em] text-slate-800 uppercase transition-colors hover:border-slate-900 hover:text-slate-900"
+          >
+            View all early releases
+          </Link>
+        </div>
 
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <h2 className="font-street text-[clamp(1.5rem,3.5vw,2.25rem)] uppercase leading-[0.95] tracking-[0.02em] text-slate-900">

@@ -33,7 +33,7 @@ export function DesignsGallery({
         err instanceof Error ? err.message : "Failed to load saved concepts";
       setError(
         message.includes("Unauthorized") || message.includes("401")
-          ? "Staff sign-in required — use the banner above and enter your operator password."
+          ? "Staff sign-in required. Use the banner above and enter your operator password."
           : message
       );
     } finally {

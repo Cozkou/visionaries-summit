@@ -110,8 +110,8 @@ export function PublishToSiteSection({
         <h2 className="text-sm font-medium text-neutral-900">Customer demand</h2>
         <div className="border border-neutral-200 bg-white px-4 py-4">
           <p className="text-[13px] text-neutral-600">
-            Push this concept to the storefront to test real customer signal —
-            we&apos;ll create a draft listing in the connected ecommerce platform
+            Push this concept to the storefront to test real customer signal.
+            We&apos;ll create a draft listing in the connected ecommerce platform
             with a wishlist + pre-order CTA, and stream wishlist count,
             pre-orders and page views back into this view.
           </p>

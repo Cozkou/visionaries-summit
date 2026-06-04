@@ -71,7 +71,7 @@ export function DropCountdown({
     ? remaining.done
       ? prefixClosed
       : `${prefixOpen} ${formatRemaining(remaining)}`
-    : `${prefixOpen} —`;
+    : `${prefixOpen}…`;
   const closed = remaining?.done ?? false;
 
   if (variant === "hero") {

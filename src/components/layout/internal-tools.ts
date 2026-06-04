@@ -8,7 +8,7 @@ export const INTERNAL_TOOLS = [
   {
     href: "/internal/generate",
     title: "Generate",
-    description: "AI creative director — new clothing concepts.",
+    description: "AI creative director for new clothing concepts.",
   },
   {
     href: "/internal/designs",

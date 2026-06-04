@@ -21,7 +21,7 @@ export default function EmailCampaignsPage() {
   return (
     <DashboardSection
       title="Email campaigns"
-      description="Paid campaign triage — spend, ROAS, and recommended action."
+      description="Paid campaign triage: spend, ROAS, and recommended action."
     >
       {error && <p className="text-[13px] text-red-600">{error}</p>}
       <ul className={internalPanelClass}>

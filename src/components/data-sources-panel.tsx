@@ -31,7 +31,7 @@ export function DataSourcesPanel({
             </a>
             <span className="text-muted-foreground">
               {" "}
-              — {source.description} (
+              · {source.description} (
               <code className="text-xs">{source.file}</code>)
             </span>
           </li>

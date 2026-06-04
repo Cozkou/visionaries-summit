@@ -252,7 +252,7 @@ export function ListingActions({
               ? "Reserving…"
               : preorderDone
                 ? `Reserved · size ${size}`
-                : `Pre-order — £${retailPrice.toFixed(0)}`}
+                : `Pre-order · £${retailPrice.toFixed(0)}`}
           </button>
         </form>
       </div>

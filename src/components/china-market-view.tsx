@@ -33,11 +33,11 @@ function formatMetricValue(metric: ChinaMarketMetric): string {
 function modeLabel(mode: ChinaMarketResponse["mode"]): string {
   switch (mode) {
     case "live":
-      return "Live — all metrics fetched";
+      return "Live. All metrics fetched.";
     case "partial":
-      return "Partial — some sources failed";
+      return "Partial. Some sources failed.";
     case "unavailable":
-      return "Unavailable — no live data";
+      return "Unavailable. No live data.";
   }
 }
 
@@ -140,7 +140,7 @@ export function ChinaMarketView() {
           <p className="max-w-2xl text-sm text-muted-foreground">
             Metrics are parsed live from official press releases and corporate
             pages (NBS, JD.com IR, Alibaba Group, China Daily, Bosideng). No
-            live sources only — values stay empty until a source fetch succeeds
+            live sources only. Values stay empty until a source fetch succeeds
             succeeds.
           </p>
           <p className="text-xs text-muted-foreground">

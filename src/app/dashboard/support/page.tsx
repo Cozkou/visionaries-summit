@@ -20,7 +20,7 @@ export default function SupportMessagesPage() {
   return (
     <DashboardSection
       title="Support messages"
-      description="Support automation by category — human vs bot volume from the data pack."
+      description="Support automation by category. Human vs bot volume from the data pack."
     >
       {error && <p className="text-[13px] text-red-600">{error}</p>}
       <ul className={internalPanelClass}>

@@ -6,6 +6,7 @@ import {
   getLatestPublishedListing,
   listPublished,
 } from "@/lib/db/listings-repository";
+import { withoutEmDash } from "@/lib/copy";
 import { buildStorefrontStory } from "@/lib/storefront-copy";
 import type { ProductType, TargetAudience } from "@/types";
 
@@ -27,7 +28,7 @@ export interface PublicListing {
   storefrontUrl: string | null;
   status: ConceptListing["status"];
   publishedAt: number;
-  /** Epoch ms — when the early-access window closes. */
+  /** Epoch ms when the early-access window closes. */
   releaseAt: number | null;
   counts: DemandCounts;
 }
@@ -43,9 +44,9 @@ export async function toPublicListing(
     designId: listing.designId,
     sourceProductId: stored.design.sourceProductId,
     name: stored.design.name,
-    description: story.description,
-    staffDescription: stored.design.description,
-    highlights: story.highlights,
+    description: withoutEmDash(story.description),
+    staffDescription: withoutEmDash(stored.design.description),
+    highlights: story.highlights.map(withoutEmDash),
     productType: stored.inputs.productType,
     targetAudience: stored.inputs.targetAudience,
     imageUrl: listing.imageUrl ?? stored.design.imageUrl ?? "",

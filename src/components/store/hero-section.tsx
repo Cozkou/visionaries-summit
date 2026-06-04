@@ -117,7 +117,7 @@ export function NewsletterSection({ listing }: NewsletterSectionProps) {
 
     if (!listing) {
       setStatus("done");
-      setMessage("Subscribed — check your inbox");
+      setMessage("Subscribed. Check your inbox.");
       return;
     }
 
@@ -134,7 +134,7 @@ export function NewsletterSection({ listing }: NewsletterSectionProps) {
         throw new Error(data.error ?? "Newsletter signup failed");
       }
       setStatus("done");
-      setMessage("Subscribed — you're on the list");
+      setMessage("Subscribed. You're on the list.");
     } catch (err) {
       setStatus("error");
       setMessage(err instanceof Error ? err.message : "Could not subscribe");
@@ -193,7 +193,7 @@ export function NewsletterSection({ listing }: NewsletterSectionProps) {
 
         <ScrollReveal variant="up" delay={200}>
           <p className="mt-4 text-[13px] leading-relaxed text-slate-500 md:text-[14px]">
-            Early releases, restocks, and lab picks. One email when something new
+            Early releases, restocks, and new drops. One email when something new
             ships. No spam.
           </p>
         </ScrollReveal>
@@ -205,7 +205,7 @@ export function NewsletterSection({ listing }: NewsletterSectionProps) {
           >
             {status === "done" ? (
               <p className="w-full text-[12px] font-medium tracking-[0.18em] text-slate-700 uppercase">
-                {message ?? "Subscribed — check your inbox"}
+                {message ?? "Subscribed. Check your inbox."}
               </p>
             ) : (
               <>
