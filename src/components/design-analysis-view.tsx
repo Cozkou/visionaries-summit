@@ -4,14 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { internalPanelClass } from "@/components/layout/internal-tools";
 import { mockDesigns } from "@/data/mockDesigns";
 import { getDesignAnalysis } from "@/services/api";
 import { useAppStore } from "@/store/useAppStore";
@@ -60,17 +53,20 @@ export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
 
   if (!design) {
     return (
-      <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">Design not found.</p>
-        <Button variant="outline" render={<Link href="/designs" />}>
-          Back to gallery
-        </Button>
+      <div className="space-y-3">
+        <p className="text-[13px] text-neutral-500">Design not found.</p>
+        <Link
+          href="/designs"
+          className="font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
+        >
+          ← designs
+        </Link>
       </div>
     );
   }
 
   if (!analysisData) {
-    return <p className="text-sm text-muted-foreground">Loading analysis…</p>;
+    return <p className="text-[13px] text-neutral-500">Loading analysis…</p>;
   }
 
   const metrics = [
@@ -87,13 +83,13 @@ export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
       value: formatCurrency(analysisData.profitPerUnit),
     },
     { label: "Margin", value: `${analysisData.margin}%` },
-    { label: "Lead Time", value: `${analysisData.leadTimeDays} Days` },
+    { label: "Lead Time", value: `${analysisData.leadTimeDays} days` },
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <section className="grid gap-6 md:grid-cols-2">
-        <div className="relative aspect-square w-full max-w-md bg-muted">
+        <div className="relative aspect-square w-full max-w-md overflow-hidden border border-neutral-200 bg-neutral-100">
           <Image
             src={design.imageUrl}
             alt={design.name}
@@ -102,48 +98,48 @@ export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
           />
         </div>
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">{design.name}</h1>
-          <p className="text-muted-foreground">{design.description}</p>
+          <h2 className="text-sm font-medium text-neutral-900">{design.name}</h2>
+          <p className="text-[13px] text-neutral-600">{design.description}</p>
         </div>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Commercial Metrics</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium text-neutral-900">Commercial metrics</h2>
+        <ul className={internalPanelClass}>
           {metrics.map((metric) => (
-            <Card key={metric.label}>
-              <CardHeader className="pb-2">
-                <CardDescription>{metric.label}</CardDescription>
-                <CardTitle className="text-xl">{metric.value}</CardTitle>
-              </CardHeader>
-            </Card>
+            <li
+              key={metric.label}
+              className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3"
+            >
+              <span className="font-mono text-[11px] text-neutral-500">{metric.label}</span>
+              <span className="text-sm font-medium text-neutral-900">{metric.value}</span>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Historical Insights</h2>
-        <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium text-neutral-900">Historical insights</h2>
+        <ul className="list-disc space-y-1.5 pl-5 text-[13px] text-neutral-600">
           {analysisData.historicalInsights.map((insight) => (
             <li key={insight}>{insight}</li>
           ))}
         </ul>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">AI Recommendation</h2>
-        <Card className="border-2">
-          <CardContent className="pt-6">
-            <p className="text-base leading-relaxed">
-              {analysisData.recommendation}
-            </p>
-          </CardContent>
-        </Card>
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium text-neutral-900">AI recommendation</h2>
+        <p className="border border-neutral-200 bg-white px-4 py-3 text-[13px] leading-relaxed text-neutral-800">
+          {analysisData.recommendation}
+        </p>
       </section>
 
-      <Button variant="outline" render={<Link href="/designs" />}>
-        Back to gallery
-      </Button>
+      <Link
+        href="/designs"
+        className="inline-block font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
+      >
+        ← designs
+      </Link>
     </div>
   );
 }

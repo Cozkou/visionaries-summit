@@ -2,15 +2,6 @@
 
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import type { Design } from "@/types";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -22,33 +13,27 @@ export function DesignCard({ design }: DesignCardProps) {
   const setSelectedDesign = useAppStore((s) => s.setSelectedDesign);
 
   return (
-    <Card>
+    <article className="border border-neutral-200 bg-white">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={design.imageUrl}
         alt={design.name}
-        className="aspect-square w-full object-cover bg-muted"
+        className="aspect-square w-full bg-neutral-100 object-cover"
       />
-      <CardHeader>
-        <CardTitle className="text-base">{design.name}</CardTitle>
-        <CardDescription>{design.description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm font-medium">
-          Suggested retail: £{design.retailPrice}
+      <div className="space-y-2 px-4 py-3">
+        <h2 className="text-sm font-medium text-neutral-900">{design.name}</h2>
+        <p className="text-[13px] leading-snug text-neutral-500">{design.description}</p>
+        <p className="text-[13px] text-neutral-600">
+          Retail £{design.retailPrice}
         </p>
-      </CardContent>
-      <CardFooter>
         <Link
           href={`/design/${design.id}`}
           onClick={() => setSelectedDesign(design)}
-          className="block w-full"
+          className="inline-block font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
         >
-          <Button variant="outline" className="w-full" type="button">
-            View Analysis
-          </Button>
+          analysis →
         </Link>
-      </CardFooter>
-    </Card>
+      </div>
+    </article>
   );
 }

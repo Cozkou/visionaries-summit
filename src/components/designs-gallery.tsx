@@ -31,11 +31,11 @@ export function DesignsGallery() {
   }, [generationInputs]);
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Loading concepts…</p>;
+    return <p className="text-[13px] text-neutral-500">Loading concepts…</p>;
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {designs.map((design) => (
         <DesignCard key={design.id} design={design} />
       ))}

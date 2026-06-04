@@ -1,5 +1,7 @@
+import Link from "next/link";
+
 import { DesignAnalysisView } from "@/components/design-analysis-view";
-import { AppShell } from "@/components/layout/app-shell";
+import { InternalShell } from "@/components/layout/internal-shell";
 
 interface DesignPageProps {
   params: Promise<{ id: string }>;
@@ -9,16 +11,19 @@ export default async function DesignPage({ params }: DesignPageProps) {
   const { id } = await params;
 
   return (
-    <AppShell>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold">Design Analysis</h1>
-          <p className="text-sm text-muted-foreground">
-            Commercial metrics and AI recommendation for concept {id}.
-          </p>
-        </div>
-        <DesignAnalysisView designId={id} />
+    <InternalShell>
+      <div className="mb-6">
+        <Link
+          href="/designs"
+          className="font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
+        >
+          ← designs
+        </Link>
+        <h1 className="mt-3 text-sm font-medium text-neutral-900">
+          Analysis · {id}
+        </h1>
       </div>
-    </AppShell>
+      <DesignAnalysisView designId={id} />
+    </InternalShell>
   );
 }

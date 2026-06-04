@@ -10,6 +10,9 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --font-display: var(--font-syne);
+  --font-hero: var(--font-dm-sans);
+  --font-street: var(--font-anton);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -126,5 +129,287 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* ── Jacket showcase (homepage) ───────────────────────────────── */
+@keyframes jacket-scroll-cue {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50%      { transform: translateY(6px); opacity: 1; }
+}
+.jacket-scroll-cue {
+  display: inline-block;
+  font-size: 18px;
+  line-height: 1;
+  animation: jacket-scroll-cue 1.6s ease-in-out infinite;
+}
+
+@keyframes jacket-pin-pulse {
+  0%   { transform: translate(-50%, -50%) scale(0.7); opacity: 0.8; }
+  70%  { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+.jacket-pin-pulse {
+  animation: jacket-pin-pulse 1.8s ease-out infinite;
+}
+
+@keyframes jacket-reveal {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal-on-load {
+  animation: jacket-reveal 0.7s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+/* Very subtle fixed grid backdrop (legacy) */
+.subtle-grid {
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: 46px 46px;
+  background-attachment: fixed;
+}
+
+/* ── Sky atmosphere ───────────────────────────────────────────── */
+:root {
+  --sky-top: #bfe0ff;
+  --sky-mid: #d9eeff;
+  --sky-low: #eaf6ff;
+}
+
+.sky-gradient {
+  background: linear-gradient(
+    180deg,
+    var(--sky-top) 0%,
+    var(--sky-mid) 55%,
+    var(--sky-low) 100%
+  );
+}
+
+@keyframes cloud-drift {
+  from { transform: translate3d(-8%, 0, 0); }
+  to   { transform: translate3d(108%, 0, 0); }
+}
+.cloud-drift {
+  will-change: transform;
+  animation: cloud-drift linear infinite;
+}
+
+@keyframes bird-fly {
+  0%   { transform: translate3d(-10vw, 0, 0) scale(1); opacity: 0; }
+  8%   { opacity: 0.7; }
+  50%  { transform: translate3d(50vw, -4vh, 0) scale(0.95); }
+  92%  { opacity: 0.7; }
+  100% { transform: translate3d(115vw, 2vh, 0) scale(0.9); opacity: 0; }
+}
+.bird-fly {
+  will-change: transform, opacity;
+  animation: bird-fly linear infinite;
+}
+
+@keyframes bird-flap {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.55); }
+}
+.bird-flap {
+  transform-origin: center;
+  animation: bird-flap 0.5s ease-in-out infinite;
+}
+
+/* Gentle pendulum for the hanging hero jacket */
+@keyframes jacket-swing {
+  0%, 100% { transform: rotate(-2.2deg); }
+  50%      { transform: rotate(2.2deg); }
+}
+.jacket-swing {
+  transform-origin: top center;
+  animation: jacket-swing 6s ease-in-out infinite;
+}
+
+/* Soft elliptical drop shadow beneath the floating jacket */
+.jacket-shadow {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(30, 58, 90, 0.28) 0%,
+    rgba(30, 58, 90, 0.16) 40%,
+    rgba(30, 58, 90, 0) 72%
+  );
+  filter: blur(6px);
+}
+@keyframes jacket-shadow-breathe {
+  0%, 100% { transform: scaleX(1); opacity: 0.85; }
+  50%      { transform: scaleX(0.9); opacity: 0.65; }
+}
+.jacket-shadow-breathe {
+  animation: jacket-shadow-breathe 6s ease-in-out infinite;
+}
+
+/* Translucent glass surface used across pages */
+.glass-panel {
+  background-color: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 1px 2px rgba(30, 58, 90, 0.04),
+    0 12px 40px rgba(30, 58, 90, 0.08);
+}
+
+/* ── Storefront film grain ─────────────────────────────────────── */
+@keyframes film-grain-shift {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-6%, 4%);
+  }
+  40% {
+    transform: translate(5%, -6%);
+  }
+  60% {
+    transform: translate(-4%, -5%);
+  }
+  80% {
+    transform: translate(6%, 3%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.store-film-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.store-film-grain-layer {
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  width: 400%;
+  height: 400%;
+  will-change: transform;
+  animation: film-grain-shift 0.32s steps(8) infinite;
+}
+
+.store-film-grain-layer--coarse {
+  opacity: 0.34;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.38' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 110px 110px;
+}
+
+.store-film-grain-layer--fine {
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 52px 52px;
+  animation-duration: 0.18s;
+  animation-direction: reverse;
+}
+
+/* Hero viewport — oversized editorial scale */
+.countdown-odometer {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-weight: 700;
+  font-size: clamp(7.5rem, 24vw, 16rem);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.07em;
+  color: #0f172a;
+  width: fit-content;
+  padding-right: 0.15em;
+}
+
+.countdown-colon {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-weight: 700;
+  font-size: clamp(4rem, 12vw, 8.5rem);
+  line-height: 1;
+}
+
+.hero-viewport-label {
+  font-size: clamp(0.8rem, 1.35vw, 1rem);
+  letter-spacing: 0.28em;
+}
+
+.hero-viewport-sublabel {
+  font-size: clamp(0.8rem, 1.25vw, 0.95rem);
+  letter-spacing: 0.22em;
+}
+
+.hero-viewport-copy {
+  font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+  line-height: 1.55;
+}
+
+.hero-viewport-brand {
+  font-size: clamp(3rem, 7.5vw, 5.75rem);
+}
+
+.hero-viewport-units {
+  gap: clamp(3.5rem, 14vw, 9rem);
+}
+
+/* Odometer: one digit visible; strip is out of flow so layout stays one line */
+.odometer-pair {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  letter-spacing: -0.05em;
+}
+
+.odometer-digit + .odometer-digit {
+  margin-left: -0.06em;
+}
+
+.odometer-digit {
+  position: relative;
+  display: inline-block;
+  box-sizing: content-box;
+  height: 1em;
+  width: 1ch;
+  min-width: 1ch;
+  padding-inline: 0.02em;
+  overflow: hidden;
+  vertical-align: baseline;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.odometer-digit-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  transform: translateY(calc(var(--odometer-index, 0) * -1em));
+  transition: transform 580ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.odometer-digit-cell {
+  display: block;
+  height: 1em;
+  line-height: 1;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jacket-scroll-cue,
+  .jacket-pin-pulse,
+  .reveal-on-load,
+  .cloud-drift,
+  .bird-fly,
+  .bird-flap,
+  .jacket-swing,
+  .jacket-shadow-breathe,
+  .store-film-grain-layer {
+    animation: none;
+  }
+
+  .odometer-digit-strip {
+    transition: none;
   }
 }

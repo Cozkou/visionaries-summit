@@ -1,26 +1,26 @@
 import Link from "next/link";
 
 import { DesignsGallery } from "@/components/designs-gallery";
-import { AppShell } from "@/components/layout/app-shell";
-import { Button } from "@/components/ui/button";
+import { InternalShell } from "@/components/layout/internal-shell";
 
 export default function DesignsPage() {
   return (
-    <AppShell>
-      <div className="space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold">Design Gallery</h1>
-            <p className="text-sm text-muted-foreground">
-              Six AI-generated concepts ready for review.
-            </p>
-          </div>
-          <Button variant="outline" render={<Link href="/generate" />}>
-            New generation
-          </Button>
+    <InternalShell>
+      <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
+        <div>
+          <h1 className="text-sm font-medium text-neutral-900">Designs</h1>
+          <p className="mt-1 text-[13px] text-neutral-500">
+            Generated concepts ready for review.
+          </p>
         </div>
-        <DesignsGallery />
+        <Link
+          href="/generate"
+          className="font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
+        >
+          new generation →
+        </Link>
       </div>
-    </AppShell>
+      <DesignsGallery />
+    </InternalShell>
   );
 }
