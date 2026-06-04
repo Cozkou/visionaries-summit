@@ -55,6 +55,7 @@ function buildRecommendation(
     `${refundRateForProduct(focus.unitsSold, focus.refundCount)}% refunds (line_items.csv + refunds.csv). ` +
     `Achieved price £${retail}; category avg landed cost £${snap.avgLandedCostGbp} (po_line_items.csv). ` +
     `Margin at achieved price vs category landed cost: ${margin}%. ` +
+    (snap.fallbackNote ? `${snap.fallbackNote} ` : "") +
     (inputs.businessGoal === "Low Refund Risk"
       ? `Category baseline refund rate is ${snap.refundRiskPercent}%.`
       : `Supplier lead time for category: ${snap.avgLeadTimeDays} days (suppliers.csv).`);

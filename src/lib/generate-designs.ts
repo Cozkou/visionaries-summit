@@ -22,18 +22,39 @@ function productAchievedPrice(stat: {
 function buildDescription(
   stat: ProductSalesStat,
   inputs: GenerationInputs,
-  achievedPrice: number
+  achievedPrice: number,
+  fallbackNote?: string | null
 ): string {
   const rate = refundRatePercent(stat.unitsSold, stat.refundCount);
   const style = inputs.stylePrompt?.trim();
   const styleClause = style
     ? ` User brief (not in CSV): ${style}.`
     : "";
+  const productCopy = stat.description?.trim()
+    ? ` Product copy from products.csv: ${stat.description}`
+    : "";
+  const merchandising = [
+    stat.collection ? `collection=${stat.collection}` : "",
+    stat.vendor ? `vendor=${stat.vendor}` : "",
+    stat.genderSegment ? `segment=${stat.genderSegment}` : "",
+    stat.handle ? `handle=${stat.handle}` : "",
+    stat.tags ? `tags=${stat.tags}` : "",
+    stat.status ? `status=${stat.status}` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const merchandisingClause = merchandising
+    ? ` Merchandising fields: ${merchandising}.`
+    : "";
+  const fallbackClause = fallbackNote ? ` ${fallbackNote}` : "";
   return (
     `Derived from ${stat.title} (${stat.productId}) in products.csv: ` +
     `${formatGbp(stat.revenueGbp)} revenue, ${stat.unitsSold.toLocaleString()} units, ` +
     `${rate}% refund rate (refunds.csv + line_items.csv). ` +
     `Achieved unit price £${achievedPrice.toFixed(2)} (line_items.csv).` +
+    fallbackClause +
+    productCopy +
+    merchandisingClause +
     styleClause
   );
 }
@@ -65,7 +86,12 @@ export function createDesignConcepts(
     {
       id: crypto.randomUUID(),
       name: buildDesignName(stat, inputs),
-      description: buildDescription(stat, inputs, retailPrice),
+      description: buildDescription(
+        stat,
+        inputs,
+        retailPrice,
+        snap.fallbackNote
+      ),
       imageUrl: "",
       retailPrice,
       sourceProductId: stat.productId,

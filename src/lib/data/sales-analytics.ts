@@ -16,9 +16,15 @@ const DATA_DIR = path.join(
 export interface ProductSalesStat {
   productId: string;
   title: string;
+  handle: string;
+  description: string;
   productType: string;
+  vendor: string;
   genderSegment: string;
   collection: string;
+  tags: string;
+  status: string;
+  createdAt: string;
   revenueGbp: number;
   unitsSold: number;
   refundCount: number;
@@ -30,6 +36,8 @@ export interface CategorySalesSnapshot {
   targetAudience: TargetAudience;
   datasetTypes: string[];
   genderFilter: string;
+  usedAudienceFallback: boolean;
+  fallbackNote: string | null;
   totalRevenueGbp: number;
   totalUnits: number;
   totalRefunds: number;
@@ -46,7 +54,13 @@ const SALES_CACHE_VERSION = 5;
 type SalesGlobal = typeof globalThis & {
   __prettyFlySalesCache?: {
     version: number;
-    products: Map<string, Omit<ProductSalesStat, "revenueGbp" | "unitsSold" | "refundCount" | "refundAmountGbp">>;
+    products: Map<
+      string,
+      Omit<
+        ProductSalesStat,
+        "revenueGbp" | "unitsSold" | "refundCount" | "refundAmountGbp"
+      >
+    >;
     stats: Map<string, ProductSalesStat>;
     variantToProduct: Map<string, string>;
     loadedAt: number;
@@ -151,21 +165,45 @@ function loadSalesCache() {
   const variantToProduct = new Map<string, string>();
 
   for (const row of readDataCsv("products.csv")) {
-    const [productId, title, , , productType, , collection, genderSegment] = row;
+    const [
+      productId,
+      title,
+      handle,
+      description,
+      productType,
+      vendor,
+      collection,
+      genderSegment,
+      tags,
+      status,
+      createdAt,
+    ] = row;
     if (!productId) continue;
     products.set(productId, {
       productId,
       title,
+      handle,
+      description,
       productType,
+      vendor,
       genderSegment,
       collection,
+      tags,
+      status,
+      createdAt,
     });
     stats.set(productId, {
       productId,
       title,
+      handle,
+      description,
       productType,
+      vendor,
       genderSegment,
       collection,
+      tags,
+      status,
+      createdAt,
       revenueGbp: 0,
       unitsSold: 0,
       refundCount: 0,
@@ -309,12 +347,19 @@ export function getCategorySnapshot(
   const datasetTypes = productTypeToDataset[inputs.productType];
   const genderFilter = genderForAudience(inputs.targetAudience);
 
-  const matching: ProductSalesStat[] = [];
+  const exactMatching: ProductSalesStat[] = [];
   for (const stat of stats.values()) {
     if (!datasetTypes.includes(stat.productType)) continue;
     if (!matchesAudience(stat.genderSegment, inputs.targetAudience)) continue;
-    matching.push({ ...stat });
+    exactMatching.push({ ...stat });
   }
+
+  const usedAudienceFallback = exactMatching.length === 0;
+  const matching = usedAudienceFallback
+    ? Array.from(stats.values())
+        .filter((stat) => datasetTypes.includes(stat.productType))
+        .map((stat) => ({ ...stat }))
+    : exactMatching;
 
   matching.sort((a, b) => b.revenueGbp - a.revenueGbp);
 
@@ -355,11 +400,17 @@ export function getCategorySnapshot(
   const avgLeadTimeDays =
     leadQty > 0 ? Math.round(leadSum / leadQty) : 0;
 
+  const fallbackNote = usedAudienceFallback
+    ? `No exact ${inputs.targetAudience.toLowerCase()} ${inputs.productType.toLowerCase()} entries exist in products.csv, so this concept is anchored to the closest same-product history from the wider catalog.`
+    : null;
+
   return {
     productType: inputs.productType,
     targetAudience: inputs.targetAudience,
     datasetTypes,
     genderFilter,
+    usedAudienceFallback,
+    fallbackNote,
     totalRevenueGbp: Math.round(totalRevenueGbp),
     totalUnits,
     totalRefunds,
@@ -405,7 +456,16 @@ export function buildDataDrivenInsights(
   inputs: GenerationInputs
 ): SourcedInsight[] {
   const snap = getCategorySnapshot(inputs);
-  const insights: SourcedInsight[] = [
+  const insights: SourcedInsight[] = [];
+
+  if (snap.usedAudienceFallback && snap.fallbackNote) {
+    insights.push({
+      text: snap.fallbackNote,
+      sourceIds: ["products"],
+    });
+  }
+
+  insights.push(
     {
       text: `${inputs.productType} (${inputs.targetAudience}) generated ${formatGbp(snap.totalRevenueGbp)} across ${snap.totalUnits.toLocaleString()} units over 24 months.`,
       sourceIds: ["line_items", "products"],
@@ -418,7 +478,7 @@ export function buildDataDrivenInsights(
       text: `Average achieved selling price is ${formatGbp(snap.avgSellingPriceGbp)}; average landed unit cost from purchase orders is £${snap.avgLandedCostGbp}.`,
       sourceIds: ["line_items", "po_line_items"],
     },
-  ];
+  );
 
   if (snap.avgLeadTimeDays > 0) {
     insights.push({

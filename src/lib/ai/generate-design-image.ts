@@ -1,4 +1,5 @@
 import { getOpenAiImageClient } from "@/lib/ai/client";
+import { buildSingleProductPrompt } from "@/lib/ai/design-direction";
 import { getOpenAiImageModel } from "@/lib/env";
 import type { Design, GenerationInputs } from "@/types";
 
@@ -10,20 +11,7 @@ type ImageResponseShape =
   | string;
 
 function buildPrompt(design: Design, inputs: GenerationInputs): string {
-  const style = inputs.stylePrompt?.trim();
-  const styleClause = style ? `Style direction: ${style}.` : "";
-
-  return [
-    `Create a single premium ecommerce hero image for a ${inputs.targetAudience.toLowerCase()} ${inputs.productType.toLowerCase()}.`,
-    "Show one original apparel product only, centered, highly detailed, and ready for a modern fashion storefront.",
-    "Use clean studio lighting, realistic fabric texture, and a simple background that keeps the product as the main focus.",
-    "Do not include text, logos, watermarks, brand names, extra products, hands, mannequins, or model faces.",
-    `Commercial goal: ${inputs.businessGoal}.`,
-    `Historical anchor: ${design.description}`,
-    styleClause,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  return buildSingleProductPrompt(design.description, inputs);
 }
 
 export async function generateDesignImage(

@@ -3,6 +3,7 @@ import path from "path";
 
 import OpenAI from "openai";
 
+import { buildSingleProductPrompt } from "@/lib/ai/design-direction";
 import { getStoredDesign, updateDesignImageUrl } from "@/lib/db/designs-repository";
 import {
   getListingByDesignId,
@@ -32,16 +33,14 @@ function escapeXml(text: string): string {
 
 function buildImagePrompt(
   name: string,
-  productType: string,
+  productType: GenerationInputs["productType"],
   inputs: GenerationInputs
 ): string {
-  const style = inputs.stylePrompt?.trim();
-  const styleClause = style ? ` Style direction: ${style}.` : "";
-  return (
-    `Editorial e-commerce product photo for Pretty Fly streetwear: ${name}, ` +
-    `a ${productType.toLowerCase()} for ${inputs.targetAudience.toLowerCase()}. ` +
-    `Clean studio lighting, neutral backdrop, premium fashion lookbook, no text or logos.${styleClause}`
-  );
+  return buildSingleProductPrompt(name, { ...inputs, productType }, {
+    intro:
+      `Editorial e-commerce product photo for Pretty Fly streetwear: ${name}, ` +
+      `exactly one ${productType === "T-Shirt" ? "T-shirt" : productType === "Trainers" ? "pair of trainers" : productType.toLowerCase()} for ${inputs.targetAudience.toLowerCase()}.`,
+  });
 }
 
 function writeSvgPlaceholder(
