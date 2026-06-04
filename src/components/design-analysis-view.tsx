@@ -3,26 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { DataSourcesPanel } from "@/components/data-sources-panel";
-import { DesignDataPanel } from "@/components/design-data-panel";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { internalPanelClass } from "@/components/layout/internal-tools";
 import { getDesignAnalysis, getDesignById } from "@/services/api";
 import { useAppStore } from "@/store/useAppStore";
 import type { Design } from "@/types";
 
 interface DesignAnalysisViewProps {
   designId: string;
-}
-
-function formatCurrency(value: number): string {
-  return `£${value.toFixed(2)}`;
 }
 
 export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
@@ -101,7 +88,7 @@ export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
 
   if (designLoading || analysisLoading) {
     return (
-      <p className="text-sm text-muted-foreground">
+      <p className="text-[13px] text-neutral-500">
         {designLoading ? "Loading design…" : "Loading analysis…"}
       </p>
     );
@@ -109,137 +96,99 @@ export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
 
   if (error || !design) {
     return (
-      <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          {error ?? "Design not found."}
-        </p>
-        <Button variant="outline" render={<Link href="/designs" />}>
-          Back to gallery
-        </Button>
+      <div className="space-y-3">
+        <p className="text-[13px] text-neutral-500">{error ?? "Design not found."}</p>
+        <Link
+          href="/designs"
+          className="font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
+        >
+          ← designs
+        </Link>
       </div>
     );
   }
 
   if (!analysisData) {
-    return (
-      <p className="text-sm text-muted-foreground">Analysis unavailable.</p>
-    );
+    return <p className="text-[13px] text-neutral-500">Analysis unavailable.</p>;
   }
 
   return (
-    <div className="space-y-10">
-      <section className="grid gap-6 md:grid-cols-2">
-        <DesignDataPanel design={design} />
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">{design.name}</h1>
-          <p className="text-muted-foreground">{design.description}</p>
-          <p className="text-xs text-muted-foreground">
-            Metrics use this concept&apos;s source SKU when available; category
-            tables and insights are from the same CSV data pack.
-          </p>
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Commercial Metrics (from data)</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {analysisData.metrics.map((metric) => (
-            <Card key={metric.label}>
-              <CardHeader className="pb-2">
-                <CardDescription>{metric.label}</CardDescription>
-                <CardTitle className="text-xl">{metric.value}</CardTitle>
-                {metric.detail && (
-                  <p className="text-xs text-muted-foreground">
-                    {metric.detail}
-                  </p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  Sources: {metric.sourceIds.join(", ")}
-                </p>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">
-          Similar Products (24 months, line_items.csv)
-        </h2>
-        {analysisData.similarProducts.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No historical matches in products.csv for this segment.
-          </p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/50 text-left">
-                  <th className="px-4 py-2 font-medium">Product ID</th>
-                  <th className="px-4 py-2 font-medium">Title</th>
-                  <th className="px-4 py-2 font-medium">Revenue</th>
-                  <th className="px-4 py-2 font-medium">Units</th>
-                  <th className="px-4 py-2 font-medium">Refund rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analysisData.similarProducts.map((product) => (
-                  <tr key={product.productId} className="border-b last:border-0">
-                    <td className="px-4 py-2 font-mono text-xs">
-                      {product.productId}
-                    </td>
-                    <td className="px-4 py-2">{product.title}</td>
-                    <td className="px-4 py-2">
-                      {formatCurrency(product.revenueGbp)}
-                    </td>
-                    <td className="px-4 py-2">
-                      {product.unitsSold.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-2">{product.refundRatePercent}%</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+    <div className="space-y-8">
+      <section className="space-y-2">
+        <h2 className="text-sm font-medium text-neutral-900">{design.name}</h2>
+        <p className="text-[13px] text-neutral-600">{design.description}</p>
+        {design.sourceProductId && (
+          <p className="font-mono text-[11px] text-neutral-400">{design.sourceProductId}</p>
         )}
+        {design.imageUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={design.imageUrl}
+            alt={design.name}
+            className="mt-4 max-h-80 w-full max-w-md object-contain"
+          />
+        ) : null}
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Historical Insights</h2>
-        <ul className="space-y-3 text-sm text-muted-foreground">
-          {analysisData.historicalInsights.map((insight) => (
-            <li key={insight.text} className="rounded-md border p-3">
-              <p>{insight.text}</p>
-              <p className="mt-1 text-xs">
-                Sources: {insight.sourceIds.join(", ")}
-              </p>
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium text-neutral-900">Commercial metrics</h2>
+        <ul className={internalPanelClass}>
+          {analysisData.metrics.map((metric) => (
+            <li
+              key={metric.label}
+              className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3"
+            >
+              <span className="font-mono text-[11px] text-neutral-500">{metric.label}</span>
+              <span className="text-sm font-medium text-neutral-900">{metric.value}</span>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Recommendation</h2>
-        <Card className="border-2">
-          <CardContent className="space-y-2 pt-6">
-            <p className="text-base leading-relaxed">
-              {analysisData.recommendation}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Sources: {analysisData.recommendationSourceIds.join(", ")}
-            </p>
-          </CardContent>
-        </Card>
+      {analysisData.similarProducts.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-medium text-neutral-900">Similar products</h2>
+          <ul className={internalPanelClass}>
+            {analysisData.similarProducts.map((product) => (
+              <li key={product.productId} className="px-4 py-3 text-[13px]">
+                <p className="font-medium text-neutral-900">{product.title}</p>
+                <p className="mt-1 font-mono text-[11px] text-neutral-400">
+                  {product.productId} · £{product.revenueGbp.toLocaleString()} revenue ·{" "}
+                  {product.refundRatePercent}% refunds
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium text-neutral-900">Historical insights</h2>
+        <ul className="space-y-2">
+          {analysisData.historicalInsights.map((insight) => (
+            <li
+              key={insight.text}
+              className="border border-neutral-200 bg-white px-4 py-3 text-[13px] text-neutral-600"
+            >
+              {insight.text}
+            </li>
+          ))}
+        </ul>
       </section>
 
-      <DataSourcesPanel
-        sources={analysisData.dataSources}
-        insights={analysisData.historicalInsights}
-      />
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium text-neutral-900">Recommendation</h2>
+        <p className="border border-neutral-200 bg-white px-4 py-3 text-[13px] leading-relaxed text-neutral-800">
+          {analysisData.recommendation}
+        </p>
+      </section>
 
-      <Button variant="outline" render={<Link href="/designs" />}>
-        Back to gallery
-      </Button>
+      <Link
+        href="/designs"
+        className="inline-block font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
+      >
+        ← designs
+      </Link>
     </div>
   );
 }

@@ -1,4 +1,12 @@
 import type { AnalysisData, Design, GenerationInputs } from "@/types";
+import type {
+  DashboardSnapshot,
+  InventoryProduct,
+  InventoryRow,
+  MarketingRow,
+  SupportRow,
+} from "@/types/dashboard";
+import type { ChinaMarketResponse } from "@/types/china-market";
 
 class ApiError extends Error {
   constructor(
@@ -81,4 +89,98 @@ export async function getDesignAnalysis(
     headers: apiHeaders(),
   });
   return parseJson<AnalysisData>(res);
+}
+
+/* ─── Control tower (dashboard) ───────────────────────────────────────────── */
+
+export type ControlTowerOverview = Pick<
+  DashboardSnapshot,
+  "brand" | "snapshotDate" | "subtitle" | "hero" | "metrics" | "insights" | "footer"
+>;
+
+export interface ControlTowerActionsResponse {
+  actions: DashboardSnapshot["actions"];
+  insights: DashboardSnapshot["insights"];
+  marketingReallocation: DashboardSnapshot["marketing"]["reallocation"];
+}
+
+export interface InventoryResponse {
+  summary: DashboardSnapshot["inventory"]["summary"];
+  filters: Record<string, unknown>;
+  rows: InventoryRow[];
+  topProducts: InventoryProduct[];
+}
+
+export interface MarketingResponse {
+  summary: DashboardSnapshot["marketing"]["summary"];
+  reallocation: DashboardSnapshot["marketing"]["reallocation"];
+  filters: Record<string, unknown>;
+  rows: MarketingRow[];
+}
+
+export interface SupportResponse {
+  summary: DashboardSnapshot["support"]["summary"];
+  filters: Record<string, unknown>;
+  rows: SupportRow[];
+}
+
+export async function getControlTowerOverview(): Promise<ControlTowerOverview> {
+  const res = await fetch("/api/control-tower/overview", {
+    headers: apiHeaders(),
+  });
+  return parseJson<ControlTowerOverview>(res);
+}
+
+export async function getControlTowerActions(): Promise<ControlTowerActionsResponse> {
+  const res = await fetch("/api/control-tower/actions", {
+    headers: apiHeaders(),
+  });
+  return parseJson<ControlTowerActionsResponse>(res);
+}
+
+export async function getInventoryRecommendations(
+  params?: { limit?: number }
+): Promise<InventoryResponse> {
+  const search = new URLSearchParams();
+  if (params?.limit) search.set("limit", String(params.limit));
+  const qs = search.toString();
+  const res = await fetch(
+    `/api/control-tower/inventory${qs ? `?${qs}` : ""}`,
+    { headers: apiHeaders() }
+  );
+  return parseJson<InventoryResponse>(res);
+}
+
+export async function getMarketingTriage(
+  params?: { limit?: number }
+): Promise<MarketingResponse> {
+  const search = new URLSearchParams();
+  if (params?.limit) search.set("limit", String(params.limit));
+  const qs = search.toString();
+  const res = await fetch(
+    `/api/control-tower/marketing${qs ? `?${qs}` : ""}`,
+    { headers: apiHeaders() }
+  );
+  return parseJson<MarketingResponse>(res);
+}
+
+export async function getSupportAutomation(
+  params?: { limit?: number }
+): Promise<SupportResponse> {
+  const search = new URLSearchParams();
+  if (params?.limit) search.set("limit", String(params.limit));
+  const qs = search.toString();
+  const res = await fetch(
+    `/api/control-tower/support${qs ? `?${qs}` : ""}`,
+    { headers: apiHeaders() }
+  );
+  return parseJson<SupportResponse>(res);
+}
+
+export async function getChinaMarket(): Promise<ChinaMarketResponse> {
+  const res = await fetch("/api/china-market", {
+    headers: apiHeaders(),
+    cache: "no-store",
+  });
+  return parseJson<ChinaMarketResponse>(res);
 }

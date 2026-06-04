@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import Link from "next/link";
 
 import { AppShell } from "@/components/layout/app-shell";
@@ -86,4 +87,10 @@ export default function HomePage() {
       </div>
     </AppShell>
   );
+=======
+import { Storefront } from "@/components/store/storefront";
+
+export default function HomePage() {
+  return <Storefront />;
+>>>>>>> 28c6054d6649a4f93118bfd516dd7e7929eb9596
 }

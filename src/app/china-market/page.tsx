@@ -1,12 +1,5 @@
-import { ChinaMarketView } from "@/components/china-market-view";
-import { AppShell } from "@/components/layout/app-shell";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default function ChinaMarketPage() {
-  return (
-    <AppShell>
-      <ChinaMarketView />
-    </AppShell>
-  );
+export default function ChinaMarketRedirectPage() {
+  redirect("/dashboard/china-market");
 }
