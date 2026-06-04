@@ -20,7 +20,7 @@ export function ListingCard({ listing }: { listing: PublicListing }) {
           name={listing.name}
           productType={listing.productType}
           imageUrl={listing.imageUrl}
-          seed={listing.slug}
+          sourceProductId={listing.sourceProductId}
           className="transition-transform duration-700 ease-out group-hover:scale-[1.015]"
         />
         <span className="absolute top-3 right-3 z-10 bg-white/90 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-700 backdrop-blur-sm">

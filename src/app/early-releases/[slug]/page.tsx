@@ -45,7 +45,7 @@ export default async function EarlyReleaseDetailPage({ params }: PageProps) {
               name={publicListing.name}
               productType={publicListing.productType}
               imageUrl={publicListing.imageUrl}
-              seed={publicListing.slug}
+              sourceProductId={publicListing.sourceProductId}
               className="border border-slate-200/70"
             />
             <div className="flex items-center justify-between font-mono text-[10px] tracking-[0.2em] text-slate-400 uppercase">

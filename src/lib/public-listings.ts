@@ -12,6 +12,8 @@ import type { ProductType, TargetAudience } from "@/types";
 export interface PublicListing {
   slug: string;
   designId: string;
+  /** Historical SKU from products.csv when the concept was generated. */
+  sourceProductId?: string;
   name: string;
   /** Customer-friendly description (CSV / SKU mentions stripped). */
   description: string;
@@ -39,6 +41,7 @@ export async function toPublicListing(
   return {
     slug: listing.slug,
     designId: listing.designId,
+    sourceProductId: stored.design.sourceProductId,
     name: stored.design.name,
     description: story.description,
     staffDescription: stored.design.description,

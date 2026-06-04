@@ -27,14 +27,14 @@ In development, if `INTERNAL_API_KEY` is unset, auth is skipped (not allowed in 
 
 | Layer | Implementation |
 |-------|----------------|
-| Persistence | Supabase Postgres when `DATABASE_URL` is set; otherwise SQLite (`data/pretty-fly.db`) |
+| Persistence | Supabase Postgres (`DATABASE_URL` required in production); SQLite only for local dev without Postgres |
 | Design / analysis | `sales-analytics.ts` — line_items, products, refunds, POs, suppliers |
 | Control tower | `control-tower-build.ts` — variants, ads CSVs, support_tickets |
 | Storefront catalog | `catalog.ts` — products.csv + variant inventory |
 | Publish | SQLite early-release listing; optional WooCommerce when configured |
 | China market | Live HTTP from official sources (no static fallback file) |
 
-Concepts have empty `imageUrl` (data pack has no photography). Publish does not use placeholder images.
+Concepts have empty `imageUrl` (data pack has no photography). No mock catalogue, session counters, or decorative countdown timers — storefront signals come from CSV + database only.
 
 ## Setup
 

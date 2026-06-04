@@ -136,7 +136,7 @@ export default async function PublishedOverviewPage() {
                         name={l.name}
                         productType={l.productType}
                         imageUrl={l.imageUrl}
-                        seed={l.slug}
+                        sourceProductId={l.sourceProductId}
                         className="!aspect-auto h-full w-full"
                       />
                     </div>

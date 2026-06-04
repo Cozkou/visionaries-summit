@@ -37,7 +37,7 @@ export function LatestPublishedSection({ listing }: Props) {
               name={listing.name}
               productType={listing.productType}
               imageUrl={listing.imageUrl}
-              seed={listing.slug}
+              sourceProductId={listing.sourceProductId}
               className="transition-transform duration-700 ease-out group-hover:scale-[1.01]"
             />
           </Link>

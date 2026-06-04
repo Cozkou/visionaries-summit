@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
 
+import { getAppStorage } from "@/lib/db/database";
 import { ensurePostgresSchema } from "@/lib/db/ensure-postgres-schema";
 import { listStoredDesigns } from "@/lib/db/designs-repository";
-import { isPostgresEnabled, getSql } from "@/lib/db/sql";
+import { getSql } from "@/lib/db/sql";
 import { getDb } from "@/lib/db/client";
 
 export const runtime = "nodejs";
 
 export async function GET() {
-  const storage = isPostgresEnabled() ? "postgres" : "sqlite";
-
   try {
-    if (isPostgresEnabled()) {
+    const storage = getAppStorage();
+
+    if (storage === "postgres") {
       await ensurePostgresSchema();
       const [{ ok }] = await getSql()`select 1 as ok`;
       const designs = await listStoredDesigns(1);
@@ -33,9 +34,6 @@ export async function GET() {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Database error";
-    return NextResponse.json(
-      { ok: false, storage, error: message },
-      { status: 503 }
-    );
+    return NextResponse.json({ ok: false, error: message }, { status: 503 });
   }
 }

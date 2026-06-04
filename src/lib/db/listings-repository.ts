@@ -1,7 +1,8 @@
+import { assertDatabaseConfigured, getAppStorage } from "@/lib/db/database";
 import { getDb } from "@/lib/db/client";
 import { getStoredDesign } from "@/lib/db/designs-repository";
 import { ensurePostgresSchema } from "@/lib/db/ensure-postgres-schema";
-import { getSql, isPostgresEnabled } from "@/lib/db/sql";
+import { getSql } from "@/lib/db/sql";
 import type { ListingStatus } from "@/lib/commerce/types";
 import type { Design, GenerationInputs } from "@/types";
 
@@ -92,12 +93,14 @@ async function pgSlugExists(slug: string): Promise<boolean> {
 }
 
 export async function generateUniqueSlug(seed: string): Promise<string> {
+  assertDatabaseConfigured();
   const base = slugify(seed);
   let candidate = base;
   let i = 1;
 
   while (true) {
-    const exists = isPostgresEnabled()
+    const exists =
+      getAppStorage() === "postgres"
       ? await pgSlugExists(candidate)
       : Boolean(
           getDb()
@@ -116,7 +119,8 @@ export async function generateUniqueSlug(seed: string): Promise<string> {
 export async function getListingByDesignId(
   designId: string
 ): Promise<ConceptListing | undefined> {
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     const rows = await sql`
       SELECT * FROM concept_listings WHERE design_id = ${designId} LIMIT 1
@@ -133,7 +137,8 @@ export async function getListingByDesignId(
 export async function getListingBySlug(
   slug: string
 ): Promise<ConceptListing | undefined> {
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     const rows = await sql`
       SELECT * FROM concept_listings WHERE slug = ${slug} LIMIT 1
@@ -150,7 +155,8 @@ export async function getListingBySlug(
 export async function getListingByWooProductId(
   wooProductId: number
 ): Promise<ConceptListing | undefined> {
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     const rows = await sql`
       SELECT * FROM concept_listings WHERE woo_product_id = ${wooProductId} LIMIT 1
@@ -183,7 +189,8 @@ export async function insertListing(
   const now = Date.now();
   const releaseAt = input.releaseAt ?? now + DEFAULT_RELEASE_WINDOW_MS;
 
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     await sql`
       INSERT INTO concept_listings (
@@ -260,7 +267,8 @@ export async function updateListing(
     return getListingById(listingId);
   }
 
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     const existing = await getListingById(listingId);
     if (!existing) return undefined;
@@ -317,7 +325,8 @@ export async function updateListing(
 export async function getListingById(
   listingId: string
 ): Promise<ConceptListing | undefined> {
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     const rows = await sql`
       SELECT * FROM concept_listings WHERE id = ${listingId} LIMIT 1
@@ -332,7 +341,8 @@ export async function getListingById(
 }
 
 export async function listPublished(limit = 50): Promise<ConceptListing[]> {
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     const rows = await sql`
       SELECT * FROM concept_listings
@@ -356,7 +366,8 @@ export async function listPublished(limit = 50): Promise<ConceptListing[]> {
 export async function getLatestPublishedListing(): Promise<
   ConceptListing | undefined
 > {
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     const rows = await sql`
       SELECT * FROM concept_listings
@@ -393,7 +404,8 @@ export async function addWishlistSignup(
   const trimmed = email.trim().toLowerCase();
   if (!trimmed) return false;
 
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     try {
       await sql`
@@ -440,7 +452,8 @@ export async function addPreorder(input: AddPreorderInput): Promise<string> {
   const email = input.email.trim().toLowerCase();
   const quantity = Math.max(1, input.quantity ?? 1);
 
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     await sql`
       INSERT INTO preorders (
@@ -486,7 +499,8 @@ export async function incrementPageView(
 ): Promise<void> {
   const day = todayIsoDay();
 
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     await sql`
       INSERT INTO page_views (listing_id, day, count)
@@ -510,7 +524,8 @@ export async function incrementPageView(
 export async function getDemandCounts(
   listingId: string
 ): Promise<DemandCounts> {
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     const sql = await pgEnsure();
     const [wishlistRows, preorderRows, totalRows, weekRows, listing] =
       await Promise.all([

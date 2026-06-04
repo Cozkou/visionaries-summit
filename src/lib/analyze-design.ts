@@ -74,20 +74,31 @@ function buildRecommendation(
 async function computeAnalysis(stored: StoredDesign): Promise<AnalysisData> {
   const { inputs, design } = stored;
   const snap = getCategorySnapshot(inputs);
-  const source = design.sourceProductId
-    ? (getProductSalesStat(design.sourceProductId) as ProductWithCost | undefined)
-    : undefined;
+  if (!design.sourceProductId) {
+    throw new Error(
+      "Design has no sourceProductId — analysis requires a CSV-backed SKU."
+    );
+  }
 
-  const recommendedRetailPrice = source
-    ? productRetail(source) || round2(snap.avgSellingPriceGbp)
-    : round2(snap.avgSellingPriceGbp);
+  const source = getProductSalesStat(design.sourceProductId) as
+    | ProductWithCost
+    | undefined;
 
-  const manufacturingCost = source?.landedCostGbp
+  if (!source) {
+    throw new Error(
+      `No sales data for ${design.sourceProductId} in the Pretty Fly data pack.`
+    );
+  }
+
+  const recommendedRetailPrice =
+    productRetail(source) || round2(snap.avgSellingPriceGbp);
+
+  const manufacturingCost = source.landedCostGbp
     ? round2(source.landedCostGbp)
     : round2(snap.avgLandedCostGbp);
 
   const leadTimeDays =
-    source?.leadTimeDays && source.leadTimeDays > 0
+    source.leadTimeDays && source.leadTimeDays > 0
       ? source.leadTimeDays
       : snap.avgLeadTimeDays;
 
@@ -97,9 +108,10 @@ async function computeAnalysis(stored: StoredDesign): Promise<AnalysisData> {
       ? round2((profitPerUnit / recommendedRetailPrice) * 100)
       : 0;
 
-  const refundRiskPercent = source
-    ? refundRateForProduct(source.unitsSold, source.refundCount)
-    : snap.refundRiskPercent;
+  const refundRiskPercent = refundRateForProduct(
+    source.unitsSold,
+    source.refundCount
+  );
 
   const rec = buildRecommendation(stored, snap, margin, source);
 
@@ -114,9 +126,7 @@ async function computeAnalysis(stored: StoredDesign): Promise<AnalysisData> {
 
   const historicalInsights = buildDataDrivenInsights(inputs);
 
-  const skuLabel = source
-    ? `${source.title} (${source.productId})`
-    : "category average";
+  const skuLabel = `${source.title} (${source.productId})`;
 
   const metrics = [
     {

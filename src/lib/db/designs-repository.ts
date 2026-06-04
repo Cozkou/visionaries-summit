@@ -1,6 +1,7 @@
+import { assertDatabaseConfigured, getAppStorage } from "@/lib/db/database";
 import { getDb } from "@/lib/db/client";
 import { ensurePostgresSchema } from "@/lib/db/ensure-postgres-schema";
-import { getSql, isPostgresEnabled } from "@/lib/db/sql";
+import { getSql } from "@/lib/db/sql";
 import type { Design, GenerationInputs } from "@/types";
 
 export interface StoredDesign {
@@ -104,7 +105,8 @@ export async function saveDesigns(
   designs: Design[],
   inputs: GenerationInputs
 ): Promise<void> {
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     await saveDesignsPostgres(designs, inputs);
     return;
   }
@@ -134,7 +136,8 @@ export async function saveDesigns(
 export async function getStoredDesign(
   id: string
 ): Promise<StoredDesign | undefined> {
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     return getStoredDesignPostgres(id);
   }
   const row = selectByIdStmt().get(id) as DesignRow | undefined;
@@ -147,7 +150,8 @@ export async function getDesignById(id: string): Promise<Design | undefined> {
 
 /** Most recent concepts saved from CSV-backed generation (Postgres or SQLite). */
 export async function listStoredDesigns(limit = 100): Promise<Design[]> {
-  if (isPostgresEnabled()) {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
     await ensurePostgresSchema();
     const rows = await getSql()`
       SELECT * FROM designs

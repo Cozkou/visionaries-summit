@@ -14,12 +14,12 @@ export function Storefront({ featured, latestPublished }: StorefrontProps) {
   return (
     <div className="text-slate-900">
       <SplitHero />
-      <CountdownSection />
+      <CountdownSection releaseAt={latestPublished?.releaseAt ?? null} />
       {latestPublished ? (
         <LatestPublishedSection listing={latestPublished} />
       ) : null}
       {featured ? <CurrentEarlyReleaseSection featured={featured} /> : null}
-      <WaitlistSection />
+      <WaitlistSection listing={latestPublished} />
     </div>
   );
 }
