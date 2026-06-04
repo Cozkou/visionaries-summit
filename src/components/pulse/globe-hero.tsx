@@ -9,6 +9,7 @@ import {
   latLngToVec3,
   type GeoPoint,
 } from "@/lib/geo/centroids";
+import { WORLD_BORDER_RINGS } from "@/lib/geo/world-borders";
 import type {
   GeoCityPoint,
   GeoCountryPoint,
@@ -249,10 +250,10 @@ function GlobeCanvas({
 
     const sphereGeo = new THREE.IcosahedronGeometry(GLOBE_RADIUS, 5);
     const sphereMat = new THREE.MeshStandardMaterial({
-      color: 0x111b2d,
-      metalness: 0.15,
-      roughness: 0.78,
-      flatShading: true,
+      color: 0x0f172a, // slate-900 — slightly cooler so emerald borders pop
+      metalness: 0.1,
+      roughness: 0.85,
+      flatShading: false,
     });
     const sphere = new THREE.Mesh(sphereGeo, sphereMat);
     globeGroup.add(sphere);
@@ -270,18 +271,106 @@ function GlobeCanvas({
     const atmosphere = new THREE.Mesh(atmosGeo, atmosMat);
     globeGroup.add(atmosphere);
 
-    // Subtle inner wireframe for the "drafted globe" look.
-    const wireGeo = new THREE.IcosahedronGeometry(GLOBE_RADIUS * 1.001, 2);
-    const wireMat = new THREE.LineBasicMaterial({
-      color: 0x334155,
-      transparent: true,
-      opacity: 0.45,
-    });
-    const wire = new THREE.LineSegments(
-      new THREE.EdgesGeometry(wireGeo),
-      wireMat
+    // Real country borders projected onto the sphere. We split into two
+    // LineSegments meshes so countries WITH revenue render in bright emerald
+    // (data) and countries WITHOUT render in muted slate (geographic context).
+    // This turns the globe from an abstract dark ball into an actual world map
+    // where the bars' positions are immediately readable as countries.
+    const revenueCountrySet = new Set<string>();
+    for (const c of cityBars) revenueCountrySet.add(c.countryCode);
+    for (const s of supplierCones) revenueCountrySet.add(s.countryCode);
+
+    const defaultBorderPositions: number[] = [];
+    const dataBorderPositions: number[] = [];
+    for (const ring of WORLD_BORDER_RINGS) {
+      const target = revenueCountrySet.has(ring.countryCode)
+        ? dataBorderPositions
+        : defaultBorderPositions;
+      for (let i = 0; i < ring.points.length - 1; i++) {
+        const [lng1, lat1] = ring.points[i];
+        const [lng2, lat2] = ring.points[i + 1];
+        const a = latLngToVec3(lat1, lng1, GLOBE_RADIUS * 1.002);
+        const b = latLngToVec3(lat2, lng2, GLOBE_RADIUS * 1.002);
+        target.push(a.x, a.y, a.z, b.x, b.y, b.z);
+      }
+    }
+
+    const defaultBorderGeo = new THREE.BufferGeometry();
+    defaultBorderGeo.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(defaultBorderPositions, 3)
     );
-    globeGroup.add(wire);
+    const defaultBorderMat = new THREE.LineBasicMaterial({
+      color: 0x64748b, // slate-500 (brighter than 600 so continents read clearly)
+      transparent: true,
+      opacity: 0.85,
+    });
+    const defaultBorders = new THREE.LineSegments(
+      defaultBorderGeo,
+      defaultBorderMat
+    );
+    globeGroup.add(defaultBorders);
+
+    const dataBorderGeo = new THREE.BufferGeometry();
+    dataBorderGeo.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(dataBorderPositions, 3)
+    );
+    const dataBorderMat = new THREE.LineBasicMaterial({
+      color: 0x34d399, // emerald-400
+      transparent: true,
+      opacity: 0.95,
+    });
+    const dataBorders = new THREE.LineSegments(dataBorderGeo, dataBorderMat);
+    globeGroup.add(dataBorders);
+
+    // Hover highlight: a third LineSegments mesh whose geometry we rewrite
+    // every time the user hovers a bar, so the WHOLE country outline glows
+    // (not just the bar) — that's the cue that says "this bar belongs to
+    // *this* country".
+    const hoverBorderGeo = new THREE.BufferGeometry();
+    hoverBorderGeo.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute([], 3)
+    );
+    const hoverBorderMat = new THREE.LineBasicMaterial({
+      color: 0xfde047, // yellow-300
+      transparent: true,
+      opacity: 0,
+    });
+    const hoverBorders = new THREE.LineSegments(hoverBorderGeo, hoverBorderMat);
+    hoverBorders.renderOrder = 1;
+    globeGroup.add(hoverBorders);
+
+    let activeHoverCountry: string | null = null;
+    function setHoverCountry(code: string | null) {
+      if (code === activeHoverCountry) return;
+      activeHoverCountry = code;
+      if (!code) {
+        hoverBorderMat.opacity = 0;
+        hoverBorderGeo.setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute([], 3)
+        );
+        return;
+      }
+      const positions: number[] = [];
+      for (const ring of WORLD_BORDER_RINGS) {
+        if (ring.countryCode !== code) continue;
+        for (let i = 0; i < ring.points.length - 1; i++) {
+          const [lng1, lat1] = ring.points[i];
+          const [lng2, lat2] = ring.points[i + 1];
+          const a = latLngToVec3(lat1, lng1, GLOBE_RADIUS * 1.012);
+          const b = latLngToVec3(lat2, lng2, GLOBE_RADIUS * 1.012);
+          positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
+        }
+      }
+      hoverBorderGeo.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(positions, 3)
+      );
+      hoverBorderMat.opacity = 1;
+    }
 
     // Latitude rings.
     const latitudeRings = new THREE.Group();
@@ -577,12 +666,15 @@ function GlobeCanvas({
             y: ev.clientY - rect.top,
             instance: match.instance,
           });
-          // Pause auto-spin while a bar is hovered so the user can target it.
+          // Pause auto-spin while a bar is hovered so the user can target it,
+          // and outline the whole country so the bar's location is unambiguous.
           dragState.hoverPause = true;
+          setHoverCountry(match.instance.point.countryCode);
         }
       } else {
         setTooltip(null);
         dragState.hoverPause = false;
+        setHoverCountry(null);
       }
 
       if (!dragState.active) return;
@@ -601,6 +693,7 @@ function GlobeCanvas({
       setTooltip(null);
       dragState.active = false;
       dragState.hoverPause = false;
+      setHoverCountry(null);
     }
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
     renderer.domElement.addEventListener("pointerup", onPointerUp);
@@ -669,8 +762,12 @@ function GlobeCanvas({
       renderer.dispose();
       sphereGeo.dispose();
       sphereMat.dispose();
-      wireGeo.dispose();
-      wireMat.dispose();
+      defaultBorderGeo.dispose();
+      defaultBorderMat.dispose();
+      dataBorderGeo.dispose();
+      dataBorderMat.dispose();
+      hoverBorderGeo.dispose();
+      hoverBorderMat.dispose();
       atmosGeo.dispose();
       atmosMat.dispose();
       barMeshes.forEach((b) => {
