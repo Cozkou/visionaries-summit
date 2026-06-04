@@ -1,8 +1,8 @@
 const DEEPSEEK_BASE_URL = "https://api.deepseek.com";
-const DIRECT_OPENAI_IMAGE_MODEL = "gpt-image-1-mini";
+const DIRECT_OPENAI_IMAGE_MODEL = "gpt-image-1.5";
 const DIRECT_OPENAI_IMAGE_BASE_URL = "https://api.openai.com/v1";
 const IMAGEROUTER_BASE_URL = "https://api.imagerouter.io/v1/openai";
-const IMAGEROUTER_IMAGE_MODEL = "openai/gpt-image-1-mini";
+const IMAGEROUTER_IMAGE_MODEL = "openai/gpt-image-1.5";
 
 export function getDeepSeekApiKey(): string | undefined {
   return process.env.DEEPSEEK_API_KEY?.trim() || undefined;
