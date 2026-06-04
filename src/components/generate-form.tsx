@@ -2,11 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { DesignPreview } from "@/components/design-preview";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/useAppStore";
 import type {
@@ -16,24 +12,17 @@ import type {
   TargetAudience,
 } from "@/types";
 
-type ChoiceOption = {
-  value: string;
-  hint: string;
-};
-
 type ChoiceStep = {
   kind: "choice";
   key: "productType" | "targetAudience" | "businessGoal";
   question: string;
-  helper: string;
-  options: ChoiceOption[];
+  options: { value: string }[];
 };
 
 type TextStep = {
   kind: "text";
   key: "stylePrompt";
   question: string;
-  helper: string;
 };
 
 type Step = ChoiceStep | TextStep;
@@ -42,60 +31,67 @@ const steps: Step[] = [
   {
     kind: "choice",
     key: "productType",
-    question: "What are we making?",
-    helper: "Select the product format for this concept.",
+    question: "Product",
     options: [
-      { value: "Hoodie", hint: "Heavyweight fleece staple" },
-      { value: "T-Shirt", hint: "Everyday core layer" },
-      { value: "Jacket", hint: "Outerwear statement piece" },
-      { value: "Trainers", hint: "Footwear silhouette" },
-      { value: "Cap", hint: "Headwear accessory" },
+      { value: "Hoodie" },
+      { value: "T-Shirt" },
+      { value: "Jacket" },
+      { value: "Trainers" },
+      { value: "Cap" },
     ],
   },
   {
     kind: "choice",
     key: "targetAudience",
-    question: "Who is it for?",
-    helper: "Choose the primary audience to design toward.",
-    options: [
-      { value: "Menswear", hint: "Men's fit and styling" },
-      { value: "Womenswear", hint: "Women's fit and styling" },
-    ],
+    question: "Audience",
+    options: [{ value: "Menswear" }, { value: "Womenswear" }],
   },
   {
     kind: "choice",
     key: "businessGoal",
-    question: "What's the priority?",
-    helper: "We'll optimize the concept around this objective.",
+    question: "Objective",
     options: [
-      { value: "Maximize Revenue", hint: "Broad appeal, higher volume" },
-      { value: "Maximize Margin", hint: "Premium positioning, higher price" },
-      { value: "Low Refund Risk", hint: "Reliable fit and demand" },
+      { value: "Maximize Revenue" },
+      { value: "Maximize Margin" },
+      { value: "Low Refund Risk" },
     ],
   },
   {
     kind: "text",
     key: "stylePrompt",
-    question: "Any style direction?",
-    helper: "Optional. Add notes on palette, mood, or details.",
+    question: "Style notes",
   },
 ];
 
 function FormSkeleton() {
   return (
     <div
-      className="max-w-lg space-y-6 animate-pulse"
+      className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[7fr_4fr]"
       aria-busy="true"
       aria-label="Loading form"
     >
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="space-y-2">
-          <div className="h-4 w-28 rounded-md bg-muted" />
-          <div className="h-9 w-full rounded-lg bg-muted" />
+      <div className="hidden animate-pulse bg-neutral-50/80 lg:block" />
+      <div className="animate-pulse border-t border-neutral-100 px-6 py-8 lg:border-t-0 lg:border-l lg:px-8">
+        <div className="h-3 w-16 rounded bg-neutral-100" />
+        <div className="mt-10 h-5 w-40 rounded bg-neutral-100" />
+        <div className="mt-8 grid grid-cols-2 gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-10 rounded-md bg-neutral-100" />
+          ))}
         </div>
-      ))}
-      <div className="h-9 w-36 rounded-lg bg-muted" />
+      </div>
     </div>
+  );
+}
+
+function EmptyPreview() {
+  return (
+    <aside className="relative hidden min-h-0 flex-col bg-neutral-50/50 lg:flex lg:border-r lg:border-neutral-100">
+      <p className="absolute top-5 left-5 z-10 font-mono text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
+        Live preview
+      </p>
+      <div className="m-4 min-h-0 flex-1 rounded-sm border border-dashed border-neutral-200/90 bg-white/40 md:m-6" />
+    </aside>
   );
 }
 
@@ -110,15 +106,11 @@ export function GenerateForm() {
   }, []);
 
   const [stepIndex, setStepIndex] = useState(0);
-  const [productType, setProductType] = useState<ProductType>(
-    stored.productType
-  );
+  const [productType, setProductType] = useState<ProductType>(stored.productType);
   const [targetAudience, setTargetAudience] = useState<TargetAudience>(
     stored.targetAudience
   );
-  const [businessGoal, setBusinessGoal] = useState<BusinessGoal>(
-    stored.businessGoal
-  );
+  const [businessGoal, setBusinessGoal] = useState<BusinessGoal>(stored.businessGoal);
   const [stylePrompt, setStylePrompt] = useState(stored.stylePrompt ?? "");
 
   const step = steps[stepIndex];
@@ -166,125 +158,97 @@ export function GenerateForm() {
   }
 
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-16">
-      {/* Question panel */}
-      <div className="order-2 flex min-h-0 w-full flex-col lg:order-1">
-        {/* Progress */}
-        <div className="mb-8 shrink-0">
-        <div className="mb-3 flex items-baseline justify-between font-mono text-xs tracking-widest uppercase">
-          <span className="text-neutral-600">
-            {String(stepIndex + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
-          </span>
-          <span className="text-muted-foreground">{step.key === "stylePrompt" ? "Optional" : "Required"}</span>
-        </div>
-        <div className="flex gap-1.5">
-          {steps.map((s, i) => (
-            <div
-              key={s.key}
-              className={cn(
-                "h-0.5 flex-1 rounded-full transition-colors duration-300",
-                i <= stepIndex ? "bg-foreground" : "bg-border"
-              )}
-            />
-          ))}
-        </div>
-      </div>
+    <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[7fr_4fr]">
+      <EmptyPreview />
 
-      {/* Question */}
-      <div
-        key={step.key}
-        className="reveal-on-load min-h-0 flex-1 overflow-y-auto"
-      >
-        <h2 className="text-lg font-medium text-balance text-neutral-900">
-          {step.question}
-        </h2>
-        <p className="mt-2 text-sm text-muted-foreground">{step.helper}</p>
-
-        <div className="mt-8">
-          {step.kind === "choice" ? (
-            <div className="space-y-2">
-              {step.options.map((option) => {
-                const selected = valueForStep(step.key) === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => selectChoice(step.key, option.value)}
-                    aria-pressed={selected}
-                    className={cn(
-                      "group flex w-full items-center justify-between rounded-lg border px-5 py-4 text-left transition-all outline-none",
-                      "focus-visible:ring-2 focus-visible:ring-neutral-400",
-                      selected
-                        ? "border-neutral-900 bg-neutral-50"
-                        : "border-neutral-200 bg-white hover:border-neutral-300 hover:bg-neutral-50"
-                    )}
-                  >
-                    <span>
-                      <span className="block text-sm font-medium">
-                        {option.value}
-                      </span>
-                      <span className="mt-0.5 block text-xs text-muted-foreground">
-                        {option.hint}
-                      </span>
-                    </span>
-                    <span
-                      className={cn(
-                        "flex size-5 items-center justify-center rounded-full border transition-colors",
-                        selected
-                          ? "border-neutral-900 bg-neutral-900 text-white"
-                          : "border-neutral-300 text-transparent group-hover:border-neutral-400"
-                      )}
-                    >
-                      <Check className="size-3" />
-                    </span>
-                  </button>
-                );
-              })}
+      <div className="flex min-h-0 flex-col overflow-hidden lg:border-l lg:border-neutral-100">
+        <div className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col px-5 py-5 sm:px-8 sm:py-6 lg:max-w-lg lg:px-10 lg:py-8">
+          <div className="shrink-0">
+            <div className="flex items-center justify-between font-mono text-[10px] tracking-[0.18em] text-neutral-400 uppercase">
+              <span>
+                {String(stepIndex + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
+              </span>
+              {step.kind === "text" && <span>Optional</span>}
             </div>
-          ) : (
-            <Textarea
-              autoFocus
-              placeholder="e.g. vintage wash, neutral palette, minimal branding"
-              value={stylePrompt}
-              onChange={(e) => setStylePrompt(e.target.value)}
-              rows={5}
-              className="resize-none bg-white"
-            />
-          )}
-        </div>
-      </div>
+            <div className="mt-3 flex gap-1">
+              {steps.map((s, i) => (
+                <div
+                  key={s.key}
+                  className={cn(
+                    "h-px flex-1 transition-colors duration-300",
+                    i <= stepIndex ? "bg-neutral-900" : "bg-neutral-200"
+                  )}
+                />
+              ))}
+            </div>
+          </div>
 
-      {/* Navigation */}
-      <div className="mt-6 flex shrink-0 items-center justify-between pt-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="lg"
-          onClick={goBack}
-          disabled={isFirst}
-          className={cn(isFirst && "invisible")}
-        >
-          <ArrowLeft />
-          Back
-        </Button>
-        <Button type="button" size="lg" onClick={goNext}>
-          {isLast ? "Generate Designs" : "Continue"}
-          {!isLast && <ArrowRight />}
-        </Button>
-        </div>
-      </div>
+          <div key={step.key} className="mt-6 flex min-h-0 flex-1 flex-col sm:mt-8">
+            <h2 className="text-[14px] font-medium tracking-tight text-neutral-900 sm:text-[15px]">
+              {step.question}
+            </h2>
 
-      {/* Live preview */}
-      <div className="order-1 flex min-h-0 lg:order-2">
-        <div className="h-full w-full">
-          <DesignPreview
-            productType={productType}
-            targetAudience={targetAudience}
-            businessGoal={businessGoal}
-            stylePrompt={stylePrompt}
-            activeStepKey={step.key}
-            stepIndex={stepIndex}
-          />
+            <div className="mt-4 min-h-0 flex-1 sm:mt-5">
+              {step.kind === "choice" ? (
+                <div
+                  className={cn(
+                    "grid gap-1.5 sm:gap-2",
+                    step.options.length <= 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2"
+                  )}
+                >
+                  {step.options.map((option) => {
+                    const selected = valueForStep(step.key) === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => selectChoice(step.key, option.value)}
+                        aria-pressed={selected}
+                        className={cn(
+                          "rounded-md border px-3 py-2.5 text-left text-[12px] transition-colors outline-none sm:px-4 sm:py-3 sm:text-[13px]",
+                          "focus-visible:ring-1 focus-visible:ring-neutral-400",
+                          selected
+                            ? "border-neutral-900 bg-neutral-900 text-white"
+                            : "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400"
+                        )}
+                      >
+                        {option.value}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <textarea
+                  autoFocus
+                  placeholder="Palette, mood, details…"
+                  value={stylePrompt}
+                  onChange={(e) => setStylePrompt(e.target.value)}
+                  rows={3}
+                  className="w-full resize-none rounded-md border border-neutral-200 bg-white px-4 py-3 text-[13px] text-neutral-900 outline-none placeholder:text-neutral-300 focus:border-neutral-400"
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 flex shrink-0 items-center justify-between border-t border-neutral-100 pt-4 sm:mt-6 sm:pt-5">
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={isFirst}
+              className={cn(
+                "font-mono text-[11px] tracking-[0.14em] text-neutral-500 uppercase transition-colors hover:text-neutral-900 disabled:pointer-events-none disabled:opacity-0"
+              )}
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              className="rounded-sm bg-neutral-900 px-5 py-2.5 font-mono text-[11px] tracking-[0.14em] text-white uppercase transition-opacity hover:opacity-85"
+            >
+              {isLast ? "Generate" : "Continue"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

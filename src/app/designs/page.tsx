@@ -6,18 +6,12 @@ import { InternalShell } from "@/components/layout/internal-shell";
 export default function DesignsPage() {
   return (
     <InternalShell>
-      <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
-        <div>
-          <h1 className="text-sm font-medium text-neutral-900">Designs</h1>
-          <p className="mt-1 text-[13px] text-neutral-500">
-            Concepts from the data pack — up to six per generation.
-          </p>
-        </div>
+      <div className="mb-6 flex justify-end">
         <Link
           href="/generate"
-          className="font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
+          className="rounded-md bg-neutral-900 px-4 py-2 text-[11px] font-medium tracking-wide text-white uppercase transition-opacity hover:opacity-85"
         >
-          new generation →
+          New generation
         </Link>
       </div>
       <DesignsGallery />
