@@ -59,6 +59,32 @@ export interface DataSourceRef {
   githubUrl: string;
 }
 
+export type ListingStatus = "draft" | "coming_soon" | "published" | "archived";
+
+export interface DesignListingSummary {
+  id: string;
+  slug: string;
+  status: ListingStatus;
+  storefrontUrl: string | null;
+  imageUrl: string | null;
+  publishedAt: number;
+  wooProductId: number | null;
+}
+
+export interface DesignDemandCounts {
+  wishlistCount: number;
+  preorderCount: number;
+  preorderUnits: number;
+  pageViews7d: number;
+  pageViewsTotal: number;
+  wooTotalSales: number;
+}
+
+export interface DesignDemand {
+  listing: DesignListingSummary;
+  counts: DesignDemandCounts;
+}
+
 export interface AnalysisData {
   manufacturingCost: number;
   recommendedRetailPrice: number;
@@ -72,4 +98,6 @@ export interface AnalysisData {
   dataSources: DataSourceRef[];
   recommendation: string;
   recommendationSourceIds: string[];
+  /** Present once the concept has been published to the storefront. */
+  demand: DesignDemand | null;
 }

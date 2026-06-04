@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { internalPanelClass } from "@/components/layout/internal-tools";
+import { PublishToSiteSection } from "@/components/publish-to-site-section";
 import { getDesignAnalysis, getDesignById } from "@/services/api";
 import { useAppStore } from "@/store/useAppStore";
 import type { Design } from "@/types";
@@ -129,6 +130,11 @@ export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
           />
         ) : null}
       </section>
+
+      <PublishToSiteSection
+        designId={designId}
+        initialDemand={analysisData.demand}
+      />
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-neutral-900">Commercial metrics</h2>

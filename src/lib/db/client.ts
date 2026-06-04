@@ -17,6 +17,57 @@ CREATE TABLE IF NOT EXISTS designs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_designs_created_at ON designs(created_at);
+
+CREATE TABLE IF NOT EXISTS concept_listings (
+  id TEXT PRIMARY KEY,
+  design_id TEXT NOT NULL UNIQUE,
+  woo_product_id INTEGER,
+  slug TEXT NOT NULL UNIQUE,
+  status TEXT NOT NULL,
+  image_url TEXT,
+  storefront_url TEXT,
+  published_at INTEGER NOT NULL,
+  published_by TEXT,
+  woo_total_sales INTEGER NOT NULL DEFAULT 0,
+  last_synced_at INTEGER,
+  FOREIGN KEY (design_id) REFERENCES designs(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_concept_listings_status ON concept_listings(status);
+CREATE INDEX IF NOT EXISTS idx_concept_listings_design ON concept_listings(design_id);
+
+CREATE TABLE IF NOT EXISTS wishlist_signups (
+  id TEXT PRIMARY KEY,
+  listing_id TEXT NOT NULL,
+  email TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  UNIQUE(listing_id, email),
+  FOREIGN KEY (listing_id) REFERENCES concept_listings(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_wishlist_listing ON wishlist_signups(listing_id);
+
+CREATE TABLE IF NOT EXISTS preorders (
+  id TEXT PRIMARY KEY,
+  listing_id TEXT NOT NULL,
+  email TEXT NOT NULL,
+  size TEXT,
+  quantity INTEGER NOT NULL DEFAULT 1,
+  woo_order_id INTEGER,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (listing_id) REFERENCES concept_listings(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_preorders_listing ON preorders(listing_id);
+CREATE INDEX IF NOT EXISTS idx_preorders_created ON preorders(created_at);
+
+CREATE TABLE IF NOT EXISTS page_views (
+  listing_id TEXT NOT NULL,
+  day TEXT NOT NULL,
+  count INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (listing_id, day),
+  FOREIGN KEY (listing_id) REFERENCES concept_listings(id)
+);
 `;
 
 function migrateDesignsTable(db: Database.Database): void {

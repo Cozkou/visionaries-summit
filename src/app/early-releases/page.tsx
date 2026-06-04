@@ -1,15 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { ListingCard } from "@/components/store/listing-card";
 import { ProductCard } from "@/components/store/product-card";
 import { PRODUCTS } from "@/components/store/products";
 import { StoreNav } from "@/components/store/store-nav";
+import { listPublicListings } from "@/lib/public-listings";
+
+export const dynamic = "force-dynamic";
 
 export default function EarlyReleasesPage() {
-  const drops = PRODUCTS.filter((p) => p.badge === "New" || p.category === "Jackets");
+  const listings = listPublicListings();
+  const fallbackDrops = PRODUCTS.filter(
+    (p) => p.badge === "New" || p.category === "Jackets"
+  );
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900">
+    <div className="min-h-screen text-slate-900" style={{ backgroundColor: "#f7f6f3" }}>
       <StoreNav variant="solid" />
 
       <section className="relative flex min-h-[50vh] items-end overflow-hidden bg-neutral-900">
@@ -36,24 +43,53 @@ export default function EarlyReleasesPage() {
         </div>
       </section>
 
+      {listings.length > 0 && (
+        <section className="mx-auto max-w-6xl px-6 py-16 md:px-10 md:py-20">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-slate-300/60 pb-6">
+            <div>
+              <p className="text-[11px] font-semibold tracking-[0.22em] text-slate-400 uppercase">
+                In the lab — early access
+              </p>
+              <h2 className="mt-2 font-street text-[clamp(1.4rem,3vw,2rem)] uppercase leading-tight tracking-[0.02em] text-slate-900">
+                Concepts scored, pushed live
+              </h2>
+            </div>
+            <Link
+              href="/#drop-countdown"
+              className="text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase transition-colors hover:text-slate-900"
+            >
+              Next drop timer →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:gap-8">
+            {listings.map((listing) => (
+              <ListingCard key={listing.slug} listing={listing} />
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="mx-auto max-w-6xl px-6 py-16 md:px-10 md:py-20">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-neutral-200 pb-6">
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-slate-300/60 pb-6">
           <div>
-            <p className="text-[11px] font-semibold tracking-[0.2em] text-neutral-400 uppercase">
-              Current drop
+            <p className="text-[11px] font-semibold tracking-[0.22em] text-slate-400 uppercase">
+              {listings.length > 0 ? "Also live" : "Current drop"}
             </p>
-            <h2 className="mt-2 text-lg font-medium text-neutral-900">Varsity capsule</h2>
+            <h2 className="mt-2 font-street text-[clamp(1.4rem,3vw,2rem)] uppercase leading-tight tracking-[0.02em] text-slate-900">
+              Varsity capsule
+            </h2>
           </div>
           <Link
             href="/#drop-countdown"
-            className="text-[12px] font-medium tracking-[0.12em] text-neutral-500 uppercase transition-colors hover:text-neutral-900"
+            className="text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase transition-colors hover:text-slate-900"
           >
             Next drop timer →
           </Link>
         </div>
 
         <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:gap-8">
-          {drops.map((product) => (
+          {fallbackDrops.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
