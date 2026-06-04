@@ -1,4 +1,10 @@
-import type { AnalysisData, Design, GenerationInputs } from "@/types";
+import type {
+  AnalysisData,
+  Design,
+  DesignDemand,
+  DesignListingSummary,
+  GenerationInputs,
+} from "@/types";
 import type {
   DashboardSnapshot,
   InventoryProduct,
@@ -89,6 +95,53 @@ export async function getDesignAnalysis(
     headers: apiHeaders(),
   });
   return parseJson<AnalysisData>(res);
+}
+
+/* ─── Publish to site / live demand ──────────────────────────────────────── */
+
+export interface PublishDesignResponse {
+  listing: DesignListingSummary & {
+    designId: string;
+    wooTotalSales: number;
+    lastSyncedAt: number | null;
+  };
+  reused: boolean;
+}
+
+export async function publishDesign(
+  designId: string,
+  options: { acceptingPreorders?: boolean } = {}
+): Promise<PublishDesignResponse> {
+  const res = await fetch(`/api/designs/${designId}/publish`, {
+    method: "POST",
+    headers: apiHeaders(),
+    body: JSON.stringify(options),
+  });
+  return parseJson<PublishDesignResponse>(res);
+}
+
+export async function unpublishDesign(
+  designId: string
+): Promise<PublishDesignResponse> {
+  const res = await fetch(`/api/designs/${designId}/publish`, {
+    method: "DELETE",
+    headers: apiHeaders(),
+  });
+  return parseJson<PublishDesignResponse>(res);
+}
+
+export async function getDesignDemand(
+  designId: string
+): Promise<DesignDemand | null> {
+  const res = await fetch(`/api/designs/${designId}/demand`, {
+    headers: apiHeaders(),
+    cache: "no-store",
+  });
+  const data = await parseJson<DesignDemand | { listing: null; counts: null }>(
+    res
+  );
+  if (!data || !("listing" in data) || data.listing === null) return null;
+  return data as DesignDemand;
 }
 
 /* ─── Control tower (dashboard) ───────────────────────────────────────────── */

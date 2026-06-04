@@ -8,7 +8,11 @@ import {
 } from "@/lib/data/sales-analytics";
 import { PRETTY_FLY_DATA_SOURCES } from "@/lib/data/data-sources";
 import type { StoredDesign } from "@/lib/db/designs-repository";
-import type { AnalysisData } from "@/types";
+import {
+  getDemandCounts,
+  getListingByDesignId,
+} from "@/lib/db/listings-repository";
+import type { AnalysisData, DesignDemand } from "@/types";
 
 type ProductWithCost = ReturnType<typeof getProductSalesStat> & {
   landedCostGbp?: number;
@@ -161,6 +165,8 @@ function computeAnalysis(stored: StoredDesign): AnalysisData {
     },
   ];
 
+  const demand = buildDemand(stored.design.id);
+
   return {
     manufacturingCost,
     recommendedRetailPrice,
@@ -177,6 +183,25 @@ function computeAnalysis(stored: StoredDesign): AnalysisData {
     dataSources: [...PRETTY_FLY_DATA_SOURCES],
     recommendation: rec.text,
     recommendationSourceIds: rec.sourceIds,
+    demand,
+  };
+}
+
+function buildDemand(designId: string): DesignDemand | null {
+  const listing = getListingByDesignId(designId);
+  if (!listing) return null;
+  const counts = getDemandCounts(listing.id);
+  return {
+    listing: {
+      id: listing.id,
+      slug: listing.slug,
+      status: listing.status,
+      storefrontUrl: listing.storefrontUrl,
+      imageUrl: listing.imageUrl,
+      publishedAt: listing.publishedAt,
+      wooProductId: listing.wooProductId,
+    },
+    counts,
   };
 }
 
