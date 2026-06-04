@@ -15,6 +15,8 @@ export interface ConceptListing {
   publishedBy: string | null;
   wooTotalSales: number;
   lastSyncedAt: number | null;
+  /** Epoch ms — when the early-access window closes. */
+  releaseAt: number | null;
 }
 
 export interface DemandCounts {
@@ -44,6 +46,7 @@ interface ListingRow {
   published_by: string | null;
   woo_total_sales: number;
   last_synced_at: number | null;
+  release_at: number | null;
 }
 
 function rowToListing(row: ListingRow): ConceptListing {
@@ -59,6 +62,7 @@ function rowToListing(row: ListingRow): ConceptListing {
     publishedBy: row.published_by,
     wooTotalSales: row.woo_total_sales,
     lastSyncedAt: row.last_synced_at,
+    releaseAt: row.release_at,
   };
 }
 
@@ -118,17 +122,22 @@ export interface InsertListingInput {
   imageUrl?: string | null;
   storefrontUrl?: string | null;
   publishedBy?: string | null;
+  /** Defaults to publishedAt + 7 days. */
+  releaseAt?: number | null;
 }
+
+const DEFAULT_RELEASE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 export function insertListing(input: InsertListingInput): ConceptListing {
   const id = crypto.randomUUID();
   const now = Date.now();
+  const releaseAt = input.releaseAt ?? now + DEFAULT_RELEASE_WINDOW_MS;
   getDb()
     .prepare(
       `INSERT INTO concept_listings (
         id, design_id, woo_product_id, slug, status, image_url, storefront_url,
-        published_at, published_by, woo_total_sales, last_synced_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`
+        published_at, published_by, woo_total_sales, last_synced_at, release_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`
     )
     .run(
       id,
@@ -140,7 +149,8 @@ export function insertListing(input: InsertListingInput): ConceptListing {
       input.storefrontUrl ?? null,
       now,
       input.publishedBy ?? null,
-      now
+      now,
+      releaseAt
     );
 
   const created = getListingByDesignId(input.designId);
@@ -156,6 +166,7 @@ export interface UpdateListingInput {
   storefrontUrl?: string | null;
   imageUrl?: string | null;
   wooTotalSales?: number;
+  releaseAt?: number | null;
 }
 
 export function updateListing(
@@ -183,6 +194,10 @@ export function updateListing(
   if (patch.wooTotalSales !== undefined) {
     sets.push("woo_total_sales = ?");
     params.push(patch.wooTotalSales);
+  }
+  if (patch.releaseAt !== undefined) {
+    sets.push("release_at = ?");
+    params.push(patch.releaseAt);
   }
   sets.push("last_synced_at = ?");
   params.push(Date.now());
@@ -213,6 +228,18 @@ export function listPublished(limit = 50): ConceptListing[] {
     )
     .all(limit) as ListingRow[];
   return rows.map(rowToListing);
+}
+
+export function getLatestPublishedListing(): ConceptListing | undefined {
+  const row = getDb()
+    .prepare(
+      `SELECT * FROM concept_listings
+       WHERE status IN ('published','coming_soon')
+       ORDER BY published_at DESC
+       LIMIT 1`
+    )
+    .get() as ListingRow | undefined;
+  return row ? rowToListing(row) : undefined;
 }
 
 export function getListingWithDesign(

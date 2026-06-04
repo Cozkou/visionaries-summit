@@ -25,6 +25,13 @@ export const INTERNAL_MAIN_NAV = [
       pathname === "/internal/designs" ||
       pathname.startsWith("/internal/design/"),
   },
+  {
+    id: "published",
+    href: "/internal/published",
+    label: "Published",
+    description: "Live storefront concepts ranked by customer demand signal.",
+    isActive: (pathname: string) => pathname === "/internal/published",
+  },
 ] as const;
 
 export type InternalPageContext = {
@@ -52,6 +59,13 @@ export function getInternalPageContext(pathname: string): InternalPageContext {
     return {
       title: "Designs",
       description: INTERNAL_MAIN_NAV.find((n) => n.id === "designs")!.description,
+    };
+  }
+
+  if (pathname === "/internal/published") {
+    return {
+      title: "Published",
+      description: INTERNAL_MAIN_NAV.find((n) => n.id === "published")!.description,
     };
   }
 

@@ -69,6 +69,8 @@ export interface DesignListingSummary {
   imageUrl: string | null;
   publishedAt: number;
   wooProductId: number | null;
+  /** Epoch ms — when the early-access window closes (null if open-ended). */
+  releaseAt: number | null;
 }
 
 export interface DesignDemandCounts {

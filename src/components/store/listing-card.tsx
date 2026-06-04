@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ConceptHero } from "@/components/store/concept-hero";
+import { DropCountdown } from "@/components/store/drop-countdown";
 import { buildSocialProof } from "@/lib/social-proof";
 import type { PublicListing } from "@/lib/public-listings";
 
@@ -25,6 +26,13 @@ export function ListingCard({ listing }: { listing: PublicListing }) {
         <span className="absolute top-3 right-3 z-10 bg-white/90 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-700 backdrop-blur-sm">
           {statusLabel}
         </span>
+        {listing.releaseAt && (
+          <DropCountdown
+            releaseAt={listing.releaseAt}
+            variant="pill"
+            className="absolute bottom-3 left-3 z-10"
+          />
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5 px-0.5">

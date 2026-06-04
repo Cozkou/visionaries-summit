@@ -200,6 +200,7 @@ function buildDemand(designId: string): DesignDemand | null {
       imageUrl: listing.imageUrl,
       publishedAt: listing.publishedAt,
       wooProductId: listing.wooProductId,
+      releaseAt: listing.releaseAt,
     },
     counts,
   };

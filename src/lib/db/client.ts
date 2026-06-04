@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS concept_listings (
   published_by TEXT,
   woo_total_sales INTEGER NOT NULL DEFAULT 0,
   last_synced_at INTEGER,
+  release_at INTEGER,
   FOREIGN KEY (design_id) REFERENCES designs(id)
 );
 
@@ -80,6 +81,24 @@ function migrateDesignsTable(db: Database.Database): void {
   }
 }
 
+function migrateConceptListingsTable(db: Database.Database): void {
+  const columns = db
+    .prepare(`PRAGMA table_info(concept_listings)`)
+    .all() as { name: string }[];
+  const names = new Set(columns.map((c) => c.name));
+  if (!names.has("release_at")) {
+    // Nullable column so we can backfill safely. Existing rows get
+    // a 7-day window starting from their original publish time.
+    db.exec(`ALTER TABLE concept_listings ADD COLUMN release_at INTEGER`);
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+    db.prepare(
+      `UPDATE concept_listings
+       SET release_at = published_at + ?
+       WHERE release_at IS NULL`
+    ).run(sevenDaysMs);
+  }
+}
+
 type DbGlobal = typeof globalThis & {
   __prettyFlyDb?: Database.Database;
 };
@@ -106,6 +125,7 @@ export function getDb(): Database.Database {
   db.pragma("journal_mode = WAL");
   db.exec(SCHEMA);
   migrateDesignsTable(db);
+  migrateConceptListingsTable(db);
 
   g.__prettyFlyDb = db;
   return db;

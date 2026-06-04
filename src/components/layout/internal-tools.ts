@@ -15,6 +15,11 @@ export const INTERNAL_TOOLS = [
     title: "Designs",
     description: "Generated concepts and per-design analysis.",
   },
+  {
+    href: "/internal/published",
+    title: "Published",
+    description: "Live storefront concepts ranked by customer demand signal.",
+  },
 ] as const;
 
 /** Shared list / table panel for internal pages */

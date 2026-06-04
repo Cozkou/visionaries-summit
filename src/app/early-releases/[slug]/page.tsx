@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ConceptHero } from "@/components/store/concept-hero";
+import { DropCountdown } from "@/components/store/drop-countdown";
 import { ListingActions } from "@/components/store/listing-actions";
 import { StoreNav } from "@/components/store/store-nav";
 import { getListingBySlug } from "@/lib/db/listings-repository";
@@ -56,16 +57,22 @@ export default async function EarlyReleaseDetailPage({ params }: PageProps) {
           {/* Info column */}
           <div className="flex flex-col gap-10 md:pt-2">
             <div>
-              <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">
-                <span
-                  className={
-                    publicListing.status === "published"
-                      ? "inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"
-                      : "inline-block h-1.5 w-1.5 rounded-full bg-amber-400"
-                  }
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">
+                  <span
+                    className={
+                      publicListing.status === "published"
+                        ? "inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"
+                        : "inline-block h-1.5 w-1.5 rounded-full bg-amber-400"
+                    }
+                  />
+                  {statusLabel}
+                </p>
+                <DropCountdown
+                  releaseAt={publicListing.releaseAt}
+                  variant="hero"
                 />
-                {statusLabel}
-              </p>
+              </div>
               <h1 className="mt-4 font-street text-[clamp(2.4rem,5.5vw,4rem)] leading-[0.92] uppercase tracking-[0.02em] text-slate-900">
                 {publicListing.name}
               </h1>

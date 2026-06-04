@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { internalPanelClass } from "@/components/layout/internal-tools";
+import { DropCountdown } from "@/components/store/drop-countdown";
 import {
   getDesignDemand,
   publishDesign,
@@ -141,12 +142,20 @@ export function PublishToSiteSection({
         <h2 className="text-sm font-medium text-neutral-900">
           Customer demand · live
         </h2>
-        <span className="font-mono text-[11px] text-neutral-400">
-          {statusLabel(listing.status)}
-          {lastUpdated && (
-            <> · synced {new Date(lastUpdated).toLocaleTimeString()}</>
-          )}
-        </span>
+        <div className="flex items-center gap-3">
+          <DropCountdown
+            releaseAt={listing.releaseAt}
+            variant="internal"
+            prefixOpen="Window closes in"
+            prefixClosed="Window closed"
+          />
+          <span className="font-mono text-[11px] text-neutral-400">
+            {statusLabel(listing.status)}
+            {lastUpdated && (
+              <> · synced {new Date(lastUpdated).toLocaleTimeString()}</>
+            )}
+          </span>
+        </div>
       </div>
 
       <ul className={internalPanelClass}>
