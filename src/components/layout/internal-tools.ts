@@ -6,12 +6,12 @@ export const INTERNAL_TOOLS = [
       "Control tower, inventory, marketing, support, China market, concepts.",
   },
   {
-    href: "/generate",
+    href: "/internal/generate",
     title: "Generate",
     description: "AI creative director — new clothing concepts.",
   },
   {
-    href: "/designs",
+    href: "/internal/designs",
     title: "Designs",
     description: "Generated concepts and per-design analysis.",
   },

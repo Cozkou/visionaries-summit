@@ -381,7 +381,7 @@ export default function JacketShowcase() {
                   Scroll
                 </span>
                 <Link
-                  href="/generate"
+                  href="/internal/generate"
                   className="group inline-flex items-center gap-2 border-b-2 border-slate-900 pb-1.5 text-[15px] font-bold uppercase tracking-[0.12em] text-slate-900 transition-colors hover:border-sky-700 hover:text-sky-800"
                 >
                   Begin

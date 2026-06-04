@@ -33,7 +33,7 @@ export default function EarlyReleasesPage() {
           <div className="rounded-lg border border-slate-200 bg-white px-6 py-12 text-center">
             <p className="text-[15px] text-slate-600">
               No published concepts yet. Generate and publish from{" "}
-              <Link href="/generate" className="font-medium text-slate-900 underline">
+              <Link href="/internal/generate" className="font-medium text-slate-900 underline">
                 Creative Director
               </Link>
               .

@@ -36,7 +36,7 @@ export function DesignCard({ design }: DesignCardProps) {
           <p className="font-mono text-[11px] text-neutral-400">{design.sourceProductId}</p>
         )}
         <Link
-          href={`/design/${design.id}`}
+          href={`/internal/design/${design.id}`}
           onClick={() => setSelectedDesign(design)}
           className="inline-block font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
         >

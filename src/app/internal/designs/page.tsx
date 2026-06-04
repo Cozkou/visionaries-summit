@@ -8,7 +8,7 @@ export default function DesignsPage() {
     <InternalShell>
       <div className="mb-6 flex justify-end">
         <Link
-          href="/generate"
+          href="/internal/generate"
           className="rounded-md bg-neutral-900 px-4 py-2 text-[11px] font-medium tracking-wide text-white uppercase transition-opacity hover:opacity-85"
         >
           New generation

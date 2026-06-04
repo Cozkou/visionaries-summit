@@ -11,18 +11,19 @@ export const INTERNAL_MAIN_NAV = [
   },
   {
     id: "generate",
-    href: "/generate",
+    href: "/internal/generate",
     label: "Generate",
     description: "Create new concepts from sales data and your brief.",
-    isActive: (pathname: string) => pathname === "/generate",
+    isActive: (pathname: string) => pathname === "/internal/generate",
   },
   {
     id: "designs",
-    href: "/designs",
+    href: "/internal/designs",
     label: "Designs",
     description: "Browse generated concepts and open commercial analysis.",
     isActive: (pathname: string) =>
-      pathname === "/designs" || pathname.startsWith("/design/"),
+      pathname === "/internal/designs" ||
+      pathname.startsWith("/internal/design/"),
   },
 ] as const;
 
@@ -40,27 +41,27 @@ export function getInternalPageContext(pathname: string): InternalPageContext {
     };
   }
 
-  if (pathname === "/generate") {
+  if (pathname === "/internal/generate") {
     return {
       title: "Generate",
       description: INTERNAL_MAIN_NAV.find((n) => n.id === "generate")!.description,
     };
   }
 
-  if (pathname === "/designs") {
+  if (pathname === "/internal/designs") {
     return {
       title: "Designs",
       description: INTERNAL_MAIN_NAV.find((n) => n.id === "designs")!.description,
     };
   }
 
-  if (pathname.startsWith("/design/")) {
-    const id = pathname.split("/")[2] ?? "";
+  if (pathname.startsWith("/internal/design/")) {
+    const id = pathname.split("/")[3] ?? "";
     return {
       title: "Design analysis",
       description: "Revenue, margin, and refund signals for this concept.",
       breadcrumbs: [
-        { label: "Designs", href: "/designs" },
+        { label: "Designs", href: "/internal/designs" },
         { label: id || "Concept" },
       ],
     };

@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/designs", label: "Designs" },
-  { href: "/generate", label: "Generate" },
+  { href: "/internal/designs", label: "Designs" },
+  { href: "/internal/generate", label: "Generate" },
 ] as const;
 
 export function SiteHeader() {
@@ -25,10 +25,11 @@ export function SiteHeader() {
         <nav className="flex items-center gap-2">
           {NAV.map(({ href, label }) => {
             const active =
-              href === "/designs"
-                ? pathname === "/designs" || pathname.startsWith("/design/")
+              href === "/internal/designs"
+                ? pathname === "/internal/designs" ||
+                  pathname.startsWith("/internal/design/")
                 : pathname === href || pathname.startsWith(`${href}/`);
-            const isGenerate = href === "/generate";
+            const isGenerate = href === "/internal/generate";
             return (
               <Link
                 key={href}

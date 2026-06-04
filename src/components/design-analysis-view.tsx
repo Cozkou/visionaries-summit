@@ -100,7 +100,7 @@ export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
       <div className="space-y-3">
         <p className="text-[13px] text-neutral-500">{error ?? "Design not found."}</p>
         <Link
-          href="/designs"
+          href="/internal/designs"
           className="font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
         >
           ← designs
@@ -190,7 +190,7 @@ export function DesignAnalysisView({ designId }: DesignAnalysisViewProps) {
       </section>
 
       <Link
-        href="/designs"
+        href="/internal/designs"
         className="inline-block font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
       >
         ← designs

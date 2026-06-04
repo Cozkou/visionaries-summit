@@ -11,7 +11,7 @@ export default function DesignConceptsPage() {
     >
       <div className="flex justify-end">
         <Link
-          href="/generate"
+          href="/internal/generate"
           className="font-mono text-[11px] text-neutral-500 hover:text-neutral-900"
         >
           new generation →

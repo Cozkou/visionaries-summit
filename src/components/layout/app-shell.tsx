@@ -26,7 +26,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               Dashboard
             </Link>
             <Link
-              href="/generate"
+              href="/internal/generate"
               className="transition-colors hover:text-slate-900"
             >
               Generate

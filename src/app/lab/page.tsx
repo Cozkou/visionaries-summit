@@ -71,10 +71,10 @@ export default function LabPage() {
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
-              href="/designs"
+              href="/early-releases"
               className="inline-flex min-w-[10rem] items-center justify-center border border-neutral-900 px-6 py-3 text-[11px] font-semibold tracking-[0.2em] text-neutral-900 uppercase transition-colors hover:bg-neutral-900 hover:text-white"
             >
-              View designs
+              View drops
             </Link>
             <Link
               href="/"

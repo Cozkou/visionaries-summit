@@ -11,7 +11,7 @@ export function InternalShell({
   children: React.ReactNode;
   sidebar?: React.ReactNode;
   mainClassName?: string;
-  /** Fill viewport below header (e.g. /generate) */
+  /** Fill viewport below header (e.g. /internal/generate) */
   fullViewport?: boolean;
 }) {
   return (

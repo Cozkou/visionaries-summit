@@ -145,7 +145,7 @@ export function GenerateForm() {
         stylePrompt: stylePrompt.trim() || undefined,
       };
       setGenerationInputs(inputs);
-      router.push("/designs");
+      router.push("/internal/designs");
       return;
     }
     setStepIndex((i) => Math.min(i + 1, steps.length - 1));
