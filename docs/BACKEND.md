@@ -7,7 +7,7 @@ Backend deliverable for design generation, commercial analysis, and operator con
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `POST` | `/api/auth/verify` | No | Body `{ "password" }` → `{ "token" }` for staff |
-| `POST` | `/api/designs/generate` | Yes | Up to 6 concepts from CSV bestsellers (no LLM) |
+| `POST` | `/api/designs/generate` | Yes | One concept from CSV bestsellers with generated product imagery |
 | `GET` | `/api/designs/:id` | Yes | Fetch stored design |
 | `GET` | `/api/designs/:id/analysis` | Yes | Commercial analysis with hackathon CSV metrics |
 | `GET` | `/api/control-tower/*` | No | Operator snapshot built live from data pack |
@@ -34,7 +34,7 @@ In development, if `INTERNAL_API_KEY` is unset, auth is skipped (not allowed in 
 | Publish | SQLite early-release listing; optional WooCommerce when configured |
 | China market | Live HTTP from official sources (no static fallback file) |
 
-Concepts have empty `imageUrl` (data pack has no photography). No mock catalogue, session counters, or decorative countdown timers — storefront signals come from CSV + database only.
+Concept generation is backend-only: one concept per request, grounded in the CSV pack, with image output generated server-side through an OpenAI-compatible image API. It supports either direct OpenAI or ImageRouter via environment variables. No mock catalogue, session counters, or decorative countdown timers — storefront signals come from CSV + database only.
 
 ## Setup
 
@@ -44,6 +44,6 @@ npm install
 npm run dev
 ```
 
-**Supabase:** set `DATABASE_URL` in `.env.local` (direct connection, port 5432). Tables are created automatically on first request, or apply `supabase/migrations/20260604120000_initial_app_schema.sql` in the SQL editor.
+**Supabase:** local backend env is configured for project `kqjbgzrihtjizegshwgw`. The working server-only `DATABASE_URL` uses the Supabase transaction pooler on port `6543`; `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` are present for future Supabase API/auth work but are not required by the current backend code. CSV analytics stay file-based — not in Postgres.
 
 Data pack path: `hackathon_assets/pretty_fly_data_pack/data/`

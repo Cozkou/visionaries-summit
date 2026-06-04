@@ -8,7 +8,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "db:migrate": "node --env-file=.env.local scripts/ensure-postgres-schema.mjs"
+    "db:migrate": "node --env-file=.env.local scripts/ensure-postgres-schema.mjs",
+    "db:sync-sqlite": "node scripts/migrate-sqlite-to-postgres.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

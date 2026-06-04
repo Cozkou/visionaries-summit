@@ -3,8 +3,9 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const staffPassword = process.env.STAFF_PASSWORD?.trim();
   const apiKey = process.env.INTERNAL_API_KEY?.trim();
+  const staffPassword =
+    process.env.STAFF_PASSWORD?.trim() || apiKey;
 
   if (!staffPassword || !apiKey) {
     return NextResponse.json(

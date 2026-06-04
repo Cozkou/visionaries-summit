@@ -8,6 +8,11 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const featured = getFeaturedEarlyRelease();
-  const latestPublished = await getLatestPublicListing();
+  let latestPublished = null;
+  try {
+    latestPublished = await getLatestPublicListing();
+  } catch (error) {
+    console.error("[HomePage] latest published listing unavailable:", error);
+  }
   return <Storefront featured={featured} latestPublished={latestPublished} />;
 }

@@ -1,8 +1,15 @@
 import OpenAI from "openai";
 
-import { getLlmApiKey, getLlmBaseUrl } from "@/lib/env";
+import {
+  getImageRouterApiKey,
+  getLlmApiKey,
+  getLlmBaseUrl,
+  getOpenAiApiKey,
+  getOpenAiImageBaseUrl,
+} from "@/lib/env";
 
 let llmClient: OpenAI | null = null;
+let openAiImageClient: OpenAI | null = null;
 
 /**
  * DeepSeek chat client (OpenAI-compatible HTTP API).
@@ -20,4 +27,18 @@ export function getLlmClient(): OpenAI | null {
   }
 
   return llmClient;
+}
+
+export function getOpenAiImageClient(): OpenAI | null {
+  const apiKey = getImageRouterApiKey() || getOpenAiApiKey();
+  if (!apiKey) return null;
+
+  if (!openAiImageClient) {
+    openAiImageClient = new OpenAI({
+      apiKey,
+      baseURL: getOpenAiImageBaseUrl(),
+    });
+  }
+
+  return openAiImageClient;
 }

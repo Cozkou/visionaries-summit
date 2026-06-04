@@ -61,6 +61,15 @@ const productTypeToDataset: Record<ProductType, string[]> = {
   Cap: ["Cap"],
 };
 
+const datasetToProductType = new Map<string, ProductType>([
+  ["Hoodie", "Hoodie"],
+  ["Tee", "T-Shirt"],
+  ["Outerwear", "Jacket"],
+  ["Jacket", "Jacket"],
+  ["Trainer", "Trainers"],
+  ["Cap", "Cap"],
+]);
+
 function parseCsvLine(line: string): string[] {
   const result: string[] = [];
   let current = "";
@@ -361,6 +370,22 @@ export function getCategorySnapshot(
     topProducts: top,
     dataDrivenPriceGbp: dataDrivenPriceGbp || avgSellingPriceGbp,
   };
+}
+
+export function getSupportedProductTypesForAudience(
+  audience: TargetAudience
+): ProductType[] {
+  const { stats } = loadSalesCache();
+  const supported = new Set<ProductType>();
+
+  for (const stat of stats.values()) {
+    if (!matchesAudience(stat.genderSegment, audience)) continue;
+    const mapped = datasetToProductType.get(stat.productType);
+    if (mapped) supported.add(mapped);
+  }
+
+  return (["Hoodie", "T-Shirt", "Jacket", "Trainers", "Cap"] as ProductType[])
+    .filter((productType) => supported.has(productType));
 }
 
 export function formatGbp(value: number): string {

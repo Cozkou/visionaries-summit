@@ -18,6 +18,7 @@ export function getSql() {
     sql = postgres(connectionString, {
       ssl: "require",
       max: 10,
+      prepare: !connectionString.includes(":6543/"),
     });
   }
   return sql;

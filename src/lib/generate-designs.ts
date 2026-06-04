@@ -1,6 +1,7 @@
 import {
   formatGbp,
   getCategorySnapshot,
+  getSupportedProductTypesForAudience,
   refundRatePercent,
   type ProductSalesStat,
 } from "@/lib/data/sales-analytics";
@@ -37,7 +38,16 @@ function buildDescription(
   );
 }
 
-/** Up to six concepts — one per historical bestseller SKU (no duplicates, no LLM). */
+function buildDesignName(stat: ProductSalesStat, inputs: GenerationInputs): string {
+  const style = inputs.stylePrompt?.trim();
+  if (!style) return stat.title;
+
+  const cleaned = style.replace(/\s+/g, " ").trim();
+  const label = cleaned.length > 32 ? `${cleaned.slice(0, 29)}...` : cleaned;
+  return `${stat.title} — ${label}`;
+}
+
+/** One concept at a time, anchored to the strongest matching bestseller SKU. */
 export function createDesignConcepts(
   inputs: GenerationInputs,
   snap = getCategorySnapshot(inputs)
@@ -47,17 +57,32 @@ export function createDesignConcepts(
     return [];
   }
 
-  return pool.map((stat) => {
-    const achievedPrice = productAchievedPrice(stat);
-    const retailPrice = achievedPrice > 0 ? achievedPrice : snap.avgSellingPriceGbp;
+  const stat = pool[0];
+  const achievedPrice = productAchievedPrice(stat);
+  const retailPrice = achievedPrice > 0 ? achievedPrice : snap.avgSellingPriceGbp;
 
-    return {
+  return [
+    {
       id: crypto.randomUUID(),
-      name: stat.title,
+      name: buildDesignName(stat, inputs),
       description: buildDescription(stat, inputs, retailPrice),
       imageUrl: "",
       retailPrice,
       sourceProductId: stat.productId,
-    };
-  });
+    },
+  ];
+}
+
+export function buildNoMatchingProductsMessage(
+  inputs: GenerationInputs
+): string {
+  const availableTypes = getSupportedProductTypesForAudience(inputs.targetAudience);
+  const availableLabel =
+    availableTypes.length > 0 ? availableTypes.join(", ") : "none";
+
+  return (
+    `No matching products in the data pack for ${inputs.targetAudience} ` +
+    `${inputs.productType}. Available product types for ${inputs.targetAudience}: ` +
+    `${availableLabel}.`
+  );
 }

@@ -153,9 +153,13 @@ export function GenerateForm() {
       try {
         await generateDesigns(inputs);
         router.push("/internal/designs");
-      } catch {
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Generation failed. Check the data pack and database connection.";
         setGenerateError(
-          "Generation failed. Check the data pack and database connection."
+          message
         );
         setGenerating(false);
       }

@@ -1,3 +1,4 @@
+import { isDatabaseConfigured } from "@/lib/db/database";
 import { getStoredDesign } from "@/lib/db/designs-repository";
 import {
   ConceptListing,
@@ -62,12 +63,18 @@ export async function toPublicListing(
 export async function listPublicListings(
   limit = 50
 ): Promise<PublicListing[]> {
+  if (!isDatabaseConfigured()) {
+    return [];
+  }
   const listings = await listPublished(limit);
   const results = await Promise.all(listings.map(toPublicListing));
   return results.filter((l): l is PublicListing => l !== null);
 }
 
 export async function getLatestPublicListing(): Promise<PublicListing | null> {
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
   const latest = await getLatestPublishedListing();
   if (!latest) return null;
   return toPublicListing(latest);

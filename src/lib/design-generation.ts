@@ -4,6 +4,7 @@ import path from "path";
 import { generateConceptsWithAi } from "@/lib/ai/generate-concepts";
 import { ensureConceptImagesForDesigns } from "@/lib/concept-image";
 import { getDesignById, saveDesigns } from "@/lib/db/designs-repository";
+import { buildNoMatchingProductsMessage } from "@/lib/generate-designs";
 import type { Design, GenerationInputs } from "@/types";
 
 const REQUIRED_CSV_FILES = [
@@ -37,9 +38,7 @@ export async function runDesignGeneration(
   assertDataPackPresent();
   const designs = await generateConceptsWithAi(inputs);
   if (designs.length === 0) {
-    throw new Error(
-      "No matching products in the data pack for this product type and audience."
-    );
+    throw new Error(buildNoMatchingProductsMessage(inputs));
   }
   await saveDesigns(designs, inputs);
   await ensureConceptImagesForDesigns(designs.map((d) => d.id));

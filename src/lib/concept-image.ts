@@ -109,6 +109,12 @@ export async function ensureConceptImage(designId: string): Promise<string | nul
   const stored = await getStoredDesign(designId);
   if (!stored) return null;
 
+  const existingImageUrl = stored.design.imageUrl?.trim();
+  if (existingImageUrl) {
+    await syncListingImage(designId, existingImageUrl);
+    return existingImageUrl;
+  }
+
   const { design, inputs } = stored;
   const prompt = buildImagePrompt(design.name, inputs.productType, inputs);
 

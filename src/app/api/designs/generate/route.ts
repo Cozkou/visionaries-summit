@@ -70,9 +70,18 @@ export async function POST(request: Request) {
     return NextResponse.json(designs);
   } catch (error) {
     console.error("[POST /api/designs/generate]", error);
+    const message =
+      error instanceof Error ? error.message : "Design generation failed";
+    const status = message.includes("not configured")
+      ? 503
+      : message.toLowerCase().includes("insufficient credits")
+        ? 402
+        : message.includes("Free models are only available")
+          ? 403
+          : 500;
     return NextResponse.json(
-      { error: "Design generation failed" },
-      { status: 500 }
+      { error: message },
+      { status }
     );
   }
 }
