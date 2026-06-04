@@ -3,30 +3,24 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { DropCountdown } from "@/components/store/drop-countdown";
 import { OdometerPair } from "@/components/store/odometer-digit";
 import { ScrollReveal } from "@/components/store/scroll-reveal";
 import type { PublicListing } from "@/lib/public-listings";
 
-function secsUntil(targetMs: number) {
-  return Math.max(0, Math.ceil((targetMs - Date.now()) / 1000));
-}
+const HERO_COUNTDOWN_MS = 10 * 60 * 1000;
 
-function useReleaseCountdown(releaseAt: number | null) {
-  const [secs, setSecs] = useState<number | null>(null);
+function useTenMinuteCountdown() {
+  const [secs, setSecs] = useState(10 * 60);
 
   useEffect(() => {
-    if (!releaseAt) {
-      setSecs(null);
-      return;
-    }
-    const tick = () => setSecs(secsUntil(releaseAt));
+    const endsAt = Date.now() + HERO_COUNTDOWN_MS;
+    const tick = () =>
+      setSecs(Math.max(0, Math.ceil((endsAt - Date.now()) / 1000)));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [releaseAt]);
+  }, []);
 
-  if (secs === null) return { minutes: null, seconds: null, active: false };
   return {
     minutes: Math.floor(secs / 60),
     seconds: secs % 60,
@@ -34,13 +28,8 @@ function useReleaseCountdown(releaseAt: number | null) {
   };
 }
 
-interface CountdownSectionProps {
-  /** From a published listing's release_at (database). */
-  releaseAt: number | null;
-}
-
-export function CountdownSection({ releaseAt }: CountdownSectionProps) {
-  const { minutes, seconds, active } = useReleaseCountdown(releaseAt);
+export function CountdownSection() {
+  const { minutes, seconds, active } = useTenMinuteCountdown();
 
   return (
     <section
@@ -68,56 +57,43 @@ export function CountdownSection({ releaseAt }: CountdownSectionProps) {
           <ScrollReveal
             variant="up"
             delay={160}
-            className="flex w-fit max-w-full flex-col gap-8 overflow-visible md:gap-10 lg:gap-12"
+            className="ml-6 flex w-fit max-w-full flex-col gap-8 overflow-visible md:ml-10 md:gap-10 lg:ml-14 lg:gap-12"
           >
-            {!releaseAt ? (
-              <>
-                <p className="hero-viewport-label font-bold text-slate-500 uppercase">
-                  Early access
-                </p>
-                <p className="hero-viewport-copy max-w-lg text-slate-400 lg:max-w-xl">
-                  Publish a concept to early releases to start the release countdown.
-                </p>
-              </>
+            <p className="hero-viewport-label font-bold text-slate-500 uppercase">
+              {active ? "Early access closes in:" : "Early access closed"}
+            </p>
+
+            {active ? (
+              <div
+                className="countdown-odometer flex shrink-0 items-baseline leading-none"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                <OdometerPair value={minutes} />
+                <span className="countdown-colon mx-2 text-slate-300 md:mx-3" aria-hidden>
+                  :
+                </span>
+                <OdometerPair value={seconds} />
+              </div>
             ) : (
-              <>
-                <p className="hero-viewport-label font-bold text-slate-500 uppercase">
-                  {active ? "Early access closes in:" : "Early access closed"}
-                </p>
-
-                {active ? (
-                  <div
-                    className="countdown-odometer flex shrink-0 items-baseline leading-none"
-                    aria-live="polite"
-                    aria-atomic="true"
-                  >
-                    <OdometerPair value={minutes} />
-                    <span className="countdown-colon mx-2 text-slate-300 md:mx-3" aria-hidden>
-                      :
-                    </span>
-                    <OdometerPair value={seconds} />
-                  </div>
-                ) : (
-                  <DropCountdown releaseAt={releaseAt} variant="hero" />
-                )}
-
-                {active ? (
-                  <div className="hero-viewport-units flex">
-                    <span className="hero-viewport-sublabel font-bold text-slate-400 uppercase">
-                      min
-                    </span>
-                    <span className="hero-viewport-sublabel font-bold text-slate-400 uppercase">
-                      sec
-                    </span>
-                  </div>
-                ) : null}
-
-                <p className="hero-viewport-copy max-w-lg text-slate-400 lg:max-w-xl">
-                  Every concept is scored on real sales, returns, and demand. Only the top
-                  performers become limited early releases.
-                </p>
-              </>
+              <p className="hero-viewport-label font-bold text-slate-400 uppercase">00:00</p>
             )}
+
+            {active ? (
+              <div className="hero-viewport-units flex">
+                <span className="hero-viewport-sublabel font-bold text-slate-400 uppercase">
+                  min
+                </span>
+                <span className="hero-viewport-sublabel font-bold text-slate-400 uppercase">
+                  sec
+                </span>
+              </div>
+            ) : null}
+
+            <p className="hero-viewport-copy max-w-lg text-slate-400 lg:max-w-xl">
+              Every concept is scored on real sales, returns, and demand. Only the top
+              performers become limited early releases.
+            </p>
           </ScrollReveal>
         </div>
       </div>

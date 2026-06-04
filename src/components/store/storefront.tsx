@@ -15,7 +15,7 @@ export function Storefront({ latestPublished }: StorefrontProps) {
   return (
     <div className="text-slate-900">
       <SplitHero />
-      <CountdownSection releaseAt={latestPublished?.releaseAt ?? null} />
+      <CountdownSection />
       <DropsViewportSection listing={latestPublished} />
       <NewsletterSection listing={latestPublished} />
       <StoreFooter />
