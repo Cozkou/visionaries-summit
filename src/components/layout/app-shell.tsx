@@ -8,10 +8,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link href="/" className="text-sm font-medium">
             Pretty Fly Creative Director
           </Link>
-          <nav className="flex gap-4 text-sm text-muted-foreground">
-            <Link href="/generate">Generate</Link>
-            <Link href="/designs">Designs</Link>
-            <Link href="/china-market">China Market</Link>
+          <nav className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+            <Link href="/control-tower">Control Tower</Link>
+            <Link href="/generate">Creative Director</Link>
+            <Link href="/china-market">China</Link>
           </nav>
         </div>
       </header>
