@@ -9,6 +9,7 @@ import {
   latLngToVec3,
   type GeoPoint,
 } from "@/lib/geo/centroids";
+import { WORLD_BORDER_RINGS } from "@/lib/geo/world-borders";
 import type {
   GeoCityPoint,
   GeoCountryPoint,
@@ -35,10 +36,12 @@ interface BarInstance {
   supplierLeadTime?: number;
 }
 
-const GLOBE_RADIUS = 1.4;
-const MAX_BAR_HEIGHT = 1.05;
-const MIN_BAR_HEIGHT = 0.08;
-const SUPPLIER_CONE_HEIGHT = 0.28;
+const GLOBE_RADIUS = 1.25;
+const MAX_BAR_HEIGHT = 1.15;
+const MIN_BAR_HEIGHT = 0.18;
+const SUPPLIER_CONE_HEIGHT = 0.32;
+const BAR_RADIUS_TOP = 0.05;
+const BAR_RADIUS_BOTTOM = 0.07;
 
 function formatGbp(n: number): string {
   if (n >= 1_000_000) return `£${(n / 1_000_000).toFixed(2)}M`;
@@ -49,6 +52,9 @@ function formatGbp(n: number): string {
 export function GlobeHero(props: GlobeHeroProps) {
   const { countries, cities, suppliers, totals } = props;
 
+  // Bars: one per city when we have a city centroid, otherwise one per country
+  // at the country centroid. This guarantees every country with customers
+  // appears as a bar rather than disappearing into the geometry.
   const cityBars = useMemo(() => {
     return cities
       .map((c) => {
@@ -58,6 +64,31 @@ export function GlobeHero(props: GlobeHeroProps) {
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);
   }, [cities]);
+
+  /** Countries with revenue that don't already have a city bar standing in. */
+  const countryBars = useMemo(() => {
+    const countriesWithCityBars = new Set(
+      cityBars.map((c) => c.centroid.countryCode)
+    );
+    return countries
+      .filter((c) => !countriesWithCityBars.has(c.countryCode))
+      .map((c) => {
+        const centroid = COUNTRY_CENTROIDS[c.countryCode];
+        if (!centroid) return null;
+        return {
+          ...c,
+          city: c.countryName,
+          centroid,
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+  }, [countries, cityBars]);
+
+  /** Combined bars actually rendered on the globe. */
+  const allBars = useMemo(
+    () => [...cityBars, ...countryBars],
+    [cityBars, countryBars]
+  );
 
   const supplierCones = useMemo(() => {
     return suppliers
@@ -79,10 +110,10 @@ export function GlobeHero(props: GlobeHeroProps) {
 
   const maxRevenue = useMemo(
     () =>
-      cityBars.reduce((acc, c) => Math.max(acc, c.revenue), 0) ||
+      allBars.reduce((acc, c) => Math.max(acc, c.revenue), 0) ||
       countries[0]?.revenue ||
       1,
-    [cityBars, countries]
+    [allBars, countries]
   );
 
   return (
@@ -115,7 +146,7 @@ export function GlobeHero(props: GlobeHeroProps) {
 
       <div className="hidden md:block">
         <GlobeCanvas
-          cityBars={cityBars}
+          cityBars={allBars}
           supplierCones={supplierCones}
           maxRevenue={maxRevenue}
           topCustomerCity={topCustomerCity}
@@ -145,11 +176,22 @@ export function GlobeHero(props: GlobeHeroProps) {
   );
 }
 
+/** Shared shape for both city- and country-level bars rendered on the globe. */
+interface GlobeBar {
+  city: string;
+  countryCode: string;
+  countryName: string;
+  revenue: number;
+  orders: number;
+  customers: number;
+  centroid: GeoPoint;
+}
+
 interface GlobeCanvasProps {
-  cityBars: (GeoCityPoint & { centroid: GeoPoint })[];
+  cityBars: GlobeBar[];
   supplierCones: (SupplierOriginPoint & { centroid: GeoPoint })[];
   maxRevenue: number;
-  topCustomerCity: (GeoCityPoint & { centroid: GeoPoint }) | null;
+  topCustomerCity: GlobeBar | null;
 }
 
 function GlobeCanvas({
@@ -182,8 +224,12 @@ function GlobeCanvas({
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 50);
-    camera.position.set(0, 1.0, 4.4);
+    // FOV + camera tuned to look slightly DOWN at the northern hemisphere
+    // (where >95% of customers + suppliers live) so London's tall spike sits
+    // inside the viewport instead of being clipped at the top.
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
+    camera.position.set(0, 2.4, 5.2);
+    camera.lookAt(0, 0.1, 0);
 
     // ---- lighting (warmer key + emerald rim for editorial vibe)
     const ambient = new THREE.AmbientLight(0xffffff, 0.5);
@@ -204,10 +250,10 @@ function GlobeCanvas({
 
     const sphereGeo = new THREE.IcosahedronGeometry(GLOBE_RADIUS, 5);
     const sphereMat = new THREE.MeshStandardMaterial({
-      color: 0x111b2d,
-      metalness: 0.15,
-      roughness: 0.78,
-      flatShading: true,
+      color: 0x0f172a, // slate-900 — slightly cooler so emerald borders pop
+      metalness: 0.1,
+      roughness: 0.85,
+      flatShading: false,
     });
     const sphere = new THREE.Mesh(sphereGeo, sphereMat);
     globeGroup.add(sphere);
@@ -225,18 +271,106 @@ function GlobeCanvas({
     const atmosphere = new THREE.Mesh(atmosGeo, atmosMat);
     globeGroup.add(atmosphere);
 
-    // Subtle inner wireframe for the "drafted globe" look.
-    const wireGeo = new THREE.IcosahedronGeometry(GLOBE_RADIUS * 1.001, 2);
-    const wireMat = new THREE.LineBasicMaterial({
-      color: 0x334155,
-      transparent: true,
-      opacity: 0.45,
-    });
-    const wire = new THREE.LineSegments(
-      new THREE.EdgesGeometry(wireGeo),
-      wireMat
+    // Real country borders projected onto the sphere. We split into two
+    // LineSegments meshes so countries WITH revenue render in bright emerald
+    // (data) and countries WITHOUT render in muted slate (geographic context).
+    // This turns the globe from an abstract dark ball into an actual world map
+    // where the bars' positions are immediately readable as countries.
+    const revenueCountrySet = new Set<string>();
+    for (const c of cityBars) revenueCountrySet.add(c.countryCode);
+    for (const s of supplierCones) revenueCountrySet.add(s.countryCode);
+
+    const defaultBorderPositions: number[] = [];
+    const dataBorderPositions: number[] = [];
+    for (const ring of WORLD_BORDER_RINGS) {
+      const target = revenueCountrySet.has(ring.countryCode)
+        ? dataBorderPositions
+        : defaultBorderPositions;
+      for (let i = 0; i < ring.points.length - 1; i++) {
+        const [lng1, lat1] = ring.points[i];
+        const [lng2, lat2] = ring.points[i + 1];
+        const a = latLngToVec3(lat1, lng1, GLOBE_RADIUS * 1.002);
+        const b = latLngToVec3(lat2, lng2, GLOBE_RADIUS * 1.002);
+        target.push(a.x, a.y, a.z, b.x, b.y, b.z);
+      }
+    }
+
+    const defaultBorderGeo = new THREE.BufferGeometry();
+    defaultBorderGeo.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(defaultBorderPositions, 3)
     );
-    globeGroup.add(wire);
+    const defaultBorderMat = new THREE.LineBasicMaterial({
+      color: 0x64748b, // slate-500 (brighter than 600 so continents read clearly)
+      transparent: true,
+      opacity: 0.85,
+    });
+    const defaultBorders = new THREE.LineSegments(
+      defaultBorderGeo,
+      defaultBorderMat
+    );
+    globeGroup.add(defaultBorders);
+
+    const dataBorderGeo = new THREE.BufferGeometry();
+    dataBorderGeo.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(dataBorderPositions, 3)
+    );
+    const dataBorderMat = new THREE.LineBasicMaterial({
+      color: 0x34d399, // emerald-400
+      transparent: true,
+      opacity: 0.95,
+    });
+    const dataBorders = new THREE.LineSegments(dataBorderGeo, dataBorderMat);
+    globeGroup.add(dataBorders);
+
+    // Hover highlight: a third LineSegments mesh whose geometry we rewrite
+    // every time the user hovers a bar, so the WHOLE country outline glows
+    // (not just the bar) — that's the cue that says "this bar belongs to
+    // *this* country".
+    const hoverBorderGeo = new THREE.BufferGeometry();
+    hoverBorderGeo.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute([], 3)
+    );
+    const hoverBorderMat = new THREE.LineBasicMaterial({
+      color: 0xfde047, // yellow-300
+      transparent: true,
+      opacity: 0,
+    });
+    const hoverBorders = new THREE.LineSegments(hoverBorderGeo, hoverBorderMat);
+    hoverBorders.renderOrder = 1;
+    globeGroup.add(hoverBorders);
+
+    let activeHoverCountry: string | null = null;
+    function setHoverCountry(code: string | null) {
+      if (code === activeHoverCountry) return;
+      activeHoverCountry = code;
+      if (!code) {
+        hoverBorderMat.opacity = 0;
+        hoverBorderGeo.setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute([], 3)
+        );
+        return;
+      }
+      const positions: number[] = [];
+      for (const ring of WORLD_BORDER_RINGS) {
+        if (ring.countryCode !== code) continue;
+        for (let i = 0; i < ring.points.length - 1; i++) {
+          const [lng1, lat1] = ring.points[i];
+          const [lng2, lat2] = ring.points[i + 1];
+          const a = latLngToVec3(lat1, lng1, GLOBE_RADIUS * 1.012);
+          const b = latLngToVec3(lat2, lng2, GLOBE_RADIUS * 1.012);
+          positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
+        }
+      }
+      hoverBorderGeo.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(positions, 3)
+      );
+      hoverBorderMat.opacity = 1;
+    }
 
     // Latitude rings.
     const latitudeRings = new THREE.Group();
@@ -265,10 +399,13 @@ function GlobeCanvas({
     const barMeshes: { mesh: THREE.Mesh; instance: BarInstance }[] = [];
 
     function scaleRevenue(r: number): number {
-      // sqrt scale: lets London (~80% of all revenue) dominate while still
-      // keeping small markets visible above the surface.
+      // Hybrid scale: linear-feeling for the top markets (so London's
+      // dominance is obvious) with a soft floor for tail markets so they
+      // still poke above the surface.
       if (r <= 0) return MIN_BAR_HEIGHT;
-      const v = Math.sqrt(r / (maxRevenue || 1));
+      const ratio = r / (maxRevenue || 1);
+      // Bias toward visibility: 0.35 floor + 0.65 of the linear ratio.
+      const v = 0.35 * Math.sqrt(ratio) + 0.65 * ratio;
       return MIN_BAR_HEIGHT + Math.max(0, Math.min(1, v)) * MAX_BAR_HEIGHT;
     }
     function colorForIntensity(intensity: number): THREE.Color {
@@ -286,14 +423,21 @@ function GlobeCanvas({
       const h = scaleRevenue(c.revenue);
       const intensity = c.revenue / (maxRevenue || 1);
       const color = colorForIntensity(intensity);
-      const geo = new THREE.CylinderGeometry(0.045, 0.06, h, 6, 1, false);
+      const geo = new THREE.CylinderGeometry(
+        BAR_RADIUS_TOP,
+        BAR_RADIUS_BOTTOM,
+        h,
+        6,
+        1,
+        false
+      );
       geo.translate(0, h / 2, 0);
       const mat = new THREE.MeshStandardMaterial({
         color,
-        emissive: color.clone().multiplyScalar(0.55),
-        emissiveIntensity: 1.0,
+        emissive: color.clone().multiplyScalar(0.7),
+        emissiveIntensity: 1.2,
         metalness: 0.25,
-        roughness: 0.4,
+        roughness: 0.35,
         flatShading: true,
       });
       const bar = new THREE.Mesh(geo, mat);
@@ -352,6 +496,8 @@ function GlobeCanvas({
     interface ArcEntry {
       curve: THREE.QuadraticBezierCurve3;
       pulse: THREE.Mesh;
+      halo: THREE.Mesh;
+      core: THREE.Mesh;
     }
     const arcs: ArcEntry[] = [];
     if (topCustomerCity) {
@@ -373,30 +519,49 @@ function GlobeCanvas({
         mid.normalize().multiplyScalar(GLOBE_RADIUS * lift);
 
         const curve = new THREE.QuadraticBezierCurve3(sourceVec, mid, sinkVec);
-        const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.006, 8, false);
-        const tubeMat = new THREE.MeshBasicMaterial({
+        // Outer halo + inner core so the arc reads even against the bright
+        // emerald horizon. renderOrder=2 keeps it above the sphere/bars.
+        const haloGeo = new THREE.TubeGeometry(curve, 96, 0.03, 12, false);
+        const haloMat = new THREE.MeshBasicMaterial({
           color: 0xfbbf24,
           transparent: true,
-          opacity: 0.55,
+          opacity: 0.22,
           blending: THREE.AdditiveBlending,
           depthWrite: false,
+          depthTest: false,
         });
-        const tube = new THREE.Mesh(tubeGeo, tubeMat);
-        globeGroup.add(tube);
+        const halo = new THREE.Mesh(haloGeo, haloMat);
+        halo.renderOrder = 2;
+        globeGroup.add(halo);
 
-        // Travelling pulse along the arc.
-        const pulseGeo = new THREE.SphereGeometry(0.022, 12, 12);
-        const pulseMat = new THREE.MeshBasicMaterial({
+        const coreGeo = new THREE.TubeGeometry(curve, 96, 0.012, 10, false);
+        const coreMat = new THREE.MeshBasicMaterial({
           color: 0xfde68a,
           transparent: true,
-          opacity: 0.95,
+          opacity: 0.9,
           blending: THREE.AdditiveBlending,
           depthWrite: false,
+          depthTest: false,
+        });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        core.renderOrder = 3;
+        globeGroup.add(core);
+
+        // Travelling pulse along the arc.
+        const pulseGeo = new THREE.SphereGeometry(0.035, 14, 14);
+        const pulseMat = new THREE.MeshBasicMaterial({
+          color: 0xfffbeb,
+          transparent: true,
+          opacity: 1.0,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          depthTest: false,
         });
         const pulse = new THREE.Mesh(pulseGeo, pulseMat);
+        pulse.renderOrder = 4;
         globeGroup.add(pulse);
 
-        arcs.push({ curve, pulse });
+        arcs.push({ curve, pulse, halo, core });
       }
     }
 
@@ -466,8 +631,9 @@ function GlobeCanvas({
       active: false,
       lastX: 0,
       lastY: 0,
-      vx: 0.0012,
+      vx: 0.0006,
       vy: 0,
+      hoverPause: false,
     };
     function onPointerDown(ev: PointerEvent) {
       dragState.active = true;
@@ -500,9 +666,15 @@ function GlobeCanvas({
             y: ev.clientY - rect.top,
             instance: match.instance,
           });
+          // Pause auto-spin while a bar is hovered so the user can target it,
+          // and outline the whole country so the bar's location is unambiguous.
+          dragState.hoverPause = true;
+          setHoverCountry(match.instance.point.countryCode);
         }
       } else {
         setTooltip(null);
+        dragState.hoverPause = false;
+        setHoverCountry(null);
       }
 
       if (!dragState.active) return;
@@ -520,14 +692,21 @@ function GlobeCanvas({
     function onLeave() {
       setTooltip(null);
       dragState.active = false;
+      dragState.hoverPause = false;
+      setHoverCountry(null);
     }
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
     renderer.domElement.addEventListener("pointerup", onPointerUp);
     renderer.domElement.addEventListener("pointermove", onPointerMove);
     renderer.domElement.addEventListener("pointerleave", onLeave);
 
-    globeGroup.rotation.y = -0.6;
-    globeGroup.rotation.x = -0.25;
+    // Initial orientation: rotate to put London + Europe + the supplier arcs
+    // front-and-centre so the data story lands instantly on first paint.
+    // (At rotation.y=0 longitude -90 (Pacific) faces the camera; rotation.y≈-1.0
+    // brings longitude ~-30 — the Atlantic — to the front, putting London just
+    // right of centre with the US east coast peeking in on the far left.)
+    globeGroup.rotation.y = -1.0;
+    globeGroup.rotation.x = 0;
 
     // ---- animate
     let raf = 0;
@@ -536,7 +715,7 @@ function GlobeCanvas({
     const tmpCameraDir = new THREE.Vector3();
     function tick() {
       raf = requestAnimationFrame(tick);
-      if (!dragState.active && dragState.vx !== 0) {
+      if (!dragState.active && !dragState.hoverPause && dragState.vx !== 0) {
         globeGroup.rotation.y += dragState.vx;
       }
       // Travel each pulse along its arc.
@@ -583,8 +762,12 @@ function GlobeCanvas({
       renderer.dispose();
       sphereGeo.dispose();
       sphereMat.dispose();
-      wireGeo.dispose();
-      wireMat.dispose();
+      defaultBorderGeo.dispose();
+      defaultBorderMat.dispose();
+      dataBorderGeo.dispose();
+      dataBorderMat.dispose();
+      hoverBorderGeo.dispose();
+      hoverBorderMat.dispose();
       atmosGeo.dispose();
       atmosMat.dispose();
       barMeshes.forEach((b) => {
@@ -596,6 +779,10 @@ function GlobeCanvas({
       arcs.forEach((a) => {
         a.pulse.geometry.dispose();
         (a.pulse.material as THREE.Material).dispose();
+        a.halo.geometry.dispose();
+        (a.halo.material as THREE.Material).dispose();
+        a.core.geometry.dispose();
+        (a.core.material as THREE.Material).dispose();
       });
       labelGroup.children.forEach((sprite) => {
         if (sprite instanceof THREE.Sprite) {
