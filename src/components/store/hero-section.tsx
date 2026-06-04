@@ -42,10 +42,6 @@ interface CountdownSectionProps {
 export function CountdownSection({ releaseAt }: CountdownSectionProps) {
   const { minutes, seconds, active } = useReleaseCountdown(releaseAt);
 
-  if (!releaseAt) {
-    return null;
-  }
-
   return (
     <section
       id="drop-countdown"
@@ -74,39 +70,54 @@ export function CountdownSection({ releaseAt }: CountdownSectionProps) {
             delay={160}
             className="flex w-fit max-w-full flex-col gap-8 overflow-visible md:gap-10 lg:gap-12"
           >
-            <p className="hero-viewport-label font-bold text-slate-500 uppercase">
-              {active ? "Early access closes in:" : "Early access closed"}
-            </p>
-
-            {active ? (
-              <div
-                className="countdown-odometer flex shrink-0 items-baseline leading-none"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                <OdometerPair value={minutes} />
-                <span className="countdown-colon mx-2 text-slate-300 md:mx-3" aria-hidden>
-                  :
-                </span>
-                <OdometerPair value={seconds} />
-              </div>
+            {!releaseAt ? (
+              <>
+                <p className="hero-viewport-label font-bold text-slate-500 uppercase">
+                  Early access
+                </p>
+                <p className="hero-viewport-copy max-w-lg text-slate-400 lg:max-w-xl">
+                  Publish a concept to early releases to start the release countdown.
+                </p>
+              </>
             ) : (
-              <DropCountdown releaseAt={releaseAt} variant="hero" />
+              <>
+                <p className="hero-viewport-label font-bold text-slate-500 uppercase">
+                  {active ? "Early access closes in:" : "Early access closed"}
+                </p>
+
+                {active ? (
+                  <div
+                    className="countdown-odometer flex shrink-0 items-baseline leading-none"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
+                    <OdometerPair value={minutes} />
+                    <span className="countdown-colon mx-2 text-slate-300 md:mx-3" aria-hidden>
+                      :
+                    </span>
+                    <OdometerPair value={seconds} />
+                  </div>
+                ) : (
+                  <DropCountdown releaseAt={releaseAt} variant="hero" />
+                )}
+
+                {active ? (
+                  <div className="hero-viewport-units flex">
+                    <span className="hero-viewport-sublabel font-bold text-slate-400 uppercase">
+                      min
+                    </span>
+                    <span className="hero-viewport-sublabel font-bold text-slate-400 uppercase">
+                      sec
+                    </span>
+                  </div>
+                ) : null}
+
+                <p className="hero-viewport-copy max-w-lg text-slate-400 lg:max-w-xl">
+                  Every concept is scored on real sales, returns, and demand. Only the top
+                  performers become limited early releases.
+                </p>
+              </>
             )}
-
-            <div className="hero-viewport-units flex">
-              <span className="hero-viewport-sublabel font-bold text-slate-400 uppercase">
-                min
-              </span>
-              <span className="hero-viewport-sublabel font-bold text-slate-400 uppercase">
-                sec
-              </span>
-            </div>
-
-            <p className="hero-viewport-copy max-w-lg text-slate-400 lg:max-w-xl">
-              Every concept is scored on real sales, returns, and demand. Only the top
-              performers become limited early releases.
-            </p>
           </ScrollReveal>
         </div>
       </div>

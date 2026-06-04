@@ -1,6 +1,5 @@
 "use client";
 
-import { DropCountdown } from "@/components/store/drop-countdown";
 import { ListingActions } from "@/components/store/listing-actions";
 import { ScrollReveal } from "@/components/store/scroll-reveal";
 import type { PublicListing } from "@/lib/public-listings";
@@ -32,12 +31,9 @@ export function LatestDropPanel({ listing }: Props) {
 
       <ScrollReveal variant="right" delay={220} className="min-w-0">
         <div className="flex min-w-0 flex-col gap-4 md:gap-5">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-          <p className="text-[10px] font-medium tracking-[0.22em] text-slate-400 uppercase">
-            Latest drop
-          </p>
-          <DropCountdown releaseAt={listing.releaseAt} variant="inline" />
-        </div>
+        <p className="text-[10px] font-medium tracking-[0.22em] text-slate-400 uppercase">
+          Latest drop
+        </p>
 
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <h2 className="font-street text-[clamp(1.5rem,3.5vw,2.25rem)] uppercase leading-[0.95] tracking-[0.02em] text-slate-900">
@@ -47,6 +43,12 @@ export function LatestDropPanel({ listing }: Props) {
             £{Math.round(listing.retailPrice)}
           </span>
         </div>
+
+        {listing.description ? (
+          <p className="text-[13px] leading-relaxed text-slate-500 md:text-[14px]">
+            {listing.description}
+          </p>
+        ) : null}
 
         <ListingActions
           slug={listing.slug}
