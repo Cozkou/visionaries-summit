@@ -6,8 +6,8 @@ import { listPublicListings } from "@/lib/public-listings";
 
 export const dynamic = "force-dynamic";
 
-export default function EarlyReleasesPage() {
-  const listings = listPublicListings();
+export default async function EarlyReleasesPage() {
+  const listings = await listPublicListings();
 
   return (
     <div className="min-h-screen text-slate-900" style={{ backgroundColor: "#f7f6f3" }}>

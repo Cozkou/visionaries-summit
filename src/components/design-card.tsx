@@ -22,8 +22,13 @@ export function DesignCard({ design }: DesignCardProps) {
           className="aspect-square w-full bg-neutral-100 object-cover"
         />
       ) : (
-        <div className="flex aspect-square w-full items-center justify-center bg-neutral-100 px-4 text-center text-[12px] text-neutral-400">
-          No product image in data pack
+        <div className="flex aspect-square w-full flex-col items-center justify-center gap-1 bg-neutral-100 px-4 text-center text-[12px] text-neutral-400">
+          <span>No product photo in CSV pack</span>
+          {design.sourceProductId ? (
+            <span className="font-mono text-[10px] text-neutral-500">
+              Source: {design.sourceProductId}
+            </span>
+          ) : null}
         </div>
       )}
       <div className="space-y-2 px-4 py-3">

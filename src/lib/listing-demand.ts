@@ -14,7 +14,7 @@ export interface ListingDemand {
 }
 
 /**
- * Fetches aggregated demand for a published design. Reads our own SQLite for
+ * Fetches aggregated demand for a published design. Reads our DB (Postgres or SQLite) for
  * wishlist / pre-order / page-view counts, then opportunistically refreshes the
  * cached `woo_total_sales` from the live platform (best-effort — failures here
  * shouldn't break the staff view).
@@ -23,7 +23,7 @@ export async function getListingDemandForDesign(
   designId: string,
   options: { skipRemoteSync?: boolean } = {}
 ): Promise<ListingDemand | null> {
-  let listing = getListingByDesignId(designId);
+  let listing = await getListingByDesignId(designId);
   if (!listing) return null;
 
   if (
@@ -35,7 +35,7 @@ export async function getListingDemandForDesign(
       const adapter = getCommerceAdapter();
       const remote = await adapter.getProduct(listing.wooProductId);
       if (remote) {
-        const updated = updateListing(listing.id, {
+        const updated = await updateListing(listing.id, {
           wooTotalSales: remote.totalSales,
           storefrontUrl: remote.permalink ?? listing.storefrontUrl,
         });
@@ -51,5 +51,5 @@ export async function getListingDemandForDesign(
     }
   }
 
-  return { listing, counts: getDemandCounts(listing.id) };
+  return { listing, counts: await getDemandCounts(listing.id) };
 }

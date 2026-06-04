@@ -12,7 +12,7 @@ export async function GET(request: Request, context: RouteContext) {
   if (authError) return authError;
 
   const { id } = await context.params;
-  const design = getDesignById(id);
+  const design = await getDesignById(id);
 
   if (!design) {
     return NextResponse.json({ error: "Design not found" }, { status: 404 });

@@ -23,7 +23,7 @@ interface PreorderBody {
 
 export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const listing = getListingBySlug(slug);
+  const listing = await getListingBySlug(slug);
   if (!listing) {
     return NextResponse.json({ error: "Listing not found" }, { status: 404 });
   }
@@ -42,7 +42,7 @@ export async function POST(request: Request, context: RouteContext) {
   const quantity = Math.max(1, Math.min(5, Number(body.quantity) || 1));
   const size = body.size?.trim() || null;
 
-  const stored = getStoredDesign(listing.designId);
+  const stored = await getStoredDesign(listing.designId);
   if (!stored) {
     return NextResponse.json({ error: "Design unavailable" }, { status: 410 });
   }
@@ -69,7 +69,7 @@ export async function POST(request: Request, context: RouteContext) {
     }
   }
 
-  addPreorder({
+  await addPreorder({
     listingId: listing.id,
     email,
     size,
@@ -80,7 +80,7 @@ export async function POST(request: Request, context: RouteContext) {
   return NextResponse.json(
     {
       ok: true,
-      counts: getDemandCounts(listing.id),
+      counts: await getDemandCounts(listing.id),
       wooOrderId,
     },
     { status: 201 }

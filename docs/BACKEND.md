@@ -27,7 +27,7 @@ In development, if `INTERNAL_API_KEY` is unset, auth is skipped (not allowed in 
 
 | Layer | Implementation |
 |-------|----------------|
-| Persistence | SQLite (`data/pretty-fly.db`) |
+| Persistence | Supabase Postgres when `DATABASE_URL` is set; otherwise SQLite (`data/pretty-fly.db`) |
 | Design / analysis | `sales-analytics.ts` — line_items, products, refunds, POs, suppliers |
 | Control tower | `control-tower-build.ts` — variants, ads CSVs, support_tickets |
 | Storefront catalog | `catalog.ts` — products.csv + variant inventory |
@@ -43,5 +43,7 @@ cp backend.env.example .env.local
 npm install
 npm run dev
 ```
+
+**Supabase:** set `DATABASE_URL` in `.env.local` (direct connection, port 5432). Tables are created automatically on first request, or apply `supabase/migrations/20260604120000_initial_app_schema.sql` in the SQL editor.
 
 Data pack path: `hackathon_assets/pretty_fly_data_pack/data/`

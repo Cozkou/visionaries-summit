@@ -71,7 +71,7 @@ function buildRecommendation(
   };
 }
 
-function computeAnalysis(stored: StoredDesign): AnalysisData {
+async function computeAnalysis(stored: StoredDesign): Promise<AnalysisData> {
   const { inputs, design } = stored;
   const snap = getCategorySnapshot(inputs);
   const source = design.sourceProductId
@@ -165,7 +165,7 @@ function computeAnalysis(stored: StoredDesign): AnalysisData {
     },
   ];
 
-  const demand = buildDemand(stored.design.id);
+  const demand = await buildDemand(stored.design.id);
 
   return {
     manufacturingCost,
@@ -187,10 +187,10 @@ function computeAnalysis(stored: StoredDesign): AnalysisData {
   };
 }
 
-function buildDemand(designId: string): DesignDemand | null {
-  const listing = getListingByDesignId(designId);
+async function buildDemand(designId: string): Promise<DesignDemand | null> {
+  const listing = await getListingByDesignId(designId);
   if (!listing) return null;
-  const counts = getDemandCounts(listing.id);
+  const counts = await getDemandCounts(listing.id);
   return {
     listing: {
       id: listing.id,
@@ -207,5 +207,5 @@ function buildDemand(designId: string): DesignDemand | null {
 }
 
 export async function analyzeDesign(stored: StoredDesign): Promise<AnalysisData> {
-  return computeAnalysis(stored);
+  return await computeAnalysis(stored);
 }

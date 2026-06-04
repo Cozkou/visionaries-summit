@@ -34,8 +34,8 @@ function statusBadge(status: PublicListing["status"]): string {
   }
 }
 
-export default function PublishedOverviewPage() {
-  const listings = [...listPublicListings(200)].sort(
+export default async function PublishedOverviewPage() {
+  const listings = [...(await listPublicListings(200))].sort(
     (a, b) => demandScore(b) - demandScore(a)
   );
 

@@ -30,8 +30,10 @@ export interface PublicListing {
   counts: DemandCounts;
 }
 
-export function toPublicListing(listing: ConceptListing): PublicListing | null {
-  const stored = getStoredDesign(listing.designId);
+export async function toPublicListing(
+  listing: ConceptListing
+): Promise<PublicListing | null> {
+  const stored = await getStoredDesign(listing.designId);
   if (!stored) return null;
   const story = buildStorefrontStory(stored.design, stored.inputs);
   return {
@@ -49,18 +51,20 @@ export function toPublicListing(listing: ConceptListing): PublicListing | null {
     status: listing.status,
     publishedAt: listing.publishedAt,
     releaseAt: listing.releaseAt,
-    counts: getDemandCounts(listing.id),
+    counts: await getDemandCounts(listing.id),
   };
 }
 
-export function listPublicListings(limit = 50): PublicListing[] {
-  return listPublished(limit)
-    .map(toPublicListing)
-    .filter((l): l is PublicListing => l !== null);
+export async function listPublicListings(
+  limit = 50
+): Promise<PublicListing[]> {
+  const listings = await listPublished(limit);
+  const results = await Promise.all(listings.map(toPublicListing));
+  return results.filter((l): l is PublicListing => l !== null);
 }
 
-export function getLatestPublicListing(): PublicListing | null {
-  const latest = getLatestPublishedListing();
+export async function getLatestPublicListing(): Promise<PublicListing | null> {
+  const latest = await getLatestPublishedListing();
   if (!latest) return null;
   return toPublicListing(latest);
 }

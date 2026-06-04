@@ -11,10 +11,10 @@ type RouteContext = { params: Promise<{ slug: string }> };
 
 export async function POST(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const listing = getListingBySlug(slug);
+  const listing = await getListingBySlug(slug);
   if (!listing) {
     return NextResponse.json({ error: "Listing not found" }, { status: 404 });
   }
-  incrementPageView(listing.id);
+  await incrementPageView(listing.id);
   return NextResponse.json({ ok: true });
 }

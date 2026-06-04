@@ -75,9 +75,9 @@ export async function POST(request: Request) {
 
   if (topic.startsWith("product.")) {
     const product = payload as WooProductWebhook;
-    const listing = getListingByWooProductId(product.id);
+    const listing = await getListingByWooProductId(product.id);
     if (listing) {
-      updateListing(listing.id, {
+      await updateListing(listing.id, {
         wooTotalSales:
           product.total_sales !== undefined
             ? product.total_sales
@@ -95,12 +95,12 @@ export async function POST(request: Request) {
     const order = payload as WooOrderWebhook;
     const productIds = (order.line_items ?? []).map((li) => li.product_id);
     for (const productId of new Set(productIds)) {
-      const listing = getListingByWooProductId(productId);
+      const listing = await getListingByWooProductId(productId);
       if (!listing) continue;
       const units = (order.line_items ?? [])
         .filter((li) => li.product_id === productId)
         .reduce((sum, li) => sum + (Number(li.quantity) || 0), 0);
-      updateListing(listing.id, {
+      await updateListing(listing.id, {
         wooTotalSales: listing.wooTotalSales + units,
       });
     }

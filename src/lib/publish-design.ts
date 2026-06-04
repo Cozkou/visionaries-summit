@@ -22,12 +22,12 @@ export async function publishDesign(
   designId: string,
   options: { publishedBy?: string | null; acceptingPreorders?: boolean } = {}
 ): Promise<PublishResult> {
-  const stored = getStoredDesign(designId);
+  const stored = await getStoredDesign(designId);
   if (!stored) {
     return { ok: false, status: 404, error: "Design not found" };
   }
 
-  const existing = getListingByDesignId(designId);
+  const existing = await getListingByDesignId(designId);
   if (existing && existing.status !== "archived") {
     return { ok: true, listing: existing, reused: true };
   }
@@ -35,11 +35,11 @@ export async function publishDesign(
   const imageUrl = stored.design.imageUrl?.trim() || "";
 
   if (!isCommerceConfigured()) {
-    const slug = existing?.slug ?? generateUniqueSlug(stored.design.name);
+    const slug = existing?.slug ?? (await generateUniqueSlug(stored.design.name));
     const storefrontUrl = `/early-releases/${slug}`;
 
     if (existing) {
-      const updated = updateListing(existing.id, {
+      const updated = await updateListing(existing.id, {
         status: "coming_soon",
         imageUrl: imageUrl || null,
         storefrontUrl,
@@ -47,7 +47,7 @@ export async function publishDesign(
       return { ok: true, listing: updated ?? existing, reused: false };
     }
 
-    const listing = insertListing({
+    const listing = await insertListing({
       designId,
       wooProductId: null,
       slug,
@@ -73,7 +73,7 @@ export async function publishDesign(
     });
 
     if (existing) {
-      const updated = updateListing(existing.id, {
+      const updated = await updateListing(existing.id, {
         wooProductId: remoteProduct.id,
         status: "coming_soon",
         storefrontUrl: remoteProduct.permalink ?? null,
@@ -82,8 +82,8 @@ export async function publishDesign(
       return { ok: true, listing: updated ?? existing, reused: false };
     }
 
-    const slug = generateUniqueSlug(stored.design.name);
-    const listing = insertListing({
+    const slug = await generateUniqueSlug(stored.design.name);
+    const listing = await insertListing({
       designId,
       wooProductId: remoteProduct.id,
       slug,
@@ -112,7 +112,7 @@ export async function publishDesign(
 export async function unpublishDesign(
   designId: string
 ): Promise<PublishResult> {
-  const listing = getListingByDesignId(designId);
+  const listing = await getListingByDesignId(designId);
   if (!listing) {
     return { ok: false, status: 404, error: "Listing not found" };
   }
@@ -126,6 +126,6 @@ export async function unpublishDesign(
     }
   }
 
-  const updated = updateListing(listing.id, { status: "archived" });
+  const updated = await updateListing(listing.id, { status: "archived" });
   return { ok: true, listing: updated ?? listing, reused: false };
 }

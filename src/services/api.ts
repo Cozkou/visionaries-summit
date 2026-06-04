@@ -80,6 +80,15 @@ export async function generateDesigns(
   return parseJson<Design[]>(res);
 }
 
+/** Saved concepts from the app database (not a new CSV generation). */
+export async function listSavedDesigns(limit = 100): Promise<Design[]> {
+  const res = await fetch(`/api/designs?limit=${limit}`, {
+    headers: apiHeaders(),
+  });
+  const data = await parseJson<{ designs: Design[] }>(res);
+  return data.designs;
+}
+
 export async function getDesignById(designId: string): Promise<Design | null> {
   const res = await fetch(`/api/designs/${designId}`, {
     headers: apiHeaders(),

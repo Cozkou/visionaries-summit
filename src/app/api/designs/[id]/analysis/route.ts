@@ -13,7 +13,7 @@ export async function GET(request: Request, context: RouteContext) {
   if (authError) return authError;
 
   const { id } = await context.params;
-  const stored = getStoredDesign(id);
+  const stored = await getStoredDesign(id);
 
   if (!stored) {
     return NextResponse.json({ error: "Design not found" }, { status: 404 });

@@ -16,9 +16,9 @@ interface PageProps {
 
 export default async function EarlyReleaseDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const listing = getListingBySlug(slug);
+  const listing = await getListingBySlug(slug);
   if (!listing) notFound();
-  const publicListing = toPublicListing(listing);
+  const publicListing = await toPublicListing(listing);
   if (!publicListing) notFound();
 
   const statusLabel =

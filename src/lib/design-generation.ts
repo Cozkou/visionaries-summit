@@ -40,6 +40,6 @@ export async function runDesignGeneration(
       "No matching products in the data pack for this product type and audience."
     );
   }
-  saveDesigns(designs, inputs);
+  await saveDesigns(designs, inputs);
   return designs;
 }
