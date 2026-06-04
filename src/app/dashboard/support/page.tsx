@@ -1,36 +1,40 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import { DashboardSection } from "@/components/dashboard/section-shell";
 import { internalPanelClass } from "@/components/layout/internal-tools";
-
-const MOCK_MESSAGES = [
-  { from: "Mia Torres", subject: "Hoodie sizing runs small?", time: "2h ago", unread: true },
-  { from: "Jordan Lee", subject: "Order #8821 not received", time: "5h ago", unread: true },
-  { from: "Sam Wright", subject: "Restock on varsity jacket?", time: "1d ago", unread: false },
-];
+import { getSupportAutomation } from "@/services/api";
+import type { SupportResponse } from "@/services/api";
 
 export default function SupportMessagesPage() {
+  const [data, setData] = useState<SupportResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getSupportAutomation({ limit: 12 })
+      .then(setData)
+      .catch(() => setError("Failed to load support data."));
+  }, []);
+
   return (
     <DashboardSection
       title="Support messages"
-      description="Customer inbox — triage and respond to open threads."
+      description="Support automation by category — human vs bot volume from the data pack."
     >
+      {error && <p className="text-[13px] text-red-600">{error}</p>}
       <ul className={internalPanelClass}>
-        {MOCK_MESSAGES.map((m) => (
-          <li
-            key={m.subject}
-            className={`flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm ${
-              m.unread ? "bg-neutral-50" : ""
-            }`}
-          >
+        {data?.rows.map((m) => (
+          <li key={m.category} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
             <div>
-              <p className="font-medium text-neutral-900">
-                {m.unread && (
-                  <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-neutral-900" />
-                )}
-                {m.from}
+              <p className="font-medium text-neutral-900">{m.category}</p>
+              <p className="text-neutral-600">
+                {m.humanTickets} human · {m.botTickets} bot tickets
               </p>
-              <p className="text-neutral-600">{m.subject}</p>
             </div>
-            <p className="font-mono text-[11px] text-neutral-400">{m.time}</p>
+            <p className="font-mono text-[11px] text-neutral-400">
+              {m.hoursSavedAt25Pct.toFixed(0)}h recoverable
+            </p>
           </li>
         ))}
       </ul>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -81,10 +81,33 @@ const steps: Step[] = [
   },
 ];
 
+function FormSkeleton() {
+  return (
+    <div
+      className="max-w-lg space-y-6 animate-pulse"
+      aria-busy="true"
+      aria-label="Loading form"
+    >
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <div className="h-4 w-28 rounded-md bg-muted" />
+          <div className="h-9 w-full rounded-lg bg-muted" />
+        </div>
+      ))}
+      <div className="h-9 w-36 rounded-lg bg-muted" />
+    </div>
+  );
+}
+
 export function GenerateForm() {
   const router = useRouter();
   const setGenerationInputs = useAppStore((s) => s.setGenerationInputs);
   const stored = useAppStore((s) => s.generationInputs);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [stepIndex, setStepIndex] = useState(0);
   const [productType, setProductType] = useState<ProductType>(
@@ -137,6 +160,10 @@ export function GenerateForm() {
   };
 
   const goBack = () => setStepIndex((i) => Math.max(i - 1, 0));
+
+  if (!mounted) {
+    return <FormSkeleton />;
+  }
 
   return (
     <div className="grid min-h-0 flex-1 grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-16">

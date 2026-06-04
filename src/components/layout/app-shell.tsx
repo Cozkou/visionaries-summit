@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SkyBackground } from "@/components/atmosphere/sky-background";
 
+/** Legacy shell — jacket showcase and other non-internal routes */
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen text-slate-900">
@@ -12,8 +13,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Pretty Fly Creative Director
           </Link>
           <nav className="flex gap-5 text-sm text-slate-600">
-            <Link href="/dashboard" className="transition-colors hover:text-slate-900">
-              Dashboard
+            <Link href="/internal" className="transition-colors hover:text-slate-900">
+              Internal
             </Link>
             <Link href="/generate" className="transition-colors hover:text-slate-900">
               Generate

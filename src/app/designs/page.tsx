@@ -10,7 +10,7 @@ export default function DesignsPage() {
         <div>
           <h1 className="text-sm font-medium text-neutral-900">Designs</h1>
           <p className="mt-1 text-[13px] text-neutral-500">
-            Generated concepts ready for review.
+            Concepts from the data pack — up to six per generation.
           </p>
         </div>
         <Link

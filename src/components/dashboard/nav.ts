@@ -6,6 +6,7 @@ export const DASHBOARD_NAV = [
   { href: "/dashboard/orders", label: "Past orders" },
   { href: "/dashboard/campaigns", label: "Email campaigns" },
   { href: "/dashboard/concepts", label: "Design concepts" },
+  { href: "/dashboard/china-market", label: "China market" },
 ] as const;
 
 export type DashboardNavItem = (typeof DASHBOARD_NAV)[number];

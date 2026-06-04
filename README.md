@@ -25,7 +25,7 @@ Open [http://localhost:3000](http://localhost:3000).
 |-------|---------|
 | `/` | Landing |
 | `/generate` | Generation inputs form |
-| `/designs` | Concept gallery (6 mock designs) |
+| `/designs` | Concept gallery (6 CSV-derived concepts) |
 | `/design/[id]` | Commercial analysis for a concept |
 
 ## Project structure
@@ -34,17 +34,14 @@ Open [http://localhost:3000](http://localhost:3000).
 src/
   app/              # Pages (App Router)
   components/       # UI and page sections
-  data/             # mockDesigns.ts, mockAnalysis.ts
-  services/api.ts   # API placeholders (swap for backend)
+  lib/data/         # sales-analytics.ts (Pretty Fly CSV pack)
+  services/api.ts   # Backend API client
   store/            # Zustand (generationInputs, selectedDesign, analysisData)
   types/            # Shared TypeScript types
 ```
 
-## Backend integration
+## Data
 
-Replace mock implementations in `src/services/api.ts`:
+All commercial metrics come from `hackathon_assets/pretty_fly_data_pack/data/*.csv`. Concepts use real bestseller SKUs; the pack has no product images.
 
-- `generateDesigns()` → POST generation endpoint
-- `getDesignAnalysis()` → GET analysis by design id
-
-Pages call these services only; no page structure changes required.
+See `docs/BACKEND.md` for API details.

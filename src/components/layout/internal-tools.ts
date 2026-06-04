@@ -3,7 +3,7 @@ export const INTERNAL_TOOLS = [
     href: "/dashboard",
     title: "Dashboard",
     description:
-      "Refunders, suppliers, support, orders, campaigns, concepts.",
+      "Control tower, inventory, marketing, support, China market, concepts.",
   },
   {
     href: "/generate",

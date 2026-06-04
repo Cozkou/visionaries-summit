@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 
-import type { Design } from "@/types";
 import { useAppStore } from "@/store/useAppStore";
+import type { Design } from "@/types";
 
 interface DesignCardProps {
   design: Design;
@@ -14,18 +14,27 @@ export function DesignCard({ design }: DesignCardProps) {
 
   return (
     <article className="border border-neutral-200 bg-white">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={design.imageUrl}
-        alt={design.name}
-        className="aspect-square w-full bg-neutral-100 object-cover"
-      />
+      {design.imageUrl ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={design.imageUrl}
+          alt={design.name}
+          className="aspect-square w-full bg-neutral-100 object-cover"
+        />
+      ) : (
+        <div className="flex aspect-square w-full items-center justify-center bg-neutral-100 px-4 text-center text-[12px] text-neutral-400">
+          No product image in data pack
+        </div>
+      )}
       <div className="space-y-2 px-4 py-3">
         <h2 className="text-sm font-medium text-neutral-900">{design.name}</h2>
         <p className="text-[13px] leading-snug text-neutral-500">{design.description}</p>
         <p className="text-[13px] text-neutral-600">
-          Retail £{design.retailPrice}
+          Retail £{design.retailPrice.toFixed(2)}
         </p>
+        {design.sourceProductId && (
+          <p className="font-mono text-[11px] text-neutral-400">{design.sourceProductId}</p>
+        )}
         <Link
           href={`/design/${design.id}`}
           onClick={() => setSelectedDesign(design)}

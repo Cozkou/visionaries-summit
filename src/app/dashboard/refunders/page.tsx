@@ -1,33 +1,44 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import { DashboardSection } from "@/components/dashboard/section-shell";
 import { internalPanelClass } from "@/components/layout/internal-tools";
-
-const MOCK_REFUNDERS = [
-  { id: "RF-1042", customer: "james.m@email.com", amount: "£48.00", reason: "Size exchange", status: "Pending" },
-  { id: "RF-1041", customer: "sarah.k@email.com", amount: "£72.00", reason: "Defective zip", status: "Approved" },
-  { id: "RF-1040", customer: "alex.p@email.com", amount: "£35.00", reason: "Changed mind", status: "Review" },
-];
+import { getControlTowerActions } from "@/services/api";
+import type { ControlTowerActionsResponse } from "@/services/api";
+import { formatGbp } from "@/lib/format-dashboard";
 
 export default function RefundersPage() {
+  const [data, setData] = useState<ControlTowerActionsResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getControlTowerActions()
+      .then(setData)
+      .catch(() => setError("Failed to load actions."));
+  }, []);
+
   return (
     <DashboardSection
       title="Refunders"
-      description="Track refund requests and resolution status across channels."
+      description="Operator actions from the control tower — reorder, spend, and support priorities."
     >
+      {error && <p className="text-[13px] text-red-600">{error}</p>}
       <ul className={internalPanelClass}>
-        {MOCK_REFUNDERS.map((r) => (
-          <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
-            <div>
-              <p className="font-medium text-neutral-900">{r.id}</p>
-              <p className="text-neutral-500">{r.customer}</p>
-            </div>
-            <p className="font-medium tabular-nums text-neutral-800">{r.amount}</p>
-            <p className="text-neutral-600">{r.reason}</p>
-            <span className="font-mono text-[11px] text-neutral-500">
-              {r.status}
-            </span>
+        {data?.actions.map((action) => (
+          <li key={action.title} className="px-4 py-3">
+            <p className="text-sm font-medium text-neutral-900">{action.title}</p>
+            <p className="mt-1 text-[13px] text-neutral-600">{action.detail}</p>
           </li>
         ))}
       </ul>
+      {data?.marketingReallocation && (
+        <p className="text-[13px] text-neutral-500">
+          Reallocate {formatGbp(data.marketingReallocation.shiftSpend)} from weak campaigns
+          — estimated {formatGbp(data.marketingReallocation.estimatedRevenueLift90d)} lift
+          over 90 days.
+        </p>
+      )}
     </DashboardSection>
   );
 }

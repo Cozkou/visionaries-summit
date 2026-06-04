@@ -1,28 +1,38 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import { DashboardSection } from "@/components/dashboard/section-shell";
 import { internalPanelClass } from "@/components/layout/internal-tools";
-
-const MOCK_ORDERS = [
-  { id: "ORD-8821", item: "Varsity jacket — brown", qty: 1, total: "£189", date: "Jun 1, 2026" },
-  { id: "ORD-8819", item: "Graphic tee — neutral", qty: 2, total: "£58", date: "May 30, 2026" },
-  { id: "ORD-8814", item: "Wide-leg jeans", qty: 1, total: "£95", date: "May 28, 2026" },
-];
+import { getInventoryRecommendations } from "@/services/api";
+import type { InventoryResponse } from "@/services/api";
+import { formatGbp } from "@/lib/format-dashboard";
 
 export default function PastOrdersPage() {
+  const [data, setData] = useState<InventoryResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getInventoryRecommendations({ limit: 15 })
+      .then(setData)
+      .catch(() => setError("Failed to load inventory rows."));
+  }, []);
+
   return (
     <DashboardSection
       title="Past orders"
-      description="Order history and line items for sales analysis."
+      description="Variant-level demand and inventory — sourced from control tower inventory API."
     >
+      {error && <p className="text-[13px] text-red-600">{error}</p>}
       <ul className={internalPanelClass}>
-        {MOCK_ORDERS.map((o) => (
-          <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
+        {data?.rows.map((o) => (
+          <li key={o.sku} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
             <div>
-              <p className="font-medium text-neutral-900">{o.id}</p>
-              <p className="text-neutral-600">{o.item}</p>
+              <p className="font-medium text-neutral-900">{o.title}</p>
+              <p className="font-mono text-[11px] text-neutral-500">{o.sku}</p>
             </div>
-            <p className="text-neutral-500">×{o.qty}</p>
-            <p className="font-medium tabular-nums text-neutral-800">{o.total}</p>
-            <p className="font-mono text-[11px] text-neutral-400">{o.date}</p>
+            <p className="text-neutral-500">{o.units_60d} units / 60d</p>
+            <p className="font-medium text-neutral-800">{formatGbp(o.potential_revenue_gbp)}</p>
           </li>
         ))}
       </ul>
