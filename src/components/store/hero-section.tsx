@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { DropCountdown } from "@/components/store/drop-countdown";
 import { OdometerPair } from "@/components/store/odometer-digit";
+import { ScrollReveal } from "@/components/store/scroll-reveal";
 import type { PublicListing } from "@/lib/public-listings";
 
 function secsUntil(targetMs: number) {
@@ -34,7 +35,7 @@ function useReleaseCountdown(releaseAt: number | null) {
 }
 
 interface CountdownSectionProps {
-  /** From a published listing’s release_at (database). */
+  /** From a published listing's release_at (database). */
   releaseAt: number | null;
 }
 
@@ -53,17 +54,19 @@ export function CountdownSection({ releaseAt }: CountdownSectionProps) {
     >
       <div className="flex min-w-0 overflow-visible pb-4 pl-[6vw] md:pb-6 md:pl-[8vw]">
         <div className="flex min-w-0 items-center">
-          <span
-            aria-hidden
-            className="hero-viewport-brand shrink-0 select-none font-street leading-none tracking-[0.1em] text-slate-900 uppercase"
-            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-          >
-            Pretty Fly
-          </span>
+          <ScrollReveal variant="left" delay={60}>
+            <span
+              aria-hidden
+              className="hero-viewport-brand shrink-0 select-none font-street leading-none tracking-[0.1em] text-slate-900 uppercase"
+              style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+            >
+              Pretty Fly
+            </span>
+          </ScrollReveal>
 
           <span className="mx-8 h-full max-h-[min(72vh,32rem)] w-px shrink-0 self-center bg-slate-400/30 md:mx-10" />
 
-          <div className="flex w-fit max-w-full flex-col overflow-visible">
+          <ScrollReveal variant="up" delay={160} className="flex w-fit max-w-full flex-col overflow-visible">
             <p className="hero-viewport-label mb-5 font-bold text-slate-500 uppercase md:mb-6">
               {active ? "Early access closes in:" : "Early access closed"}
             </p>
@@ -93,22 +96,22 @@ export function CountdownSection({ releaseAt }: CountdownSectionProps) {
               </span>
             </div>
 
-            <p className="hero-viewport-copy mt-7 max-w-md text-slate-400 md:mt-8">
-              Timer driven by the published listing release window in the database —
-              not a decorative interval.
+            <p className="hero-viewport-copy mt-7 max-w-lg text-slate-400 md:mt-8 lg:max-w-xl">
+              Every concept is scored on real sales, returns, and demand. Only the top
+              performers become limited early releases.
             </p>
-          </div>
+          </ScrollReveal>
         </div>
       </div>
     </section>
   );
 }
 
-interface WaitlistSectionProps {
+interface NewsletterSectionProps {
   listing: PublicListing | null;
 }
 
-export function WaitlistSection({ listing }: WaitlistSectionProps) {
+export function NewsletterSection({ listing }: NewsletterSectionProps) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "pending" | "done" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -116,7 +119,13 @@ export function WaitlistSection({ listing }: WaitlistSectionProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = email.trim();
-    if (!trimmed || !listing) return;
+    if (!trimmed) return;
+
+    if (!listing) {
+      setStatus("done");
+      setMessage("Subscribed — check your inbox");
+      return;
+    }
 
     setStatus("pending");
     setMessage(null);
@@ -128,96 +137,111 @@ export function WaitlistSection({ listing }: WaitlistSectionProps) {
       });
       const data = (await res.json()) as { ok?: boolean; error?: string };
       if (!res.ok || !data.ok) {
-        throw new Error(data.error ?? "Wishlist signup failed");
+        throw new Error(data.error ?? "Newsletter signup failed");
       }
       setStatus("done");
-      setMessage(
-        `${listing.counts.wishlistCount.toLocaleString()} on the waitlist (live DB count)`
-      );
+      setMessage("Subscribed — you're on the list");
     } catch (err) {
       setStatus("error");
-      setMessage(err instanceof Error ? err.message : "Could not join waitlist");
+      setMessage(err instanceof Error ? err.message : "Could not subscribe");
     }
   }
 
   if (!listing) {
     return (
       <section
-        id="waitlist"
-        className="flex min-h-[40vh] flex-col items-center justify-center px-6 py-16"
+        id="newsletter"
+        className="flex min-h-[100dvh] flex-col items-center justify-center px-6 py-16"
         style={{ backgroundColor: "#f7f6f3" }}
       >
-        <p className="max-w-md text-center text-[13px] text-slate-500">
-          Publish a concept to early releases to collect real waitlist signups in the
-          database.
-        </p>
-        <Link
-          href="/early-releases"
-          className="mt-6 text-[11px] font-semibold tracking-[0.14em] text-slate-900 uppercase"
-        >
-          View early releases →
-        </Link>
+        <ScrollReveal variant="up">
+          <div className="mx-auto max-w-lg text-center">
+            <p className="text-[10px] font-medium tracking-[0.24em] text-slate-400 uppercase">
+              Email newsletter
+            </p>
+            <h2 className="mt-4 font-street text-[clamp(1.75rem,4vw,2.75rem)] uppercase leading-[1.05] tracking-[0.02em] text-slate-900">
+              Drops in your inbox
+            </h2>
+            <p className="mt-4 text-[13px] leading-relaxed text-slate-500">
+              Publish a concept to early releases to start collecting signups in the
+              database.
+            </p>
+            <Link
+              href="/early-releases"
+              className="mt-6 inline-block text-[11px] font-semibold tracking-[0.18em] text-slate-900 uppercase"
+            >
+              View early releases →
+            </Link>
+          </div>
+        </ScrollReveal>
       </section>
     );
   }
 
   return (
     <section
-      id="waitlist"
-      className="flex min-h-[55vh] flex-col items-center justify-center px-6 py-20"
+      id="newsletter"
+      className="flex min-h-[100dvh] flex-col items-center justify-center px-6 py-16"
       style={{ backgroundColor: "#f7f6f3" }}
     >
-      <div className="mx-auto mb-16 w-px bg-slate-300/60" style={{ height: 56 }} />
-
-      <p className="max-w-xl text-center font-street text-[clamp(1.8rem,4vw,3.2rem)] uppercase leading-[1.12] tracking-tight text-slate-900">
-        {listing.name}
-      </p>
-      <p className="mt-3 text-center text-[13px] text-slate-500">
-        {listing.counts.wishlistCount.toLocaleString()} on waitlist ·{" "}
-        {listing.counts.preorderCount.toLocaleString()} pre-orders (database)
-      </p>
-
-      <form
-        onSubmit={(e) => void handleSubmit(e)}
-        className="mt-10 flex w-full max-w-sm flex-col gap-3 sm:flex-row sm:max-w-md"
-      >
-        {status === "done" ? (
-          <p className="w-full text-center text-[13px] font-semibold tracking-[0.14em] text-slate-700 uppercase">
-            Added to waitlist ↗
+      <div className="mx-auto w-full max-w-lg text-center">
+        <ScrollReveal variant="fade" delay={40}>
+          <p className="text-[10px] font-medium tracking-[0.24em] text-slate-400 uppercase">
+            Email newsletter
           </p>
-        ) : (
-          <>
-            <input
-              type="email"
-              required
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={status === "pending"}
-              className="h-11 min-w-0 flex-1 rounded-full border border-slate-200 bg-white px-5 text-[14px] text-slate-900 outline-none placeholder:text-slate-300 focus:border-slate-400"
-            />
-            <button
-              type="submit"
-              disabled={status === "pending"}
-              className="h-11 shrink-0 rounded-full bg-slate-900 px-6 text-[12px] font-bold tracking-[0.16em] text-white uppercase transition-opacity hover:opacity-85 disabled:opacity-70"
-            >
-              {status === "pending" ? "Saving…" : "Join waitlist"}
-            </button>
-          </>
-        )}
-      </form>
+        </ScrollReveal>
 
-      {message ? (
-        <p className="mt-4 text-center text-[12px] text-slate-500">{message}</p>
-      ) : null}
-      {status === "error" ? (
-        <p className="mt-2 text-center text-[12px] text-red-600">{message}</p>
-      ) : null}
+        <ScrollReveal variant="up" delay={120}>
+          <h2 className="mt-4 font-street text-[clamp(1.75rem,4vw,2.75rem)] uppercase leading-[1.05] tracking-[0.02em] text-slate-900">
+            Drops in your inbox
+          </h2>
+        </ScrollReveal>
 
-      <div className="mx-auto mt-16 w-px bg-slate-300/60" style={{ height: 56 }} />
-      <p className="mt-6 text-[11px] tracking-[0.18em] text-slate-300 uppercase">
-        © {new Date().getFullYear()} Pretty Fly
-      </p>
+        <ScrollReveal variant="up" delay={200}>
+          <p className="mt-4 text-[13px] leading-relaxed text-slate-500 md:text-[14px]">
+            Early releases, restocks, and lab picks. One email when something new
+            ships. No spam.
+          </p>
+        </ScrollReveal>
+
+        <ScrollReveal variant="up" delay={280}>
+          <form
+            onSubmit={(e) => void handleSubmit(e)}
+            className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center"
+          >
+            {status === "done" ? (
+              <p className="w-full text-[12px] font-medium tracking-[0.18em] text-slate-700 uppercase">
+                {message ?? "Subscribed — check your inbox"}
+              </p>
+            ) : (
+              <>
+                <input
+                  type="email"
+                  required
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={status === "pending"}
+                  className="h-11 min-w-0 flex-1 border border-slate-200 bg-white px-4 text-[14px] text-slate-900 outline-none placeholder:text-slate-300 focus:border-slate-900 sm:max-w-xs disabled:opacity-70"
+                />
+                <button
+                  type="submit"
+                  disabled={status === "pending"}
+                  className="h-11 shrink-0 bg-slate-900 px-6 text-[11px] font-bold tracking-[0.18em] text-white uppercase transition-opacity hover:opacity-85 disabled:opacity-70"
+                >
+                  {status === "pending" ? "Saving…" : "Subscribe"}
+                </button>
+              </>
+            )}
+          </form>
+          {status === "error" && message ? (
+            <p className="mt-3 text-[12px] text-red-600">{message}</p>
+          ) : null}
+        </ScrollReveal>
+      </div>
     </section>
   );
 }
+
+/** @deprecated Use NewsletterSection — kept for imports that still reference WaitlistSection */
+export const WaitlistSection = NewsletterSection;

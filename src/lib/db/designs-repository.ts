@@ -168,3 +168,22 @@ export async function listStoredDesigns(limit = 100): Promise<Design[]> {
     .all(limit) as DesignRow[];
   return rows.map((row) => rowToStored(row).design);
 }
+
+export async function updateDesignImageUrl(
+  id: string,
+  imageUrl: string
+): Promise<boolean> {
+  assertDatabaseConfigured();
+  if (getAppStorage() === "postgres") {
+    await ensurePostgresSchema();
+    const rows = await getSql()`
+      UPDATE designs SET image_url = ${imageUrl} WHERE id = ${id} RETURNING id
+    `;
+    return rows.length > 0;
+  }
+
+  const result = getDb()
+    .prepare(`UPDATE designs SET image_url = ? WHERE id = ?`)
+    .run(imageUrl, id);
+  return result.changes > 0;
+}

@@ -3,6 +3,7 @@ import {
   CommerceConfigError,
   CommerceRequestError,
 } from "@/lib/commerce/types";
+import { ensureConceptImage } from "@/lib/concept-image";
 import { getStoredDesign } from "@/lib/db/designs-repository";
 import {
   ConceptListing,
@@ -32,7 +33,10 @@ export async function publishDesign(
     return { ok: true, listing: existing, reused: true };
   }
 
-  const imageUrl = stored.design.imageUrl?.trim() || "";
+  let imageUrl = stored.design.imageUrl?.trim() || "";
+  if (!imageUrl) {
+    imageUrl = (await ensureConceptImage(designId)) ?? "";
+  }
 
   if (!isCommerceConfigured()) {
     const slug = existing?.slug ?? (await generateUniqueSlug(stored.design.name));

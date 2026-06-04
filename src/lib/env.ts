@@ -23,3 +23,28 @@ export function getLlmTextModel(): string {
 export function isLlmConfigured(): boolean {
   return Boolean(getDeepSeekApiKey());
 }
+
+/** OpenAI (or compatible) key used for concept product imagery. */
+export function getImageApiKey(): string | undefined {
+  return (
+    process.env.OPENAI_API_KEY?.trim() ||
+    process.env.IMAGE_API_KEY?.trim() ||
+    undefined
+  );
+}
+
+export function getImageApiBaseUrl(): string {
+  return (
+    process.env.IMAGE_API_BASE_URL?.trim() ||
+    process.env.OPENAI_BASE_URL?.trim() ||
+    "https://api.openai.com/v1"
+  );
+}
+
+export function getImageModel(): string {
+  return process.env.IMAGE_MODEL?.trim() || "dall-e-3";
+}
+
+export function isImageGenerationConfigured(): boolean {
+  return Boolean(getImageApiKey());
+}

@@ -2,7 +2,8 @@ import fs from "fs";
 import path from "path";
 
 import { generateConceptsWithAi } from "@/lib/ai/generate-concepts";
-import { saveDesigns } from "@/lib/db/designs-repository";
+import { ensureConceptImagesForDesigns } from "@/lib/concept-image";
+import { getDesignById, saveDesigns } from "@/lib/db/designs-repository";
 import type { Design, GenerationInputs } from "@/types";
 
 const REQUIRED_CSV_FILES = [
@@ -41,5 +42,8 @@ export async function runDesignGeneration(
     );
   }
   await saveDesigns(designs, inputs);
-  return designs;
+  await ensureConceptImagesForDesigns(designs.map((d) => d.id));
+
+  const refreshed = await Promise.all(designs.map((d) => getDesignById(d.id)));
+  return refreshed.map((d, i) => d ?? designs[i]!);
 }

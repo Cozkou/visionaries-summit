@@ -23,7 +23,7 @@ export interface Design {
   id: string;
   name: string;
   description: string;
-  /** Empty — the hackathon data pack has no product imagery. */
+  /** Public path under /generated/ after internal generation (or empty before). */
   imageUrl: string;
   retailPrice: number;
   /** Historical SKU this concept is derived from (products.csv). */
