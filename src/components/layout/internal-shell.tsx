@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import { InternalHeader } from "./internal-header";
+import { InternalStaffSignIn } from "./internal-staff-sign-in";
 
 export function InternalShell({
   children,
@@ -22,6 +23,7 @@ export function InternalShell({
       )}
     >
       <InternalHeader />
+      <InternalStaffSignIn />
       <div
         className={cn(
           "mx-auto flex w-full max-w-7xl flex-col",

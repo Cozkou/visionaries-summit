@@ -7,10 +7,19 @@ import { DesignCard } from "@/components/design-card";
 import { listSavedDesigns } from "@/services/api";
 import type { Design } from "@/types";
 
-export function DesignsGallery() {
-  const [designs, setDesigns] = useState<Design[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface DesignsGalleryProps {
+  /** Loaded on the server for internal pages (no browser auth required). */
+  initialDesigns?: Design[];
+  initialError?: string | null;
+}
+
+export function DesignsGallery({
+  initialDesigns,
+  initialError = null,
+}: DesignsGalleryProps) {
+  const [designs, setDesigns] = useState<Design[]>(initialDesigns ?? []);
+  const [loading, setLoading] = useState(initialDesigns === undefined);
+  const [error, setError] = useState<string | null>(initialError);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -18,24 +27,50 @@ export function DesignsGallery() {
     try {
       const results = await listSavedDesigns(100);
       setDesigns(results);
-    } catch {
+    } catch (err) {
       setDesigns([]);
-      setError("Failed to load saved concepts. Check you are signed in.");
+      const message =
+        err instanceof Error ? err.message : "Failed to load saved concepts";
+      setError(
+        message.includes("Unauthorized") || message.includes("401")
+          ? "Staff sign-in required — use the banner above and enter your operator password."
+          : message
+      );
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    if (initialDesigns !== undefined) return;
     load();
-  }, [load]);
+  }, [initialDesigns, load]);
+
+  useEffect(() => {
+    const onAuth = () => {
+      if (initialDesigns !== undefined) void load();
+    };
+    window.addEventListener("pf-staff-auth", onAuth);
+    return () => window.removeEventListener("pf-staff-auth", onAuth);
+  }, [initialDesigns, load]);
 
   if (loading) {
     return <p className="text-[13px] text-neutral-500">Loading saved concepts…</p>;
   }
 
   if (error) {
-    return <p className="text-sm text-destructive">{error}</p>;
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-destructive">{error}</p>
+        <button
+          type="button"
+          onClick={() => void load()}
+          className="text-[12px] font-medium text-neutral-600 underline hover:text-neutral-900"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   if (designs.length === 0) {

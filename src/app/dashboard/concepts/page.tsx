@@ -2,8 +2,13 @@ import Link from "next/link";
 
 import { DesignsGallery } from "@/components/designs-gallery";
 import { DashboardSection } from "@/components/dashboard/section-shell";
+import { loadSavedDesignsForStaff } from "@/lib/internal/load-saved-designs";
 
-export default function DesignConceptsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function DesignConceptsPage() {
+  const { designs, error } = await loadSavedDesignsForStaff(100);
+
   return (
     <DashboardSection
       title="Design concepts"
@@ -17,7 +22,7 @@ export default function DesignConceptsPage() {
           new generation →
         </Link>
       </div>
-      <DesignsGallery />
+      <DesignsGallery initialDesigns={designs} initialError={error} />
     </DashboardSection>
   );
 }

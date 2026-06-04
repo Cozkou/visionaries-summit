@@ -2,8 +2,13 @@ import Link from "next/link";
 
 import { DesignsGallery } from "@/components/designs-gallery";
 import { InternalShell } from "@/components/layout/internal-shell";
+import { loadSavedDesignsForStaff } from "@/lib/internal/load-saved-designs";
 
-export default function DesignsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function DesignsPage() {
+  const { designs, error } = await loadSavedDesignsForStaff(100);
+
   return (
     <InternalShell>
       <div className="mb-6 flex justify-end">
@@ -14,7 +19,7 @@ export default function DesignsPage() {
           New generation
         </Link>
       </div>
-      <DesignsGallery />
+      <DesignsGallery initialDesigns={designs} initialError={error} />
     </InternalShell>
   );
 }
