@@ -417,6 +417,34 @@
   margin-top: 0.35rem;
 }
 
+@media (max-width: 767px) {
+  .countdown-odometer {
+    font-size: clamp(3.25rem, 17vw, 5rem);
+  }
+
+  .countdown-colon {
+    font-size: clamp(1.75rem, 7vw, 2.75rem);
+  }
+
+  .hero-viewport-label {
+    font-size: clamp(0.7rem, 2.8vw, 0.9rem);
+    letter-spacing: 0.14em;
+  }
+
+  .hero-viewport-sublabel {
+    font-size: clamp(0.65rem, 2.5vw, 0.8rem);
+    letter-spacing: 0.16em;
+  }
+
+  .hero-viewport-copy {
+    font-size: clamp(0.875rem, 3.5vw, 1rem);
+  }
+
+  .hero-viewport-units {
+    gap: clamp(2.25rem, 13vw, 3.75rem);
+  }
+}
+
 /* Odometer: one digit visible; strip is out of flow so layout stays one line */
 .odometer-pair {
   display: inline-flex;

@@ -169,6 +169,46 @@ export async function listStoredDesigns(limit = 100): Promise<Design[]> {
   return rows.map((row) => rowToStored(row).design);
 }
 
+/** Latest non-empty concept image keyed by source_product_id for catalog reuse. */
+export async function getLatestDesignImagesBySourceProductId(
+  limit = 500
+): Promise<Map<string, string>> {
+  assertDatabaseConfigured();
+
+  let rows: DesignRow[];
+  if (getAppStorage() === "postgres") {
+    await ensurePostgresSchema();
+    rows = (await getSql()`
+      SELECT * FROM designs
+      WHERE source_product_id IS NOT NULL
+        AND image_url IS NOT NULL
+        AND image_url <> ''
+      ORDER BY created_at DESC
+      LIMIT ${limit}
+    `) as unknown as DesignRow[];
+  } else {
+    rows = getDb()
+      .prepare(
+        `SELECT * FROM designs
+         WHERE source_product_id IS NOT NULL
+           AND image_url IS NOT NULL
+           AND image_url <> ''
+         ORDER BY created_at DESC
+         LIMIT ?`
+      )
+      .all(limit) as DesignRow[];
+  }
+
+  const byProductId = new Map<string, string>();
+  for (const row of rows) {
+    const productId = row.source_product_id?.trim();
+    const imageUrl = row.image_url?.trim();
+    if (!productId || !imageUrl || byProductId.has(productId)) continue;
+    byProductId.set(productId, imageUrl);
+  }
+  return byProductId;
+}
+
 export async function updateDesignImageUrl(
   id: string,
   imageUrl: string

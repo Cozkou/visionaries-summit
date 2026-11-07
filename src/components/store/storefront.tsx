@@ -13,7 +13,7 @@ interface StorefrontProps {
 /** Home scroll: 1 hero → 2 release timer → 3 latest drop → 4 newsletter → footer */
 export function Storefront({ latestPublished }: StorefrontProps) {
   return (
-    <div className="text-slate-900">
+    <div className="overflow-x-hidden text-slate-900">
       <SplitHero />
       <CountdownSection />
       <DropsViewportSection listing={latestPublished} />

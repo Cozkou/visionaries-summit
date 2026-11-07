@@ -15,6 +15,7 @@ export type CatalogProduct = {
   category: ProductCategory;
   productType: string;
   collection: string;
+  imageUrl?: string;
   price: number;
   unitsSold: number;
   revenueGbp: number;

@@ -34,12 +34,12 @@ export function CountdownSection() {
   return (
     <section
       id="drop-countdown"
-      className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden"
+      className="relative flex min-h-[100dvh] flex-col justify-end overflow-x-hidden"
       style={{ backgroundColor: "#f7f6f3" }}
     >
-      <div className="flex min-w-0 overflow-visible pb-10 pl-[6vw] pr-[4vw] md:pb-14 md:pl-[8vw] md:pr-[6vw] lg:pb-20">
-        <div className="flex min-w-0 items-end gap-10 md:gap-14 lg:gap-20">
-          <ScrollReveal variant="left" delay={60}>
+      <div className="flex min-w-0 overflow-x-hidden pb-10 px-6 md:pb-14 md:pl-[8vw] md:pr-[6vw] lg:pb-20">
+        <div className="flex min-w-0 w-full flex-col gap-8 md:flex-row md:items-end md:gap-14 lg:gap-20">
+          <ScrollReveal variant="left" delay={60} className="hidden shrink-0 md:block">
             <span
               aria-hidden
               className="hero-viewport-brand shrink-0 select-none font-street leading-none tracking-[0.1em] text-slate-900 uppercase"
@@ -51,14 +51,17 @@ export function CountdownSection() {
 
           <span
             aria-hidden
-            className="h-[min(65vh,28rem)] w-px shrink-0 self-end bg-slate-400/30"
+            className="hidden h-[min(65vh,28rem)] w-px shrink-0 self-end bg-slate-400/30 md:block"
           />
 
           <ScrollReveal
             variant="up"
             delay={160}
-            className="ml-6 flex w-fit max-w-full flex-col gap-8 overflow-visible md:ml-10 md:gap-10 lg:ml-14 lg:gap-12"
+            className="flex min-w-0 w-full max-w-full flex-col gap-6 overflow-hidden md:ml-10 md:w-fit md:gap-10 lg:ml-14 lg:gap-12"
           >
+            <p className="font-street text-[clamp(1.75rem,8vw,2.5rem)] uppercase leading-none tracking-[0.06em] text-slate-900 md:hidden">
+              Pretty Fly
+            </p>
             <p className="hero-viewport-label font-bold text-slate-500 uppercase">
               {active ? "Early access closes in:" : "Early access closed"}
             </p>

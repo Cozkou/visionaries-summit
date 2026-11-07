@@ -1,4 +1,5 @@
 import { getProductSalesStat, readDataCsv } from "@/lib/data/sales-analytics";
+import { getLatestDesignImagesBySourceProductId } from "@/lib/db/designs-repository";
 import type { CatalogProduct, ProductCategory } from "@/lib/store/catalog-types";
 
 export type { CatalogProduct, ProductCategory } from "@/lib/store/catalog-types";
@@ -37,9 +38,10 @@ function variantListPrices(): Map<string, number> {
   return prices;
 }
 
-export function getStoreCatalog(limit = 48): CatalogProduct[] {
+export async function getStoreCatalog(limit = 48): Promise<CatalogProduct[]> {
   const inventory = aggregateInventory();
   const listPrices = variantListPrices();
+  const imageByProductId = await getLatestDesignImagesBySourceProductId();
   const products: CatalogProduct[] = [];
 
   for (const row of readDataCsv("products.csv")) {
@@ -60,6 +62,7 @@ export function getStoreCatalog(limit = 48): CatalogProduct[] {
       category: catalogCategory(productType),
       productType,
       collection,
+      imageUrl: imageByProductId.get(productId),
       price,
       unitsSold,
       revenueGbp,
@@ -79,8 +82,8 @@ export function getStoreCatalog(limit = 48): CatalogProduct[] {
     .slice(0, limit);
 }
 
-export function getFeaturedEarlyRelease(): CatalogProduct | null {
-  const catalog = getStoreCatalog(200);
+export async function getFeaturedEarlyRelease(): Promise<CatalogProduct | null> {
+  const catalog = await getStoreCatalog(200);
   const negativeSelling = catalog.filter((p) => p.inventory < 0 && p.unitsSold > 0);
   if (negativeSelling.length > 0) {
     return negativeSelling.sort((a, b) => b.revenueGbp - a.revenueGbp)[0];

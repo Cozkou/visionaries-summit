@@ -75,14 +75,14 @@ export function ControlTowerView() {
     .slice(0, 6);
 
   return (
-    <div className="space-y-10">
+    <div className="min-w-0 space-y-8 overflow-x-hidden sm:space-y-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <h1 className="text-2xl font-semibold">{data.brand}</h1>
-          <p className="text-sm text-muted-foreground">{data.subtitle}</p>
-          <p className="max-w-2xl text-lg font-medium">{data.hero.headline}</p>
-          <p className="max-w-2xl text-sm text-muted-foreground">{data.hero.body}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="break-words text-sm text-muted-foreground">{data.subtitle}</p>
+          <p className="break-words text-lg font-medium">{data.hero.headline}</p>
+          <p className="break-words text-sm text-muted-foreground">{data.hero.body}</p>
+          <p className="break-words text-xs text-muted-foreground">
             Snapshot: {data.snapshotDate} · figures from hackathon CSV pack
           </p>
         </div>
@@ -121,28 +121,28 @@ export function ControlTowerView() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-medium">Paid media triage (May 2026)</h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="break-words text-sm text-muted-foreground">
           MER {data.marketing.summary.mer.toFixed(2)}x · spend{" "}
           {formatGbp(data.marketing.summary.spend)} · reallocation lift est.{" "}
           {formatGbp(data.marketing.summary.estimatedRevenueLift90d)} / 90d
         </p>
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
+        <div className="-mx-1 overflow-x-auto rounded-lg border sm:mx-0">
+          <table className="w-full min-w-[28rem] text-sm">
             <thead>
               <tr className="border-b bg-muted/50 text-left">
-                <th className="px-4 py-2 font-medium">Campaign</th>
-                <th className="px-4 py-2 font-medium">ROAS</th>
-                <th className="px-4 py-2 font-medium">Spend</th>
-                <th className="px-4 py-2 font-medium">Action</th>
+                <th className="px-3 py-2 font-medium sm:px-4">Campaign</th>
+                <th className="px-3 py-2 font-medium sm:px-4">ROAS</th>
+                <th className="px-3 py-2 font-medium sm:px-4">Spend</th>
+                <th className="px-3 py-2 font-medium sm:px-4">Action</th>
               </tr>
             </thead>
             <tbody>
               {topMarketing.map((row) => (
                 <tr key={row.campaign} className="border-b last:border-0">
-                  <td className="px-4 py-2">{row.campaign}</td>
-                  <td className="px-4 py-2">{row.roas.toFixed(2)}x</td>
-                  <td className="px-4 py-2">{formatGbp(row.spend)}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-3 py-2 sm:px-4">{row.campaign}</td>
+                  <td className="px-3 py-2 sm:px-4">{row.roas.toFixed(2)}x</td>
+                  <td className="px-3 py-2 sm:px-4">{formatGbp(row.spend)}</td>
+                  <td className="px-3 py-2 sm:px-4">
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${actionStyles[row.action]}`}
                     >
@@ -158,35 +158,35 @@ export function ControlTowerView() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-medium">Reorder priority (variant level)</h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="break-words text-sm text-muted-foreground">
           {data.inventory.summary.negativeVariants} variants negative · top-six
           reorder {formatGbp(data.inventory.summary.topSixReorderCost)} →{" "}
           {formatGbp(data.inventory.summary.topSixGrossProfit)} gross profit
         </p>
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
+        <div className="-mx-1 overflow-x-auto rounded-lg border sm:mx-0">
+          <table className="w-full min-w-[28rem] text-sm">
             <thead>
               <tr className="border-b bg-muted/50 text-left">
-                <th className="px-4 py-2 font-medium">SKU</th>
-                <th className="px-4 py-2 font-medium">Stock</th>
-                <th className="px-4 py-2 font-medium">PO units</th>
-                <th className="px-4 py-2 font-medium">Gross profit</th>
+                <th className="px-3 py-2 font-medium sm:px-4">SKU</th>
+                <th className="px-3 py-2 font-medium sm:px-4">Stock</th>
+                <th className="px-3 py-2 font-medium sm:px-4">PO units</th>
+                <th className="px-3 py-2 font-medium sm:px-4">Gross profit</th>
               </tr>
             </thead>
             <tbody>
               {data.inventory.rows.slice(0, 6).map((row) => (
                 <tr key={row.sku} className="border-b last:border-0">
-                  <td className="px-4 py-2">
+                  <td className="px-3 py-2 sm:px-4">
                     <div className="font-medium">{row.title}</div>
                     <div className="font-mono text-xs text-muted-foreground">
                       {row.sku}
                     </div>
                   </td>
-                  <td className="px-4 py-2 text-red-600 dark:text-red-400">
+                  <td className="px-3 py-2 text-red-600 dark:text-red-400 sm:px-4">
                     {row.inventory_quantity}
                   </td>
-                  <td className="px-4 py-2">{row.recommended_po_units}</td>
-                  <td className="px-4 py-2">{formatGbp(row.gross_profit_gbp)}</td>
+                  <td className="px-3 py-2 sm:px-4">{row.recommended_po_units}</td>
+                  <td className="px-3 py-2 sm:px-4">{formatGbp(row.gross_profit_gbp)}</td>
                 </tr>
               ))}
             </tbody>
@@ -206,23 +206,23 @@ export function ControlTowerView() {
             </Card>
           ))}
         </div>
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
+        <div className="-mx-1 overflow-x-auto rounded-lg border sm:mx-0">
+          <table className="w-full min-w-[24rem] text-sm">
             <thead>
               <tr className="border-b bg-muted/50 text-left">
-                <th className="px-4 py-2 font-medium">Category</th>
-                <th className="px-4 py-2 font-medium">Human share</th>
-                <th className="px-4 py-2 font-medium">Hours saved @ +25% bot</th>
+                <th className="px-3 py-2 font-medium sm:px-4">Category</th>
+                <th className="px-3 py-2 font-medium sm:px-4">Human share</th>
+                <th className="px-3 py-2 font-medium sm:px-4">Hours saved @ +25% bot</th>
               </tr>
             </thead>
             <tbody>
               {data.support.rows.slice(0, 5).map((row) => (
                 <tr key={row.category} className="border-b last:border-0">
-                  <td className="px-4 py-2">{row.category.replace(/_/g, " ")}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-3 py-2 sm:px-4">{row.category.replace(/_/g, " ")}</td>
+                  <td className="px-3 py-2 sm:px-4">
                     {(row.humanShare * 100).toFixed(0)}%
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-3 py-2 sm:px-4">
                     {row.hoursSavedAt25Pct.toFixed(0)} hrs
                   </td>
                 </tr>

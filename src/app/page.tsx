@@ -7,7 +7,7 @@ import { getFeaturedEarlyRelease } from "@/lib/store/catalog";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const featured = getFeaturedEarlyRelease();
+  const featured = await getFeaturedEarlyRelease();
   let latestPublished = null;
   try {
     latestPublished = await getLatestPublicListing();
